@@ -1,38 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import LedControls from "./components/LedControls";
+import LedControls from "./components/ledControls";
 
 export default function Home() {
-  const ESP32_IP = "10.0.0.117";
-
   const [pin16State, setPin16State] = useState<string>("off");
   const [pin17State, setPin17State] = useState<string>("off");
   const [pin18State, setPin18State] = useState<string>("off");
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    checkConnection();
-    const interval = setInterval(checkConnection, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkConnection = async () => {
-    try {
-      const response = await fetch(`http://${ESP32_IP}/status`, {
-        mode: "no-cors",
-      });
-      setConnected(true);
-      setError("");
-    } catch (err) {
-      setConnected(false);
-      setError(
-        "Cannot connect to ESP32. Make sure you're on the same network."
-      );
-    }
-  };
 
   const controlLED = async (pin: number, state: string) => {
     setLoading(true);
@@ -60,12 +37,25 @@ export default function Home() {
     }
   };
 
+  const addPort = async (address: string) => {
+    const response = await fetch("/api/ports", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ address: address }),
+    });
+
+    const result = await response.json();
+    console.log("Saved device:", result);
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-zinc-950">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-16 px-8 bg-white dark:bg-black sm:items-start">
         {/* Main Content */}
         <div className="flex w-full flex-col items-center gap-8 text-center sm:items-start sm:text-left">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-black dark:text-zinc-50">
+          <h1 className="text-4xl font-bold text-black">
             ESP32 LED Controller
           </h1>
 

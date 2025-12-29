@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface ControlsProps {
   title: string;
   pin: number;
@@ -23,15 +21,7 @@ export default function LedControls(props: ControlsProps) {
           <span className="text-sm text-zinc-600 dark:text-zinc-400">
             Status:
           </span>
-          <span
-            className={`text-sm font-bold uppercase ${
-              props.state === "on"
-                ? "text-green-600 dark:text-green-400"
-                : "text-zinc-400"
-            }`}
-          >
-            {props.state}
-          </span>
+
         </div>
 
         <div className="flex gap-2">
