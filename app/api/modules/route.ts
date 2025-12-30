@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/app/lib/db';
-import { ModuleDetails } from '@/types';
 
 export async function GET() {
   try {

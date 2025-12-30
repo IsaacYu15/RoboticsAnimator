@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LedControls from "./components/ledControls";
 
 export default function Home() {
@@ -10,6 +10,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState("");
+  const ESP32_IP = "10.0.0.117";
 
   const controlLED = async (pin: number, state: string) => {
     setLoading(true);

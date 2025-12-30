@@ -3,12 +3,14 @@ import { useState } from "react";
 
 export default function useModules() {
   const [modules, setModules] = useState<ModuleDetails[]>();
-
+  
   const fetchModules = async () => {
     const response = await fetch("/api/modules");
     const data = await response.json();
 
     setModules(data as ModuleDetails[]);
+    
+    return data as ModuleDetails[];
   };
 
   const updateModule = async (details: ModuleDetails) => {

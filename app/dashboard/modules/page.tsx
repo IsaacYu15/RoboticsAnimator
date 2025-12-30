@@ -11,15 +11,15 @@ export default function Page() {
   const { modules, fetchModules, addModule } = useModules();
   const [moduleModalActive, setModuleModalActive] = useState<boolean>(false);
 
-  useEffect(() => {
-    fetchModules();
-  }, [fetchModules]);
-
   const exitModule = () => {
     setModuleModalActive(false);
     fetchModules();
   };
 
+  useEffect(() => {
+    fetchModules();
+  }, []);
+  
   return (
     <div className="flex flex-col gap-5">
       <button
@@ -52,6 +52,7 @@ export default function Page() {
               name={module.name}
               address={module.address}
               mode={FormAction.UPDATE}
+              onRefresh={fetchModules}
             ></ModuleManager>
           );
         })}

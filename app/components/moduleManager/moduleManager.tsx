@@ -9,15 +9,18 @@ import useModules from "@/app/hooks/useModules";
 
 interface ModuleManagerProps extends ModuleDetails {
   mode: FormAction;
+  onRefresh: ()=>void;
 }
 
 export default function ModuleManager(props: ModuleManagerProps) {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [moduleModalActive, setModuleModalActive] = useState<boolean>(false);
-  const { fetchModules, updateModule, addModule } = useModules();
+  const { updateModule, addModule } = useModules();
 
-  const checkModuleConnection = async (address: string) => {
+  const checkModuleConnection = async (address: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    
     if (isLoading) return;
 
     setIsLoading(true);
@@ -46,14 +49,16 @@ export default function ModuleManager(props: ModuleManagerProps) {
     return ()=>{};
   };
 
-  const exitModule = () => {
+  const exitModule = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setModuleModalActive(false);
-    fetchModules();
+    
+    props.onRefresh();
   };
 
   useEffect(() => {
     checkModuleConnection(props.address);
-  }, [props.address]);
+  }, [props.address, moduleModalActive]);
 
   return (
     <div
@@ -88,7 +93,7 @@ export default function ModuleManager(props: ModuleManagerProps) {
           <div />
         </div>
         <button
-          onClick={() => checkModuleConnection(props.address)}
+          onClick={(e) => checkModuleConnection(props.address, e)}
           className={` ${isLoading ? "animate-spin" : ""} `}
         >
           <HiOutlineRefresh></HiOutlineRefresh>
