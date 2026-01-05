@@ -3,13 +3,13 @@ import { useState } from "react";
 
 export default function useModules() {
   const [modules, setModules] = useState<ModuleDetails[]>();
-  
+
   const fetchModules = async () => {
     const response = await fetch("/api/modules");
     const data = await response.json();
 
     setModules(data as ModuleDetails[]);
-    
+
     return data as ModuleDetails[];
   };
 
@@ -28,7 +28,7 @@ export default function useModules() {
 
     console.log(response, details.name);
   };
-  
+
   const addModule = async (details: ModuleDetails) => {
     const response = await fetch("/api/modules", {
       method: "POST",
@@ -45,5 +45,19 @@ export default function useModules() {
     console.log(response, details.name);
   };
 
-  return { modules, fetchModules, updateModule, addModule};
+  const deleteModule = async (id: number) => {
+    const response = await fetch("/api/modules", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+      }),
+    });
+
+    console.log(response, id);
+  };
+
+  return { modules, fetchModules, updateModule, addModule, deleteModule };
 }
