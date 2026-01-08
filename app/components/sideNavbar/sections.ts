@@ -4,9 +4,9 @@ export interface NavSection {
 }
 
 const sections: NavSection[] = [
-  { name: 'Home', href: '/dashboard' },
-  { name: 'Modules', href: '/dashboard/modules' },
-  { name: 'Animations', href: '/dashboard/animations'}
+  { name: "Home", href: "/dashboard" },
+  { name: "Modules", href: "/dashboard/modules" },
+  { name: "Layout", href: "/dashboard/layout" },
 ];
 
 export default sections;
