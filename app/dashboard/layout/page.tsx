@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { tryParseInt } from "@/app/services/parse";
 import useComponents from "@/app/hooks/useComponents";
 import { ComponentDetails } from "@/types";
-import ComponentTile from "@/app/components/components/componentTile";
+import ComponentTile from "@/app/components/layout/componentTile";
 
 export default function Page() {
   const [gridX, setGridX] = useState<number>(0);
@@ -35,7 +35,7 @@ export default function Page() {
     });
 
     setComponentsGrid(tempComponentsGrid);
-  }, [gridX, gridY]);
+  }, [gridX, gridY, components]);
 
   return (
     <div className="h-full w-full flex flex-col items-center">
@@ -83,6 +83,7 @@ export default function Page() {
                 pin={isNull ? 0 : details.pin}
                 x={i}
                 y={j}
+                onRefresh={fetchComponents}
               />
             );
           })
