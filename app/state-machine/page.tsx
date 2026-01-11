@@ -8,7 +8,7 @@ import Arrow from "./arrow";
 import useStateManager from "../hooks/useStatesManager";
 import useTransitionsManager from "../hooks/useTransitionsManager";
 import DragResizer from "../components/dragHandlers/dragResizer";
-import { HORIZ_DRAGGABLE_SECTIONS } from "../constants/ui";
+import { HORIZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers";
 import { tryParseInt } from "../services/parse";
 
 export default function Page() {
