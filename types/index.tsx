@@ -15,7 +15,7 @@ export interface ComponentDetails {
 export interface StateDetails {
   id: number;
   name: string;
-  animation_id: number;
+  animation_id: number | null;
   x: number;
   y: number;
 }
@@ -35,9 +35,18 @@ export const emptyComponentDetails: ComponentDetails = {
   y: 0,
 };
 
+export interface Animation {
+  id: number;
+  name: string;
+  duration_s: number;
+  loop: boolean;
+}
+
 export interface AnimationEvent {
-  module_id: number;
-  delay: number;
+  id: number;
+  animation_id: number;
+  component_id: number;
+  trigger_time: number;
   action: string;
 }
 
