@@ -1,17 +1,17 @@
 "use client";
 
 import { Direction, StateDetails, TransitionDetails } from "@/types";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { HiCodeBracketSquare, HiFilm } from "react-icons/hi2";
-import State from "./state";
-import Arrow from "./arrow";
+import { HORZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers";
+import DragResizer from "../components/dragHandlers/dragResizer";
+import useAnimations from "../hooks/useAnimations";
 import useStateManager from "../hooks/useStatesManager";
 import useTransitionsManager from "../hooks/useTransitionsManager";
-import DragResizer from "../components/dragHandlers/dragResizer";
-import { HORIZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers";
 import { tryParseInt } from "../services/parse";
-import useAnimations from "../hooks/useAnimations";
-import { useRouter } from "next/navigation";
+import Arrow from "./arrow";
+import State from "./state";
 
 export default function Page() {
   const {
@@ -134,7 +134,7 @@ export default function Page() {
     <div className="w-screen h-screen bg-gray-50 relative bg-[radial-gradient(#D3D3D3_1px,transparent_0)] bg-[length:20px_20px]">
       {selectedState && statesMap && (
         <DragResizer
-          minDim={HORIZ_DRAGGABLE_SECTIONS}
+          minDim={HORZ_DRAGGABLE_SECTIONS}
           direction={Direction.RIGHT}
         >
           <div className="bg-white h-screen p-5 flex flex-col justify-between border-l border-slate-200 shadow-xl">

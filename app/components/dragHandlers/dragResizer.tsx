@@ -26,12 +26,14 @@ export default function DragResizer(props: DragResizerProps) {
           newDim = Math.max(window.innerWidth - e.clientX, props.minDim);
           break;
         case Direction.UP:
-          newDim = Math.max(e.clientY, props.minDim);
-          break;
-        case Direction.DOWN:
           newDim = Math.max(window.innerHeight - e.clientY, props.minDim);
           break;
+        case Direction.DOWN:
+          newDim = Math.max(e.clientY, props.minDim);
+          break;
       }
+
+      console.log(newDim);
 
       setDim(newDim);
     };
@@ -56,8 +58,8 @@ export default function DragResizer(props: DragResizerProps) {
       className={`fixed z-50
         ${props.direction === Direction.LEFT ? "left-0 top-0 h-full" : ""}
         ${props.direction === Direction.RIGHT ? "right-0 top-0 h-full" : ""}
-        ${props.direction === Direction.UP ? "top-0 left-0 w-full" : ""}
-        ${props.direction === Direction.DOWN ? "bottom-0 left-0 w-full" : ""}
+        ${props.direction === Direction.UP ? "bottom-0 left-0 w-full" : ""}
+        ${props.direction === Direction.DOWN ? "top-0 left-0 w-full" : ""}
       `}
       style={{
         width: isHorizontal ? dim : "100%",
@@ -79,8 +81,8 @@ export default function DragResizer(props: DragResizerProps) {
           }
           ${props.direction === Direction.LEFT ? "right-1" : ""}
           ${props.direction === Direction.RIGHT ? "left-1" : ""}
-          ${props.direction === Direction.UP ? "bottom-1" : ""}
-          ${props.direction === Direction.DOWN ? "top-1" : ""}
+          ${props.direction === Direction.UP ? "top-1" : ""}
+          ${props.direction === Direction.DOWN ? "bottom-1" : ""}
         `}
       />
 
