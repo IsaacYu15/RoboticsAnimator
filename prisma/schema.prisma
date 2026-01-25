@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model animation_events {
+  id           Int        @id(map: "animation_event_pkey") @default(autoincrement())
+  animation_id Int
+  component_id Int
+  trigger_time Decimal    @db.Decimal
+  action       String     @db.VarChar(255)
+  animations   animations @relation(fields: [animation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_animation_id")
+  components   components @relation(fields: [component_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_component_id")
+}
+
+model animations {
+  id               Int                @id(map: "animation_pkey") @default(autoincrement())
+  name             String             @db.VarChar(255)
+  duration_s       Decimal?           @db.Decimal
+  loop             Boolean?
+  animation_events animation_events[]
+  states           states[]
+}
+
+model components {
+  id               Int                @id @default(autoincrement())
+  type             String?            @db.VarChar(255)
+  pin              Int?
+  x                Int?
+  y                Int?
+  animation_events animation_events[]
+}
+
+model modules {
+  id      Int     @id(map: "ports_pkey") @default(autoincrement())
+  address String  @db.VarChar(255)
+  name    String? @db.VarChar(255)
+}
+
+model states {
+  id                                      Int           @id @default(autoincrement())
+  name                                    String        @db.VarChar(255)
+  animation_id                            Int?
+  x                                       Int?
+  y                                       Int?
+  animations                              animations?   @relation(fields: [animation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_animation_id")
+  transitions_transitions_from_idTostates transitions[] @relation("transitions_from_idTostates")
+  transitions_transitions_to_idTostates   transitions[] @relation("transitions_to_idTostates")
+}
+
+model transitions {
+  id                                 Int     @id @default(autoincrement())
+  from_id                            Int
+  to_id                              Int
+  condition                          String? @db.VarChar(255)
+  states_transitions_from_idTostates states  @relation("transitions_from_idTostates", fields: [from_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  states_transitions_to_idTostates   states  @relation("transitions_to_idTostates", fields: [to_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
