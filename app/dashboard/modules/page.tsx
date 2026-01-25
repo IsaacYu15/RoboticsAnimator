@@ -1,61 +1,25 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import useModules from "../../hooks/useModules";
-
+import { getModules } from "@actions/modules";
+import { FormAction } from "@/shared-types";
 import ModuleManager from "./moduleManager";
-import ModuleModal from "./moduleModal";
-import { FormAction, ModuleDetails } from "@/types";
+import AddModuleButton from "./addModuleButton";
 
-export default function Page() {
-  const { modules, fetchModules, addModule } = useModules();
-  const [moduleModalActive, setModuleModalActive] = useState<boolean>(false);
-
-  const exitModule = () => {
-    setModuleModalActive(false);
-    fetchModules();
-  };
-
-  useEffect(() => {
-    fetchModules();
-  }, []);
+export default async function Page() {
+  const modules = await getModules();
 
   return (
-    <div className="flex flex-col gap-5">
-      <button
-        onClick={() => {
-          setModuleModalActive(true);
-        }}
-        className="bg-slate-900 text-white p-2 w-fit rounded-2xl"
-      >
-        Add Modules
-      </button>
-
-      {moduleModalActive && (
-        <ModuleModal
-          onSubmit={addModule}
-          exitModule={exitModule}
-          details={{
-            id: 0,
-            name: "n/a",
-            address: "n/a",
-          }}
-        ></ModuleModal>
-      )}
+    <div className="flex flex-col gap-5 p-10">
+      <AddModuleButton />
 
       <div className="grid grid-cols-3 gap-5">
-        {modules?.map((module: ModuleDetails) => {
-          return (
-            <ModuleManager
-              key={module.id}
-              id={module.id}
-              name={module.name}
-              address={module.address}
-              mode={FormAction.UPDATE}
-              onRefresh={fetchModules}
-            ></ModuleManager>
-          );
-        })}
+        {modules?.map((module) => (
+          <ModuleManager
+            key={module.id}
+            id={module.id}
+            name={module.name ?? "N/A"}
+            address={module.address}
+            mode={FormAction.UPDATE}
+          />
+        ))}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import useComponents from "@/app/hooks/useComponents";
 import { tryParseInt } from "@/app/services/parse";
-import { ComponentDetails } from "@/types";
+import { ComponentDetails } from "@shared-types";
 import { useEffect, useState } from "react";
 import { HiX } from "react-icons/hi";
 

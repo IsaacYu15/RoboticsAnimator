@@ -1,58 +1,58 @@
-import { StateDetails } from "@/types";
+"use client";
+
+import { State } from "@/shared-types";
+import { updateState } from "@actions/states";
 import DragMover from "../components/dragHandlers/dragMover";
-import useStateManager from "../hooks/useStatesManager";
 import { useRef } from "react";
 
-export interface StateProps extends StateDetails {
-  onRefresh: () => void;
+export interface StateProps extends State {
   onTransitionClick: (id: number) => void;
   onClick: (id: number) => void;
+  isSelected?: boolean;
 }
 
-export default function State(props: StateProps) {
+export default function StateNode(props: StateProps) {
   const dragRef = useRef<HTMLDivElement>(null);
-  const { updateStates } = useStateManager();
 
-  const handleSaveState = async () => {
+  const handleSavePosition = async () => {
     if (!dragRef?.current) return;
 
     const rect = dragRef.current.getBoundingClientRect();
 
-    await updateStates({
-      id: props.id,
-      animation_id: props.animation_id,
-      name: props.name,
-      x: rect.left,
-      y: rect.top,
+    await updateState(props.id, {
+      x: Math.round(rect.left),
+      y: Math.round(rect.top),
     });
-
-    await props.onRefresh();
   };
 
   return (
-    <DragMover x={props.x} y={props.y} savePosition={handleSaveState}>
+    <DragMover
+      x={props.x ?? 0}
+      y={props.y ?? 0}
+      savePosition={handleSavePosition}
+    >
       <div
-        className="relative flex flex-row"
-        onClick={() => {
-          props.onClick(props.id);
-        }}
+        className="relative flex flex-row group"
+        onClick={() => props.onClick(props.id)}
       >
         <button
-          className="relative group w-5 h-auto"
-          onClick={() => {
+          className="relative w-5 h-auto"
+          onClick={(e) => {
+            e.stopPropagation();
             props.onTransitionClick(props.id);
           }}
-          onMouseDown={(e) => {
-            e?.stopPropagation();
-          }}
+          onMouseDown={(e) => e.stopPropagation()}
         >
-          <div className="hidden group-hover:block bg-blue-300 rounded-full w-3 aspect-square absolute top-3 right-1/2 translate-x-1/2"></div>
+          <div className="hidden group-hover:block bg-blue-400 rounded-full w-3 h-3 absolute top-3 right-0 translate-x-1/2 shadow-sm border border-white"></div>
         </button>
+
         <div
           ref={dragRef}
-          className=" bg-white border-2 border-solid border-gray-500 rounded-2xl py-1 px-5"
+          className={`bg-white border-2 border-solid rounded-2xl py-1 px-5 transition-colors ${
+            props.isSelected ? "border-blue-500 shadow-md" : "border-gray-500"
+          }`}
         >
-          <h1>{props.name}</h1>
+          <h1 className="font-medium text-slate-800">{props.name}</h1>
         </div>
       </div>
     </DragMover>

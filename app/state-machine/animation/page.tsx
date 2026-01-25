@@ -2,7 +2,7 @@
 
 import { VERT_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers";
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
-import { Direction } from "@/types";
+import { Direction } from "@/shared-types";
 import { useSearchParams } from "next/navigation";
 
 export default function AnimationPage() {

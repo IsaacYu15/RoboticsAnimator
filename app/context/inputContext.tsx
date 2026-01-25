@@ -1,6 +1,6 @@
 "use client";
 
-import { Point } from "@/types";
+import { Point } from "@/shared-types";
 import React, {
   createContext,
   RefObject,

@@ -1,4 +1,4 @@
-import { Point } from "@/types";
+import { Point } from "@/shared-types";
 
 export interface ArrowProps {
   from: Point;

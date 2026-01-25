@@ -18,8 +18,12 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@lib/*": ["app/lib/*"],
+      "@actions/*": ["app/actions/*"],
+      "@shared-types": ["shared-types/index.ts"]
     }
   },
   "include": [

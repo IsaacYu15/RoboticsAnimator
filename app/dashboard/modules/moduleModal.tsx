@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-import { ModuleDetails } from "@/types";
+import { Module } from "@/shared-types";
 import { HiX } from "react-icons/hi";
 
 interface ModuleModalProps {
-  onSubmit: (module: ModuleDetails) => void;
+  onSubmit: (module: Module) => void;
   exitModule: () => void;
-  details: ModuleDetails;
+  details: Module;
 }
 
 export default function ModuleModal(props: ModuleModalProps) {
@@ -35,14 +35,16 @@ export default function ModuleModal(props: ModuleModalProps) {
   return (
     <div className="absolute top-0 left-0 w-screen h-screen bg-black/50 flex flex-col items-center justify-center z-50">
       <div className="bg-slate-100 rounded-2xl p-4 relative">
-        <button className="absolute right-3" onClick={props.exitModule}><HiX></HiX></button>
+        <button className="absolute right-3" onClick={props.exitModule}>
+          <HiX></HiX>
+        </button>
         <form onSubmit={handleSave}>
           <div className="mb-5">
             <label className="block mb-2.5 text-sm font-medium text-heading">
               Module Name
             </label>
             <input
-              value={name}
+              value={name ?? "N/A"}
               onChange={(e) => setName(e.target.value)}
               className="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base block w-full px-3 py-2.5"
               required

@@ -1,6 +1,6 @@
 "use client";
 
-import { ComponentDetails } from "@/types";
+import { ComponentDetails } from "@shared-types";
 import { useState } from "react";
 import { ComponentModal } from "./componentModal";
 

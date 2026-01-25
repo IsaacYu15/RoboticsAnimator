@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { Direction } from "@/types";
+import { Direction } from "@/shared-types";
 
 export interface DragResizerProps {
   minDim: number;

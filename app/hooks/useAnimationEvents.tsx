@@ -1,4 +1,4 @@
-import { AnimationEvent } from "@/types";
+import { AnimationEvent } from "@/shared-types";
 import { useState } from "react";
 
 export default function useAnimationEvents() {
