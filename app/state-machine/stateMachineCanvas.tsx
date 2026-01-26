@@ -12,6 +12,7 @@ import DragResizer from "../components/dragHandlers/dragResizer";
 import { HORZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers";
 import StateComponent from "./state";
 import Arrow from "./arrow";
+import { ANIMATION_ROUTE } from "../constants";
 
 interface CanvasProps {
   initialStates: State[];
@@ -118,23 +119,31 @@ export default function StateMachineCanvas({
                   className="border p-2 w-full rounded-lg"
                 />
               </div>
+              <a
+                className="bg-slate-900 text-white p-3 rounded-xl hover:bg-black transition-colors"
+                href={`${ANIMATION_ROUTE}/${editAnimId}`}
+              >
+                Edit Animation
+              </a>
+            </form>
+
+            <div className="flex flex-row gap-1 h-auto">
               <button
                 type="submit"
                 className="bg-slate-900 text-white p-3 rounded-xl hover:bg-black transition-colors"
               >
                 Save Changes
               </button>
-            </form>
-
-            <button
-              className="mt-4 bg-red-50 text-red-600 p-3 rounded-xl font-medium"
-              onClick={() => {
-                deleteState(selectedStateId);
-                setSelectedStateId(null);
-              }}
-            >
-              Delete State
-            </button>
+              <button
+                className="bg-red-50 text-red-600 p-3 rounded-xl font-medium"
+                onClick={() => {
+                  deleteState(selectedStateId);
+                  setSelectedStateId(null);
+                }}
+              >
+                Delete State
+              </button>
+            </div>
           </div>
         </DragResizer>
       )}

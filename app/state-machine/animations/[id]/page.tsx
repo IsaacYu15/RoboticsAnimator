@@ -1,13 +1,13 @@
-"use client";
-
 import { VERT_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers";
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
 import { Direction } from "@/shared-types";
-import { useSearchParams } from "next/navigation";
 
-export default function AnimationPage() {
-  const searchParams = useSearchParams();
-  const animationId = searchParams.get("id");
+export default async function AnimationPage({
+  params,
+}: {
+  params: Promise<{ animationId: string }>;
+}) {
+  const { animationId } = await params;
 
   return (
     <div className="w-screen h-screen flex flex-col justify-start items-center p-10 bg-gray-50">
