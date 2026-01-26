@@ -3,11 +3,8 @@ import { getTransitions } from "@actions/transitions";
 import StateMachineCanvas from "./stateMachineCanvas";
 
 export default async function Page() {
-  // Fetch everything on the server
-  const [initialStates, initialTransitions] = await Promise.all([
-    getStates(),
-    getTransitions(),
-  ]);
+  const initialStates = await getStates();
+  const initialTransitions = await getTransitions();
 
   return (
     <StateMachineCanvas

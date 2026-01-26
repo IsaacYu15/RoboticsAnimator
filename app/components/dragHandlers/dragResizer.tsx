@@ -7,6 +7,7 @@ export interface DragResizerProps {
   minDim: number;
   direction: Direction;
   children: ReactNode;
+  isNested?: boolean;
 }
 
 export default function DragResizer(props: DragResizerProps) {
@@ -33,8 +34,6 @@ export default function DragResizer(props: DragResizerProps) {
           break;
       }
 
-      console.log(newDim);
-
       setDim(newDim);
     };
 
@@ -55,7 +54,8 @@ export default function DragResizer(props: DragResizerProps) {
 
   return (
     <div
-      className={`fixed z-50
+      className={`z-50
+        ${props.isNested ? "relative" : "fixed"}
         ${props.direction === Direction.LEFT ? "left-0 top-0 h-full" : ""}
         ${props.direction === Direction.RIGHT ? "right-0 top-0 h-full" : ""}
         ${props.direction === Direction.UP ? "bottom-0 left-0 w-full" : ""}

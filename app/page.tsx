@@ -15,7 +15,6 @@ export default function Home() {
   const controlLED = async (pin: number, state: string) => {
     setLoading(true);
     setError("");
-    console.log("yes");
     try {
       const response = await fetch(`http://${ESP32_IP}/${pin}/${state}`, {
         mode: "no-cors",

@@ -32,6 +32,7 @@ model components {
   pin              Int?
   x                Int?
   y                Int?
+  name             String?            @db.VarChar(255)
   animation_events animation_events[]
 }
 

@@ -4,6 +4,7 @@ import { prisma } from "@/app/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
   Component,
+  ComponentWithAnimation,
   CreateComponentInput,
   UpdateComponentInput,
   WhereComponentInput,
@@ -16,6 +17,21 @@ export async function getComponents(
     return await prisma.components.findMany({
       where: filter,
       orderBy: { id: "asc" },
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    return [];
+  }
+}
+
+export async function getComponentsWithAnimations(
+  filter?: WhereComponentInput,
+): Promise<ComponentWithAnimation[]> {
+  try {
+    return await prisma.components.findMany({
+      where: filter,
+      orderBy: { id: "asc" },
+      include: { animation_events: true },
     });
   } catch (error) {
     console.error("Database error:", error);
