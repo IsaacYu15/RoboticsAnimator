@@ -2,7 +2,7 @@
 
 import { prisma } from "@lib/prisma";
 import { revalidatePath } from "next/cache";
-import { CreateTransitionInput, Transition } from "@/shared-types";
+import { CreateTransitionInputUnchecked, Transition } from "@/shared-types";
 
 export async function getTransitions(): Promise<Transition[]> {
   try {
@@ -15,8 +15,15 @@ export async function getTransitions(): Promise<Transition[]> {
   }
 }
 
-export async function createTransition(data: CreateTransitionInput) {
+export async function createTransition(data: CreateTransitionInputUnchecked) {
   try {
+    if (data.from_id === data.to_id) {
+      return {
+        success: false,
+        error: "Source and target states cannot be the same",
+      };
+    }
+
     const newTransition = await prisma.transitions.create({ data });
     revalidatePath("/state-machine");
 

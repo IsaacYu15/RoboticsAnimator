@@ -25,17 +25,12 @@ export default function StateMachineCanvas({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // UI State
   const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
   const [fromId, setFromId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editAnimId, setEditAnimId] = useState<number | null>(null);
 
-  // Computed Map for Arrow rendering
   const statesMap = new Map(initialStates.map((s) => [s.id, s]));
-  const selectedStateData = selectedStateId
-    ? statesMap.get(selectedStateId)
-    : null;
 
   const handleCreateState = () => {
     startTransition(async () => {
@@ -71,11 +66,13 @@ export default function StateMachineCanvas({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStateId) return;
+    if (!selectedStateId || !editAnimId) return;
 
     await updateState(selectedStateId, {
       name: editName,
-      animation_id: editAnimId,
+      animations: {
+        connect: { id: editAnimId },
+      },
     });
   };
 
@@ -83,13 +80,11 @@ export default function StateMachineCanvas({
     if (!fromId) {
       setFromId(toId);
     } else {
-      if (fromId !== toId) {
-        await createTransition({
-          from_id: fromId,
-          to_id: toId,
-          condition: "",
-        });
-      }
+      await createTransition({
+        from_id: fromId,
+        to_id: toId,
+        condition: "",
+      });
       setFromId(null);
     }
   };
