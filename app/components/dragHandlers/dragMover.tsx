@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useRef, useState, useEffect } from "react";
+import { ReactNode, useRef, useState } from "react";
 
 export interface DragMoverProps {
   children: ReactNode;
