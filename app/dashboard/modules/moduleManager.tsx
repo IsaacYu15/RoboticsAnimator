@@ -2,7 +2,7 @@
 
 import { FormAction, Module } from "@/shared-types";
 import { HiOutlineRefresh, HiOutlineTrash } from "react-icons/hi";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import {
   deleteModule,
   updateModule,
@@ -21,24 +21,25 @@ export default function ModuleManager(props: ModuleManagerProps) {
   const [moduleModalActive, setModuleModalActive] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
 
-  const checkModuleConnection = async (
-    address: string,
-    e?: React.MouseEvent,
-  ) => {
-    e?.stopPropagation();
-    if (isCheckingStatus) return;
-    setIsCheckingStatus(true);
-    try {
-      const response = await fetch(`http://${address}/status`, {
-        signal: AbortSignal.timeout(3000),
-      });
-      setIsConnected(response.ok);
-    } catch (err) {
-      setIsConnected(false);
-    } finally {
-      setIsCheckingStatus(false);
-    }
-  };
+  const checkModuleConnection = useCallback(
+    async (address: string, e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      if (isCheckingStatus) return;
+      setIsCheckingStatus(true);
+      try {
+        const response = await fetch(`http://${address}/status`, {
+          signal: AbortSignal.timeout(3000),
+        });
+        setIsConnected(response.ok);
+      } catch (error) {
+        setIsConnected(false);
+        console.log(`Error occured connection to module: ${error}`);
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    },
+    [isCheckingStatus],
+  );
 
   const submitModal = async (module: Module) => {
     if (props.mode === FormAction.UPDATE) {
@@ -61,7 +62,7 @@ export default function ModuleManager(props: ModuleManagerProps) {
 
   useEffect(() => {
     checkModuleConnection(props.address);
-  }, [props.address]);
+  }, [props.address, checkModuleConnection]);
 
   return (
     <>

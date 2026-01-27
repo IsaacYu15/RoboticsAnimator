@@ -1,20 +1,19 @@
-import { useFrame, useThree } from "@react-three/fiber";
-import { Raycaster, Vector3 } from "three";
-import { CAMERA_MOVE_SPEED, CAMERA_LOOK_SPEED } from "./constants";
-import { useRef } from "react";
-import { useInputContext } from "@/app/context/inputContext";
 import {
   KEY_A,
   KEY_D,
   KEY_S,
   KEY_SPACE,
   KEY_W,
-  LEFT_MOUSE_BUTTON,
   RIGHT_MOUSE_BUTTON,
 } from "@/app/constants/inputs";
+import { useInputContext } from "@/app/context/inputContext";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useRef } from "react";
+import { Vector3 } from "three";
+import { CAMERA_LOOK_SPEED, CAMERA_MOVE_SPEED } from "./constants";
 
 export default function Movement() {
-  const { scene, camera } = useThree();
+  const { camera } = useThree();
   const mouseLastPos = useRef({ x: 0, y: 0 });
   const { inputs, mousePos } = useInputContext();
 

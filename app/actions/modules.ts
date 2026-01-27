@@ -14,7 +14,7 @@ export async function createModule(data: CreateModuleInput) {
     revalidatePath("/modules");
     return { success: true, data: result };
   } catch (e) {
-    return { success: false, error: "Failed to create" };
+    return { success: false, error: `Failed to create module ${e}` };
   }
 }
 
@@ -27,7 +27,7 @@ export async function updateModule(id: number, data: UpdateModuleInput) {
     revalidatePath("/modules");
     return { success: true, data: result };
   } catch (e) {
-    return { success: false, error: "Failed to update" };
+    return { success: false, error: `Failed to update ${e}` };
   }
 }
 
@@ -37,6 +37,6 @@ export async function deleteModule(id: number) {
     revalidatePath("/modules");
     return { success: true };
   } catch (e) {
-    return { success: false, error: "Failed to delete" };
+    return { success: false, error: `Failed to delete ${e}` };
   }
 }
