@@ -1,5 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { Vector3 } from "three";
+import { Raycaster, Vector3 } from "three";
 import { CAMERA_MOVE_SPEED, CAMERA_LOOK_SPEED } from "./constants";
 import { useRef } from "react";
 import { useInputContext } from "@/app/context/inputContext";
@@ -9,11 +9,12 @@ import {
   KEY_S,
   KEY_SPACE,
   KEY_W,
+  LEFT_MOUSE_BUTTON,
   RIGHT_MOUSE_BUTTON,
 } from "@/app/constants/inputs";
 
 export default function Movement() {
-  const { camera } = useThree();
+  const { scene, camera } = useThree();
   const mouseLastPos = useRef({ x: 0, y: 0 });
   const { inputs, mousePos } = useInputContext();
 
@@ -43,7 +44,7 @@ export default function Movement() {
 
     camera.position.addScaledVector(
       moveVector.normalize(),
-      delta * CAMERA_MOVE_SPEED
+      delta * CAMERA_MOVE_SPEED,
     );
 
     //looking
@@ -53,7 +54,7 @@ export default function Movement() {
 
       camera.rotateOnWorldAxis(
         new Vector3(0, 1, 0),
-        -delta * CAMERA_LOOK_SPEED * xDir
+        -delta * CAMERA_LOOK_SPEED * xDir,
       );
       camera.rotateX(-yDir * CAMERA_LOOK_SPEED * delta);
     }

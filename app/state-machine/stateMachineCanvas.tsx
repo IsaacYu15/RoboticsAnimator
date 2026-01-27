@@ -97,7 +97,7 @@ export default function StateMachineCanvas({
       {selectedStateId && (
         <DragResizer
           minDim={HORZ_DRAGGABLE_SECTIONS}
-          direction={Direction.RIGHT}
+          dragDirection={Direction.LEFT}
         >
           <div className="bg-white h-screen p-5 flex flex-col justify-between border-l border-slate-200 shadow-xl">
             <form onSubmit={handleSave} className="flex flex-col">

@@ -7,6 +7,7 @@ import DragResizer from "@/app/components/dragHandlers/dragResizer";
 import { ComponentWithAnimation, Direction } from "@/shared-types";
 import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
+import LayoutScene from "@/app/components/layoutScene/layoutScene";
 
 export default async function AnimationPage({
   params,
@@ -24,11 +25,16 @@ export default async function AnimationPage({
         <h1 className="text-2xl font-bold">Editing Animation: {animationId}</h1>
       </div>
 
-      <DragResizer minDim={VERT_DRAGGABLE_SECTIONS} direction={Direction.UP}>
+      <LayoutScene components={components}></LayoutScene>
+
+      <DragResizer
+        minDim={VERT_DRAGGABLE_SECTIONS}
+        dragDirection={Direction.UP}
+      >
         <div className="bg-slate-800 h-full w-full flex flex-row gap-2 pt-5">
           <DragResizer
             minDim={HORZ_DRAGGABLE_SECTIONS}
-            direction={Direction.LEFT}
+            dragDirection={Direction.RIGHT}
             isNested={true}
           >
             <div className="h-5"></div>
