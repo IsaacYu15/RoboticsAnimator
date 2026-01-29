@@ -119,12 +119,14 @@ export default function StateMachineCanvas({
                   className="border p-2 w-full rounded-lg"
                 />
               </div>
-              <a
-                className="bg-slate-900 text-white p-3 rounded-xl hover:bg-black transition-colors"
-                href={`${ANIMATION_ROUTE}/${editAnimId}`}
-              >
-                Edit Animation
-              </a>
+              {editAnimId && (
+                <a
+                  className="bg-slate-900 text-white p-3 rounded-xl hover:bg-black transition-colors"
+                  href={`${ANIMATION_ROUTE}/${editAnimId}`}
+                >
+                  Edit Animation
+                </a>
+              )}
             </form>
 
             <div className="flex flex-row gap-1 h-auto">
