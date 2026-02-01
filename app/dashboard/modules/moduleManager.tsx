@@ -24,8 +24,8 @@ export default function ModuleManager(props: ModuleManagerProps) {
   const checkModuleConnection = useCallback(
     async (address: string, e?: React.MouseEvent) => {
       e?.stopPropagation();
-      if (isCheckingStatus) return;
       setIsCheckingStatus(true);
+
       try {
         const response = await fetch(`http://${address}/status`, {
           signal: AbortSignal.timeout(3000),
@@ -38,7 +38,7 @@ export default function ModuleManager(props: ModuleManagerProps) {
         setIsCheckingStatus(false);
       }
     },
-    [isCheckingStatus],
+    [],
   );
 
   const submitModal = async (module: Module) => {

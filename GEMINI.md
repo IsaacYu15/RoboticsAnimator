@@ -5,6 +5,7 @@
 This is a Next.js web application for controlling and animating an LED matrix. The project is built with React, TypeScript, and Tailwind CSS. It communicates with an ESP32 microcontroller to control LEDs and a PostgreSQL database to store animations, states, and transitions.
 
 The application has three main parts:
+
 - A dashboard for managing modules.
 - A state machine editor for creating and managing animations.
 - A direct LED controller for interacting with the ESP32.
@@ -73,6 +74,6 @@ npm run lint
 
 The API routes are located in the `app/api` directory. They are used to interact with the PostgreSQL database.
 
-### State Management
+### Rules
 
-The application uses React hooks and context for state management. The `app/hooks` directory contains custom hooks for managing animations, components, modules, states, and transitions.
+- Do not use libraries that have not been installed
