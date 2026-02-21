@@ -4,6 +4,7 @@ export * from "./animations";
 export * from "./states";
 export * from "./animation-event";
 export * from "./components";
+export * from "./object-types";
 
 export type Point = {
   x: number;
