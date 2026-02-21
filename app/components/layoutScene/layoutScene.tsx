@@ -27,6 +27,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
       x: selectedObject.position.x,
       y: selectedObject.position.y,
       z: selectedObject.position.z,
+      rot_x: selectedObject.rotation.x,
+      rot_y: selectedObject.rotation.y,
+      rot_z: selectedObject.rotation.z,
     });
   };
 
@@ -37,10 +40,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
           minDim={VERT_DRAGGABLE_SECTIONS}
           dragDirection={Direction.RIGHT}
         >
-          <List
-            title="Some animation"
-            components={props.components}
-          ></List>
+          <List title="Some animation" components={props.components}></List>
         </DragResizer>
       </div>
 

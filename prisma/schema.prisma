@@ -34,6 +34,9 @@ model components {
   y                Float
   name             String?            @db.VarChar(255)
   z                Float
+  rot_x               Float              @default(0)
+  rot_y               Float              @default(0)
+  rot_z               Float              @default(0)
   animation_events animation_events[]
 }
 

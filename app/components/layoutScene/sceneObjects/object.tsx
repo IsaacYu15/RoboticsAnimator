@@ -46,6 +46,11 @@ export default function Object(props: ObjectProps) {
         Number(props.component.y),
         Number(props.component.z),
       ]}
+      rotation={[
+        Number(props.component.rot_x),
+        Number(props.component.rot_y),
+        Number(props.component.rot_z),
+      ]}
     >
       <mesh onClick={handleClick}>
         <boxGeometry args={[0.5, 0.5, 0.8]} />
