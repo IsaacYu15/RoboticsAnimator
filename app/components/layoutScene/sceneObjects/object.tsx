@@ -1,12 +1,12 @@
 import { Component } from "@/shared-types";
 import { Object3D } from "three";
 
-export interface ComponentObjectProps {
+export interface ObjectProps {
   component: Component;
   onSelect: (object: Object3D) => void;
 }
 
-export default function componentObject(props: ComponentObjectProps) {
+export default function Object(props: ObjectProps) {
   return (
     <mesh
       userData={{ data: props.component }}

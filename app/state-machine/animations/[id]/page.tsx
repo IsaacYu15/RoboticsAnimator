@@ -46,10 +46,6 @@ export default function AnimationPage({
 
   return (
     <div className="w-screen h-screen flex flex-col justify-start items-center p-10 bg-gray-50">
-      <div className="w-full flex flex-row justify-start">
-        <h1 className="text-2xl font-bold">Editing Animation: {id}</h1>
-      </div>
-
       <LayoutScene components={components}></LayoutScene>
 
       <DragResizer

@@ -5,11 +5,11 @@ import { tryParseInt } from "@/app/services/parse";
 import { Component as ComponentData } from "@/shared-types";
 import { useEffect, useState } from "react";
 
-export interface EditComponentPanelProps {
+export interface PanelProps {
   component: ComponentData;
 }
 
-export function EditComponentPanel(props: EditComponentPanelProps) {
+export function Panel(props: PanelProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [type, setType] = useState<string | null>(null);
   const [pin, setPin] = useState<number | null>(null);
