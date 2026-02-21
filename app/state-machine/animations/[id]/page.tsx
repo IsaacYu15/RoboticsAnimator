@@ -11,7 +11,7 @@ import { ComponentWithAnimation, Direction } from "@/shared-types";
 import { use, useEffect, useState } from "react";
 import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
-import { sendAnimation } from "@/app/services/animationService";
+import { sendAnimation } from "@/app/services/servoController";
 import { getModules } from "@/app/actions/modules";
 
 export default function AnimationPage({
@@ -98,15 +98,17 @@ export default function AnimationPage({
                 ))}
               </div>
               <div className="h-full w-full flex flex-col justify-start">
-                {components.map((component: ComponentWithAnimation) => (
-                  <ComponentTimeline
-                    key={component.id}
-                    component={component}
-                    animationId={component.animation_events[0].animation_id}
-                    animations={component.animation_events}
-                    refresh={refreshComponents}
-                  />
-                ))}
+                {components.map((component: ComponentWithAnimation) =>
+                  component.animation_events.length > 0 ? (
+                    <ComponentTimeline
+                      key={component.id}
+                      component={component}
+                      animationId={component.animation_events[0].animation_id}
+                      animations={component.animation_events}
+                      refresh={refreshComponents}
+                    />
+                  ) : null,
+                )}
               </div>
             </div>
           </div>

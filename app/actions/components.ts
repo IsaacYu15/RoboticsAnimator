@@ -31,7 +31,11 @@ export async function getComponentsWithAnimations(
     return await prisma.components.findMany({
       where: filter,
       orderBy: { id: "asc" },
-      include: { animation_events: true },
+      include: {
+        animation_events: {
+          orderBy: { trigger_time: "asc" },
+        },
+      },
     });
   } catch (error) {
     console.error("Database error:", error);
