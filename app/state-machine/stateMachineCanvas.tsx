@@ -9,7 +9,7 @@ import { createAnimation } from "@actions/animations";
 import { State, Transition, Direction } from "@/shared-types";
 import { tryParseInt } from "../services/parse";
 import DragResizer from "../components/dragHandlers/dragResizer";
-import { HORZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers";
+import { HORZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers/constants";
 import StateComponent from "./state";
 import Arrow from "./arrow";
 import { ANIMATION_ROUTE } from "../constants";

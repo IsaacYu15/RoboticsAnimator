@@ -4,7 +4,7 @@ import { getComponentsWithAnimations } from "@/app/actions/components";
 import {
   HORZ_DRAGGABLE_SECTIONS,
   VERT_DRAGGABLE_SECTIONS,
-} from "@/app/components/dragHandlers";
+} from "@/app/components/dragHandlers/constants";
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
 import LayoutScene from "@/app/components/layoutScene/layoutScene";
 import { ComponentWithAnimation, Direction } from "@/shared-types";

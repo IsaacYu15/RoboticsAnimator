@@ -1,7 +1,7 @@
 "use client";
 
 import { updateComponent } from "@/app/actions/components";
-import { VERT_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers";
+import { VERT_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
 import { Component, Direction } from "@/shared-types";
 import { useState } from "react";
 import { Object3D } from "three";
