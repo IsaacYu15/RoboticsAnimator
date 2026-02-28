@@ -20,6 +20,7 @@ export default function AnimationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  console.log(id);
 
   const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
