@@ -6,7 +6,7 @@ import {
 import { useGLTF } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import { Box3, Group, Vector3 } from "three";
+import { Box3, Group, Mesh, Vector3 } from "three";
 
 export interface ObjectProps {
   component: Component;
@@ -21,7 +21,16 @@ export default function Object(props: ObjectProps) {
   const modelPath = OBJECT_TYPE_TO_MODEL_PATH[props.objectType];
   const { scene } = useGLTF(modelPath);
 
-  const clonedScene = useMemo(() => scene.clone(), [scene]);
+  const clonedScene = useMemo(() => {
+    const cloned = scene.clone();
+    cloned.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material = child.material.clone();
+        child.material.color.set(props.component.colour);
+      }
+    });
+    return cloned;
+  }, [scene, props.component.colour]);
 
   const centerOffset = useMemo(() => {
     const box = new Box3().setFromObject(clonedScene);

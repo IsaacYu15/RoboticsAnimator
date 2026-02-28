@@ -11,6 +11,21 @@ export type Point = {
   y: number;
 };
 
+export enum Axis {
+  X = "x",
+  Y = "y",
+  Z = "z",
+}
+
+export type Transform = {
+  x: number;
+  y: number;
+  z: number;
+  rotX: number;
+  rotY: number;
+  rotZ: number;
+};
+
 export enum ComponentTypes {
   SERVO,
 }

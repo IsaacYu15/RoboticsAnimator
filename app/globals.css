@@ -1,13 +1,57 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: --color-white;
+  --foreground: --color-black;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  /* basic */
+  --color-black: #1a1a1a;
+  --color-white: #f9fafb;
+  /* gray */
+  --color-gray-light: #eeeeee;
+  --color-gray-light-medium: #d3d3d3;
+  --color-gray-medium: #7a7a7a;
+  --color-gray-medium-dark: #4d4d4d;
+  --color-gray-dark: #2d2d2d;
+  /* colors */
+  --color-yellow: #fac124;
+  --color-yellow-dark: #c89a1d;
+  --color-red: #fa2121;
+  --color-red-dark: #c81a1a;
+  --color-blue: #6189f9;
+  --color-blue-dark: #4e6ec7;
+  --color-green: #61f973;
+  --color-green-dark: #4ec75c;
 }
+
+.icon-default {
+  @apply w-5 h-5 text-gray-medium-dark;
+}
+
+h1 {
+  @apply text-4xl;
+}
+
+h2 {
+  @apply text-3xl;
+}
+
+h3 {
+  @apply text-2xl;
+}
+
+h4 {
+  @apply text-xl text-gray-medium-dark;
+}
+
+h5 {
+  @apply text-lg text-gray-medium-dark;
+}
+
+p {
+  @apply text-sm text-gray-medium-dark;
+}
+
+/* stick to 1 2 4 8 16 24 32 */

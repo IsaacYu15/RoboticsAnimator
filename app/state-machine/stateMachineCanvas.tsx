@@ -9,7 +9,7 @@ import { createAnimation } from "@actions/animations";
 import { State, Transition, Direction } from "@/shared-types";
 import { tryParseInt } from "../services/parse";
 import DragResizer from "../components/dragHandlers/dragResizer";
-import { HORZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers/constants";
+import { HORIZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers/constants";
 import StateComponent from "./state";
 import Arrow from "./arrow";
 import { ANIMATION_ROUTE } from "../constants";
@@ -96,7 +96,7 @@ export default function StateMachineCanvas({
     >
       {selectedStateId && (
         <DragResizer
-          minDim={HORZ_DRAGGABLE_SECTIONS}
+          minDim={HORIZ_DRAGGABLE_SECTIONS}
           dragDirection={Direction.LEFT}
         >
           <div className="bg-white h-screen p-5 flex flex-col justify-between border-l border-slate-200 shadow-xl">

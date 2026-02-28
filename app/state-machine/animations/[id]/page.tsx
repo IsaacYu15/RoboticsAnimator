@@ -2,7 +2,7 @@
 
 import { getComponentsWithAnimations } from "@/app/actions/components";
 import {
-  HORZ_DRAGGABLE_SECTIONS,
+  HORIZ_DRAGGABLE_SECTIONS,
   VERT_DRAGGABLE_SECTIONS,
 } from "@/app/components/dragHandlers/constants";
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
@@ -20,7 +20,6 @@ export default function AnimationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  console.log(id);
 
   const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
@@ -47,7 +46,10 @@ export default function AnimationPage({
 
   return (
     <div className="w-screen h-screen flex flex-col justify-start items-center p-10 bg-gray-50">
-      <LayoutScene components={components}></LayoutScene>
+      <LayoutScene
+        components={components}
+        refresh={refreshComponents}
+      ></LayoutScene>
 
       <DragResizer
         minDim={VERT_DRAGGABLE_SECTIONS}
@@ -64,7 +66,7 @@ export default function AnimationPage({
           </button>
           <div className="bg-slate-800 h-full w-full flex flex-row gap-2 pt-5">
             <DragResizer
-              minDim={HORZ_DRAGGABLE_SECTIONS}
+              minDim={HORIZ_DRAGGABLE_SECTIONS}
               dragDirection={Direction.RIGHT}
               isNested={true}
             >
