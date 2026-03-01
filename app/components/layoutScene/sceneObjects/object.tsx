@@ -1,4 +1,4 @@
-import { degreesToRadians } from "@/app/services/math";
+import { radiansToDegrees } from "@/app/services/math";
 import {
   Component,
   ObjectType,
@@ -57,9 +57,9 @@ export default function Object(props: ObjectProps) {
         Number(props.component.z),
       ]}
       rotation={[
-        Number(degreesToRadians(props.component.rot_x)),
-        Number(degreesToRadians(props.component.rot_y)),
-        Number(degreesToRadians(props.component.rot_z)),
+        Number(radiansToDegrees(props.component.rot_x)),
+        Number(radiansToDegrees(props.component.rot_y)),
+        Number(radiansToDegrees(props.component.rot_z)),
       ]}
     >
       <mesh onClick={handleClick}>

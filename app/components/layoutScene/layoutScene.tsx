@@ -15,7 +15,7 @@ import {
 import { ServoPanel } from "./editComponentPanel/servoPanel";
 import List from "./hierarchy/list";
 import Scene from "./sceneObjects/scene";
-import { degreesToRadians } from "@/app/services/math";
+import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 
 export interface LayoutSceneProps {
   components: Component[];
@@ -60,9 +60,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
           x: selectedObject?.position.x ?? 0,
           y: selectedObject?.position.y ?? 0,
           z: selectedObject?.position.z ?? 0,
-          rot_x: selectedObject?.rotation.x ?? 0,
-          rot_y: selectedObject?.rotation.y ?? 0,
-          rot_z: selectedObject?.rotation.z ?? 0,
+          rot_x: radiansToDegrees(selectedObject?.rotation.x ?? 0),
+          rot_y: radiansToDegrees(selectedObject?.rotation.y ?? 0),
+          rot_z: radiansToDegrees(selectedObject?.rotation.z ?? 0),
           colour: panelState?.colour ?? null,
           pin: panelState?.pin ?? null,
           config: panelState?.generateConfig() ?? null,
@@ -85,9 +85,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
       x: selectedObject.position.x,
       y: selectedObject.position.y,
       z: selectedObject.position.z,
-      rot_x: selectedObject.rotation.x,
-      rot_y: selectedObject.rotation.y,
-      rot_z: selectedObject.rotation.z,
+      rot_x: radiansToDegrees(selectedObject.rotation.x),
+      rot_y: radiansToDegrees(selectedObject.rotation.y),
+      rot_z: radiansToDegrees(selectedObject.rotation.z),
     });
 
     setPanelState((prev) =>
@@ -96,9 +96,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
             x: selectedObject.position.x,
             y: selectedObject.position.y,
             z: selectedObject.position.z,
-            rotX: selectedObject.rotation.x,
-            rotY: selectedObject.rotation.y,
-            rotZ: selectedObject.rotation.z,
+            rotX: radiansToDegrees(selectedObject.rotation.x),
+            rotY: radiansToDegrees(selectedObject.rotation.y),
+            rotZ: radiansToDegrees(selectedObject.rotation.z),
           })
         : null,
     );
