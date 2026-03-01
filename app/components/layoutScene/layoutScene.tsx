@@ -15,6 +15,7 @@ import {
 import { ServoPanel } from "./editComponentPanel/servoPanel";
 import List from "./hierarchy/list";
 import Scene from "./sceneObjects/scene";
+import { degreesToRadians } from "@/app/services/math";
 
 export interface LayoutSceneProps {
   components: Component[];
@@ -33,9 +34,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
     if (selectedObject && panelState) {
       selectedObject.position.set(panelState.x, panelState.y, panelState.z);
       selectedObject.rotation.set(
-        panelState.rotX,
-        panelState.rotY,
-        panelState.rotZ,
+        degreesToRadians(panelState.rotX),
+        degreesToRadians(panelState.rotY),
+        degreesToRadians(panelState.rotZ),
       );
       selectedObject.traverse((child) => {
         if (child instanceof Mesh) {
