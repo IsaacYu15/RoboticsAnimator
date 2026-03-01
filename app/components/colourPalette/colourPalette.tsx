@@ -22,7 +22,7 @@ export default function ColourPalette(props: ColourPaletteProps) {
         {colourList.map((colour, i) => (
           <div
             key={i}
-            className={`w-12 h-12 rounded-lg 
+            className={`w-8 h-8 rounded-lg 
               ${props.selectedColour === colour.hex ? "outline-2 outline-offset-2 outline-blue-light" : "outline-none"} 
               ${colour.bgClass} ${colour.borderClass} 
               border-2 cursor-pointer`}

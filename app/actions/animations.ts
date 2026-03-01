@@ -14,6 +14,10 @@ export async function getAnimations(): Promise<Animation[]> {
   });
 }
 
+export async function getAnimationById(id: number): Promise<Animation | null> {
+  return await prisma.animations.findUnique({ where: { id } });
+}
+
 export async function createAnimation(data: CreateAnimationInput) {
   try {
     const newAnimation = await prisma.animations.create({ data });

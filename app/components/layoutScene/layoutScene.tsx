@@ -13,11 +13,12 @@ import {
   ServoPanelState,
 } from "./editComponentPanel/panelState";
 import { ServoPanel } from "./editComponentPanel/servoPanel";
-import List from "./hierarchy/list";
+import PropertiesPanel from "./properties/propertiesPanel";
 import Scene from "./sceneObjects/scene";
 import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 
 export interface LayoutSceneProps {
+  title: string;
   components: Component[];
   refresh: () => void;
 }
@@ -57,15 +58,16 @@ export default function LayoutScene(props: LayoutSceneProps) {
       //only on exiting the panel, we will save the changes to the component
       if (selectedComponentIdRef.current) {
         await updateComponent(selectedComponentIdRef.current, {
+          name: panelState?.name,
           x: selectedObject?.position.x ?? 0,
           y: selectedObject?.position.y ?? 0,
           z: selectedObject?.position.z ?? 0,
           rot_x: radiansToDegrees(selectedObject?.rotation.x ?? 0),
           rot_y: radiansToDegrees(selectedObject?.rotation.y ?? 0),
           rot_z: radiansToDegrees(selectedObject?.rotation.z ?? 0),
-          colour: panelState?.colour ?? null,
-          pin: panelState?.pin ?? null,
-          config: panelState?.generateConfig() ?? null,
+          colour: panelState?.colour,
+          pin: panelState?.pin,
+          config: panelState?.generateConfig(),
         });
         await props.refresh();
       }
@@ -129,7 +131,11 @@ export default function LayoutScene(props: LayoutSceneProps) {
           minDim={HORIZ_DRAGGABLE_SECTIONS}
           dragDirection={Direction.RIGHT}
         >
-          <List title="Some animation" components={props.components}></List>
+          <PropertiesPanel
+            title={props.title}
+            components={props.components}
+            selectedComponent={selectedComponentIdRef}
+          ></PropertiesPanel>
         </DragResizer>
       </div>
 

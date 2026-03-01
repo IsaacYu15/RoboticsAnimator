@@ -3,7 +3,6 @@
 import { tryParseInt } from "@/app/services/parse";
 import { Component as ComponentData } from "@/shared-types";
 
-import { Settings } from "lucide-react";
 import ColourPalette from "../../colourPalette/colourPalette";
 import SimpleInputField from "../../input/simpleInputField";
 import { PanelState, ServoPanelState } from "./panelState";
@@ -26,18 +25,18 @@ export function ServoPanel({ component, state, setState }: ServoPanelProps) {
 
   return (
     <div className="bg-gray-light h-screen py-6">
-      <div className="w-full px-6 pb-4 flex flex-row items-center justify-between border-b border-gray-light-medium">
-        <div className="flex flex-row items-center gap-2">
-          <Settings className="icon-default" />
-          <h4>{component.name}</h4>
-        </div>
-
+      <div className=" w-full px-6 pb-4 flex flex-row items-center justify-between border-b border-gray-light-medium ">
+        <input
+          className="title-input-default text-lg"
+          value={state.name}
+          onChange={(e) => updateField("name", e.target.value)}
+        />
         <div className="px-2 py-1 bg-gray-medium-dark text-white text-base rounded-lg">
           {component.type}
         </div>
       </div>
 
-      <div className="w-full px-6 py-4 flex flex-col gap-2 border-b border-gray-light-medium">
+      <div className="panel-section-col-default">
         <h5>Colour</h5>
         <ColourPalette
           selectedColour={state.colour}
@@ -45,7 +44,7 @@ export function ServoPanel({ component, state, setState }: ServoPanelProps) {
         />
       </div>
 
-      <div className="w-full px-6 py-4 flex flex-col gap-2 border-b border-gray-light-medium">
+      <div className="panel-section-col-default">
         <h5>Settings</h5>
         <SimpleInputField
           label="Pin"
@@ -78,7 +77,7 @@ export function ServoPanel({ component, state, setState }: ServoPanelProps) {
         />
       </div>
 
-      <div className="w-full px-6 py-4 flex flex-col gap-2 border-b border-gray-light-medium">
+      <div className="panel-section-col-default">
         <h5>Transform</h5>
         <SimpleInputField
           label="Position"

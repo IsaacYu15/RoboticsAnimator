@@ -13,6 +13,7 @@ import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
 import { sendAnimation } from "@/app/services/servoController";
 import { getModules } from "@/app/actions/modules";
+import { getAnimationById } from "@/app/actions/animations";
 
 export default function AnimationPage({
   params,
@@ -20,8 +21,8 @@ export default function AnimationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  console.log("Animation page loaded for id: ", id);
 
+  const [title, setTitle] = useState<string>("");
   const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
 
@@ -40,14 +41,21 @@ export default function AnimationPage({
   }, []);
 
   useEffect(() => {
+    const setup = async () => {
+      const animation = await getAnimationById(parseInt(id));
+      setTitle(animation?.name ?? "Animation");
+
+      refreshComponents();
+    };
+
+    setup();
     // eslint-disable-next-line
-    refreshComponents();
-    // eslint-disable-next-line
-  }, []);
+  }, [id]);
 
   return (
     <div className="w-screen h-screen flex flex-col justify-start items-center p-10 bg-gray-50">
       <LayoutScene
+        title={title}
         components={components}
         refresh={refreshComponents}
       ></LayoutScene>

@@ -2,6 +2,7 @@ import { ComponentType } from "@/app/constants/components";
 import { Component, Transform, UpdateComponentInput } from "@/shared-types";
 
 export abstract class PanelState {
+  name: string;
   colour: string | null;
   pin: number | null;
   x: number;
@@ -13,6 +14,7 @@ export abstract class PanelState {
   config: string | null;
 
   constructor(component: Component) {
+    this.name = component.name ?? "";
     this.colour = component.colour;
     this.pin = component.pin;
     this.x = component.x;
@@ -37,6 +39,7 @@ export abstract class PanelState {
 
   toUpdateInput(): UpdateComponentInput {
     return {
+      name: this.name,
       colour: this.colour,
       pin: this.pin,
       config: this.generateConfig(),
