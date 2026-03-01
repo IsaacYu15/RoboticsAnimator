@@ -7,13 +7,3 @@ export const tryParseInt = (input: string) => {
 
   return value;
 };
-
-export const generateServoConfig = (
-  pwmMinAngle: number | null,
-  pwmMaxAngle: number | null,
-) => {
-  return JSON.stringify({
-    pwmMinAngle: pwmMinAngle,
-    pwmMaxAngle: pwmMaxAngle,
-  });
-};

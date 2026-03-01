@@ -8,7 +8,7 @@ import {
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
 import LayoutScene from "@/app/components/layoutScene/layoutScene";
 import { ComponentWithAnimation, Direction } from "@/shared-types";
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
 import { sendAnimation } from "@/app/services/servoController";
@@ -20,29 +20,29 @@ export default function AnimationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  console.log(id);
+  console.log("Animation page loaded for id: ", id);
 
   const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
 
-  const refreshComponents = () => {
-    const fetchComponents = async () => {
-      const fetchedComponents = await getComponentsWithAnimations();
+  //fetch all async calls together to avoid multiple re-renders
+  const refreshComponents = useCallback(async () => {
+    try {
+      const [fetchedComponents, fetchedModules] = await Promise.all([
+        getComponentsWithAnimations(),
+        getModules(),
+      ]);
       setComponents(fetchedComponents);
-    };
-
-    //TODO: associate layout with module
-    const fetchModules = async () => {
-      const fetchedModules = await getModules();
-      setModuleAddress(fetchedModules[0].address);
-    };
-
-    fetchComponents();
-    fetchModules();
-  };
+      setModuleAddress(fetchedModules[0]?.address);
+    } catch (error) {
+      console.error("Error refreshing components: ", error);
+    }
+  }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line
     refreshComponents();
+    // eslint-disable-next-line
   }, []);
 
   return (

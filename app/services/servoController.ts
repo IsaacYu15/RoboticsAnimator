@@ -45,7 +45,7 @@ const buildPayload = (
   animationData: ComponentWithAnimation[],
 ): AnimationPayload => {
   const payload: AnimatedComponent[] = animationData.map((value) => {
-    console.log(value);
+    console.log("Sending payload: \n", value);
     if (value.type === null)
       throw new Error(`Component of id: ${value.id} is missing a type`);
     if (value.pin === null)

@@ -12,7 +12,7 @@ type TransformMode = "translate" | "rotate";
 
 export interface SceneProps {
   selectedObject: Object3D | null;
-  setSelectedObject: (object: Object3D | null) => void;
+  setSelectedObject: (object: Object3D | null) => void | Promise<void>;
   canvasActive: boolean;
   setCanvasActive: (active: boolean) => void;
   saveObjectChanges: () => void;
