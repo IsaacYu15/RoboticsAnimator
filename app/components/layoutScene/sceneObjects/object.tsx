@@ -1,18 +1,19 @@
-import { radiansToDegrees } from "@/app/services/math";
+import { degreesToRadians } from "@/app/services/math";
 import {
   Component,
-  ObjectType,
   OBJECT_TYPE_TO_MODEL_PATH,
+  ObjectType,
 } from "@/shared-types";
 import { useGLTF } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Box3, Group, Mesh, Vector3 } from "three";
 
 export interface ObjectProps {
   component: Component;
   objectType: ObjectType;
-  onSelect: (object: Group) => void;
+  onSelect: () => void;
+  registerObjectRef: (object: Group) => void;
 }
 
 const MODEL_SCALE = 0.02;
@@ -21,6 +22,12 @@ export default function Object(props: ObjectProps) {
   const groupRef = useRef<Group>(null);
   const modelPath = OBJECT_TYPE_TO_MODEL_PATH[props.objectType];
   const { scene } = useGLTF(modelPath);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      props.registerObjectRef(groupRef.current);
+    }
+  }, [props]);
 
   const clonedScene = useMemo(() => {
     const cloned = scene.clone();
@@ -42,24 +49,22 @@ export default function Object(props: ObjectProps) {
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
-    if (groupRef.current) {
-      props.onSelect(groupRef.current);
-    }
+    props.onSelect();
   };
 
   return (
     <group
       ref={groupRef}
-      userData={{ data: props.component }}
+      userData={{ id: props.component.id }}
       position={[
         Number(props.component.x),
         Number(props.component.y),
         Number(props.component.z),
       ]}
       rotation={[
-        Number(radiansToDegrees(props.component.rot_x)),
-        Number(radiansToDegrees(props.component.rot_y)),
-        Number(radiansToDegrees(props.component.rot_z)),
+        Number(degreesToRadians(props.component.rot_x)),
+        Number(degreesToRadians(props.component.rot_y)),
+        Number(degreesToRadians(props.component.rot_z)),
       ]}
     >
       <mesh onClick={handleClick}>

@@ -24,6 +24,15 @@ export async function getComponents(
   }
 }
 
+export async function getComponentById(id: number): Promise<Component | null> {
+  try {
+    return await prisma.components.findUnique({ where: { id } });
+  } catch (error) {
+    console.error("Database error:", error);
+    return null;
+  }
+}
+
 export async function getComponentsWithAnimations(
   filter?: WhereComponentInput,
 ): Promise<ComponentWithAnimation[]> {

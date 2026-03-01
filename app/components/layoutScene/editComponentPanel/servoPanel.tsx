@@ -1,19 +1,17 @@
 "use client";
 
 import { tryParseInt } from "@/app/services/parse";
-import { Component as ComponentData } from "@/shared-types";
 
 import ColourPalette from "../../colourPalette/colourPalette";
 import SimpleInputField from "../../input/simpleInputField";
 import { PanelState, ServoPanelState } from "./panelState";
 
 interface ServoPanelProps {
-  component: ComponentData;
   state: ServoPanelState;
   setState: (state: PanelState | null) => void;
 }
 
-export function ServoPanel({ component, state, setState }: ServoPanelProps) {
+export function ServoPanel({ state, setState }: ServoPanelProps) {
   const updateField = <K extends keyof ServoPanelState>(
     field: K,
     value: ServoPanelState[K],
@@ -32,7 +30,7 @@ export function ServoPanel({ component, state, setState }: ServoPanelProps) {
           onChange={(e) => updateField("name", e.target.value)}
         />
         <div className="px-2 py-1 bg-gray-medium-dark text-white text-base rounded-lg">
-          {component.type}
+          {state.type}
         </div>
       </div>
 

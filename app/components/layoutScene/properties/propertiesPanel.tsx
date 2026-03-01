@@ -1,17 +1,19 @@
 "use client";
 
 import { Component } from "@/shared-types";
-import SearchBar from "../../searchBar/searchBar";
-import { RefObject, useState } from "react";
 import { PanelRight, SquareArrowRightExit } from "lucide-react";
+import { useState } from "react";
 import IconButton from "../../input/iconButton";
 import TabButton from "../../input/tabButton";
+import SearchBar from "../../searchBar/searchBar";
 import ItemHeirachy from "./itemHeirachy";
 
 export interface PropertiesPanelProps {
   title: string;
   components: Component[];
-  selectedComponent: RefObject<number | null>;
+
+  selectedComponentId: number | null;
+  setSelectedComponentId: (id: number) => void;
 }
 
 enum ItemListTab {
@@ -43,7 +45,6 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
         <input
           className="title-input-default w-full text-2xl"
           value={props.title}
-          onChange={(e) => {}}
         />
       </div>
 
@@ -70,7 +71,8 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
       {isPartsActive && (
         <ItemHeirachy
           components={filteredComponents}
-          selectedComponent={props.selectedComponent}
+          selectedComponentId={props.selectedComponentId}
+          setSelectedComponentId={props.setSelectedComponentId}
         />
       )}
     </div>

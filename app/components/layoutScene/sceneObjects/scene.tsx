@@ -6,17 +6,22 @@ import { TransformControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Group, Object3D } from "three";
 import Object from "./object";
-import { useState } from "react";
+import { RefObject, useState } from "react";
 
 type TransformMode = "translate" | "rotate";
 
 export interface SceneProps {
-  selectedObject: Object3D | null;
-  setSelectedObject: (object: Object3D | null) => void | Promise<void>;
+  components: Component[];
+
   canvasActive: boolean;
   setCanvasActive: (active: boolean) => void;
+
+  selectedComponentId: number | null;
+  setSelectedComponentId: (componentId: number | null) => void;
+
+  objectRefs: RefObject<Record<number, Object3D>>;
+  registerObjectRef: (componentId: number, object: Group) => void;
   saveObjectChanges: () => void;
-  components: Component[];
 }
 
 export default function Scene(props: SceneProps) {
@@ -46,15 +51,15 @@ export default function Scene(props: SceneProps) {
           zoom: 1,
           position: [0, 0, 5],
         }}
-        onPointerMissed={() => props.setSelectedObject(null)}
+        onPointerMissed={() => props.setSelectedComponentId(null)}
         onClick={() => props.setCanvasActive(true)}
       >
         <gridHelper />
 
-        {props.selectedObject && (
+        {props.selectedComponentId && (
           <TransformControls
             mode={transformMode}
-            object={props.selectedObject}
+            object={props.objectRefs.current[props.selectedComponentId]}
             onMouseUp={props.saveObjectChanges}
           ></TransformControls>
         )}
@@ -64,7 +69,10 @@ export default function Scene(props: SceneProps) {
             key={component.id}
             component={component}
             objectType={ObjectType.SG90_SERVO}
-            onSelect={(obj: Group) => props.setSelectedObject(obj)}
+            onSelect={() => props.setSelectedComponentId(component.id)}
+            registerObjectRef={(obj: Group) =>
+              props.registerObjectRef(component.id, obj)
+            }
           ></Object>
         ))}
 

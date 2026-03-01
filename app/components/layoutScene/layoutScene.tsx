@@ -1,6 +1,6 @@
 "use client";
 
-import { updateComponent } from "@/app/actions/components";
+import { getComponentById, updateComponent } from "@/app/actions/components";
 import { HORIZ_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
 import { ComponentType } from "@/app/constants/components";
 import { Component, Direction } from "@/shared-types";
@@ -25,13 +25,40 @@ export interface LayoutSceneProps {
 
 export default function LayoutScene(props: LayoutSceneProps) {
   const [canvasActive, setCanvasActive] = useState(false);
+  const [selectedComponentId, setSelectedComponentId] = useState<number | null>(
+    null,
+  );
 
-  const selectedComponentIdRef = useRef<number | null>(null);
-  const [selectedObject, setSelectedObject] = useState<Object3D | null>(null);
   const [panelState, setPanelState] = useState<PanelState | null>(null);
+
+  const objectRefs = useRef<Record<number, Object3D>>({});
+
+  const updatePanelState = async (id: number | null) => {
+    if (id === null) {
+      setPanelState(null);
+      return;
+    }
+
+    const component = await getComponentById(id);
+    if (!component) {
+      console.error("Selected object contains and invalid component id");
+      return;
+    }
+
+    setPanelState(createPanelState(component));
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    updatePanelState(selectedComponentId);
+  }, [selectedComponentId]);
 
   //for any changes to the panel state we want to see an immediate update
   useEffect(() => {
+    if (selectedComponentId === null) return;
+
+    const selectedObject = objectRefs.current[selectedComponentId];
+
     if (selectedObject && panelState) {
       selectedObject.position.set(panelState.x, panelState.y, panelState.z);
       selectedObject.rotation.set(
@@ -45,19 +72,21 @@ export default function LayoutScene(props: LayoutSceneProps) {
         }
       });
     }
-  }, [selectedObject, panelState]);
+  }, [selectedComponentId, panelState]);
 
-  const handleSelectObject = async (obj: Object3D | null) => {
-    setSelectedObject(obj);
+  const registerObjectRef = (componentId: number, object: Object3D) => {
+    objectRefs.current[componentId] = object;
+  };
 
-    if (obj?.userData?.data) {
-      const component = obj.userData.data as Component;
-      selectedComponentIdRef.current = component.id;
-      setPanelState(createPanelState(component));
+  const handleSetSelectedComponentId = async (componentId: number | null) => {
+    if (componentId !== null) {
+      setSelectedComponentId(componentId);
     } else {
       //only on exiting the panel, we will save the changes to the component
-      if (selectedComponentIdRef.current) {
-        await updateComponent(selectedComponentIdRef.current, {
+      if (selectedComponentId) {
+        const selectedObject = objectRefs.current[selectedComponentId];
+
+        await updateComponent(selectedComponentId, {
           name: panelState?.name,
           x: selectedObject?.position.x ?? 0,
           y: selectedObject?.position.y ?? 0,
@@ -72,18 +101,18 @@ export default function LayoutScene(props: LayoutSceneProps) {
         await props.refresh();
       }
 
-      selectedComponentIdRef.current = null;
+      setSelectedComponentId(null);
       setPanelState(null);
     }
   };
 
   //strictly used for saving the object when transforming with gizmos
   const saveObjectTransform = async () => {
-    if (!selectedObject || !panelState) return;
+    if (selectedComponentId === null) return;
 
-    const data = selectedObject.userData.data;
+    const selectedObject = objectRefs.current[selectedComponentId];
 
-    await updateComponent(data.id, {
+    await updateComponent(selectedComponentId, {
       x: selectedObject.position.x,
       y: selectedObject.position.y,
       z: selectedObject.position.z,
@@ -107,14 +136,13 @@ export default function LayoutScene(props: LayoutSceneProps) {
   };
 
   //renders different panels for the component
-  const getComponentPanel = (component: Component) => {
+  const getComponentPanel = () => {
     if (!panelState) return null;
 
-    switch (component.type) {
+    switch (panelState.type) {
       case ComponentType.SERVO:
         return (
           <ServoPanel
-            component={component}
             state={panelState as ServoPanelState}
             setState={setPanelState}
           />
@@ -134,27 +162,30 @@ export default function LayoutScene(props: LayoutSceneProps) {
           <PropertiesPanel
             title={props.title}
             components={props.components}
-            selectedComponent={selectedComponentIdRef}
+            setSelectedComponentId={setSelectedComponentId}
+            selectedComponentId={selectedComponentId}
           ></PropertiesPanel>
         </DragResizer>
       </div>
 
       <Scene
-        selectedObject={selectedObject}
-        setSelectedObject={handleSelectObject}
+        components={props.components}
         canvasActive={canvasActive}
         setCanvasActive={setCanvasActive}
+        selectedComponentId={selectedComponentId}
+        setSelectedComponentId={handleSetSelectedComponentId}
+        objectRefs={objectRefs}
+        registerObjectRef={registerObjectRef}
         saveObjectChanges={saveObjectTransform}
-        components={props.components}
       ></Scene>
 
-      {selectedObject && selectedObject.userData?.data && (
+      {selectedComponentId && (
         <div onClick={() => setCanvasActive(false)}>
           <DragResizer
             minDim={HORIZ_DRAGGABLE_SECTIONS}
             dragDirection={Direction.LEFT}
           >
-            {getComponentPanel(selectedObject.userData.data)}
+            {getComponentPanel()}
           </DragResizer>
         </div>
       )}
