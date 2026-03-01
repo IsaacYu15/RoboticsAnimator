@@ -20,6 +20,7 @@
   --color-yellow-dark: #c89a1d;
   --color-red: #fa2121;
   --color-red-dark: #c81a1a;
+  --color-blue-light: #a0b8fb;
   --color-blue: #6189f9;
   --color-blue-dark: #4e6ec7;
   --color-green: #61f973;
@@ -28,6 +29,10 @@
 
 .icon-default {
   @apply w-5 h-5 text-gray-medium-dark;
+}
+
+.input-default {
+  @apply bg-white border-gray-light-medium border-2 focus:border-blue-light focus:outline-none rounded-lg px-2 py-1 text-xs;
 }
 
 h1 {
