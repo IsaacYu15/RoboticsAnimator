@@ -5,6 +5,7 @@ import {
   KEY_SPACE,
   KEY_W,
   LEFT_MOUSE_BUTTON,
+  MIDDLE_MOUSE_BUTTON,
   RIGHT_MOUSE_BUTTON,
 } from "@/app/constants/inputs";
 import { useInputContext } from "@/app/context/inputContext";
@@ -45,7 +46,7 @@ export default function Movement({ mode, setMovementMode }: MovementProps) {
       currentMode = "firstPerson";
       setMovementMode("firstPerson");
     } else if (
-      inputs.current.has(LEFT_MOUSE_BUTTON.toString()) &&
+      inputs.current.has(MIDDLE_MOUSE_BUTTON.toString()) &&
       mode == "firstPerson"
     ) {
       currentMode = "pan";
@@ -71,20 +72,16 @@ export default function Movement({ mode, setMovementMode }: MovementProps) {
         );
         camera.rotateX(-yDir * CAMERA_LOOK_SPEED * delta);
       }
-    } else {
-      if (inputs.current.has(LEFT_MOUSE_BUTTON.toString())) {
-        const yDir = mousePos.current.y - mouseLastPos.current.y;
-        const xDir = mousePos.current.x - mouseLastPos.current.x;
+    } else if (inputs.current.has(MIDDLE_MOUSE_BUTTON.toString())) {
+      const yDir = mousePos.current.y - mouseLastPos.current.y;
+      const xDir = mousePos.current.x - mouseLastPos.current.x;
 
-        const localUp = new Vector3(0, -1, 0).applyQuaternion(
-          camera.quaternion,
-        );
-        moveVector.add(localUp.multiplyScalar(yDir));
-        const localRight = new Vector3(1, 0, 0).applyQuaternion(
-          camera.quaternion,
-        );
-        moveVector.add(localRight.multiplyScalar(xDir));
-      }
+      const localUp = new Vector3(0, -1, 0).applyQuaternion(camera.quaternion);
+      moveVector.add(localUp.multiplyScalar(yDir));
+      const localRight = new Vector3(1, 0, 0).applyQuaternion(
+        camera.quaternion,
+      );
+      moveVector.add(localRight.multiplyScalar(xDir));
     }
 
     camera.position.addScaledVector(
