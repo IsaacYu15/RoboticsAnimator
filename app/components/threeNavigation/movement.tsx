@@ -4,7 +4,6 @@ import {
   KEY_S,
   KEY_SPACE,
   KEY_W,
-  LEFT_MOUSE_BUTTON,
   MIDDLE_MOUSE_BUTTON,
   RIGHT_MOUSE_BUTTON,
 } from "@/app/constants/inputs";
