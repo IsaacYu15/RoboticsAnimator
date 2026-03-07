@@ -5,6 +5,11 @@ import { tryParseInt } from "@/app/services/parse";
 import ColourPalette from "../../colourPalette/colourPalette";
 import SimpleInputField from "../../input/simpleInputField";
 import { PanelState, ServoPanelState } from "./panelState";
+import { FileUp } from "lucide-react";
+import IconButton from "../../input/iconButton";
+import { createAsset } from "@/app/actions/assets";
+import { useToast } from "@/app/context/toastContext";
+import { ToastMessages } from "../../toast/toastMessages";
 
 interface ServoPanelProps {
   state: ServoPanelState;
@@ -21,6 +26,23 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
     setState(newState);
   };
 
+  const toast = useToast();
+
+  const saveAsAsset = async () => {
+    const asset = {
+      name: state.name,
+      type: "servo",
+      config: state.config,
+    };
+    const result = await createAsset(asset);
+
+    if (result.success) {
+      toast.toast(ToastMessages.ASSET_SAVED);
+    } else {
+      toast.toast(ToastMessages.ERROR(result.error));
+    }
+  };
+
   return (
     <div className="bg-gray-light h-screen py-6">
       <div className=" w-full px-6 pb-4 flex flex-row items-center justify-between border-b border-gray-light-medium ">
@@ -29,9 +51,7 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
           value={state.name}
           onChange={(e) => updateField("name", e.target.value)}
         />
-        <div className="px-2 py-1 bg-gray-medium-dark text-white text-base rounded-lg">
-          {state.type}
-        </div>
+        <IconButton icon={FileUp} onClick={saveAsAsset} />
       </div>
 
       <div className="panel-section-col-default">

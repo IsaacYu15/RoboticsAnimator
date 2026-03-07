@@ -1,9 +1,8 @@
-import { ComponentType } from "@/app/constants/components";
-import { SettingsIcon } from "lucide-react";
+import { getComponentIcon } from "../utils";
 
-export interface ItemProps {
+export interface PartItemProps {
   name: string | null;
-  type: ComponentType;
+  type: string | null;
   level: number;
   selected: boolean;
   setSelected: () => void;
@@ -11,22 +10,13 @@ export interface ItemProps {
 
 const LEVEL_INDENTATION = 16;
 
-export default function Item({
+export default function PartItem({
   name,
   type,
   selected,
   setSelected,
   level,
-}: ItemProps) {
-  const getIcon = () => {
-    switch (type) {
-      case ComponentType.SERVO:
-        return <SettingsIcon className="icon-default" />;
-      default:
-        return null;
-    }
-  };
-
+}: PartItemProps) {
   return (
     <button
       onClick={setSelected}
@@ -38,7 +28,7 @@ export default function Item({
         className={`flex flex-row items-center gap-1 h-8`}
         style={{ paddingLeft: `${level * LEVEL_INDENTATION}px` }}
       >
-        {getIcon()}
+        {getComponentIcon(type)}
         <h5>{name}</h5>
       </div>
     </button>

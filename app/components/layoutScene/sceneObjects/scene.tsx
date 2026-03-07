@@ -1,12 +1,13 @@
 "use client";
 
 import Movement from "@/app/components/threeNavigation/movement";
-import { Component, ObjectType } from "@/shared-types";
+import { Component } from "@/shared-types";
 import { TransformControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Group, Object3D } from "three";
 import Object from "./object";
 import { RefObject, useState } from "react";
+import { getObjectType } from "../utils";
 
 type TransformMode = "translate" | "rotate";
 
@@ -64,17 +65,22 @@ export default function Scene(props: SceneProps) {
           ></TransformControls>
         )}
 
-        {props.components.map((component: Component) => (
-          <Object
-            key={component.id}
-            component={component}
-            objectType={ObjectType.SG90_SERVO}
-            onSelect={() => props.setSelectedComponentId(component.id)}
-            registerObjectRef={(obj: Group) =>
-              props.registerObjectRef(component.id, obj)
-            }
-          ></Object>
-        ))}
+        {props.components.map((component: Component) => {
+          const objectType = getObjectType(component.type);
+          if (objectType === null) return null;
+
+          return (
+            <Object
+              key={component.id}
+              component={component}
+              objectType={objectType}
+              onSelect={() => props.setSelectedComponentId(component.id)}
+              registerObjectRef={(obj: Group) =>
+                props.registerObjectRef(component.id, obj)
+              }
+            />
+          );
+        })}
 
         {props.canvasActive && <Movement></Movement>}
 

@@ -7,13 +7,14 @@ import {
 } from "@/app/components/dragHandlers/constants";
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
 import LayoutScene from "@/app/components/layoutScene/layoutScene";
-import { ComponentWithAnimation, Direction } from "@/shared-types";
+import { Asset, ComponentWithAnimation, Direction } from "@/shared-types";
 import { use, useCallback, useEffect, useState } from "react";
 import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
 import { sendAnimation } from "@/app/services/servoController";
 import { getModules } from "@/app/actions/modules";
 import { getAnimationById } from "@/app/actions/animations";
+import { getAssets } from "@/app/actions/assets";
 
 export default function AnimationPage({
   params,
@@ -24,17 +25,21 @@ export default function AnimationPage({
 
   const [title, setTitle] = useState<string>("");
   const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
 
   //fetch all async calls together to avoid multiple re-renders
   const refreshComponents = useCallback(async () => {
     try {
-      const [fetchedComponents, fetchedModules] = await Promise.all([
-        getComponentsWithAnimations(),
-        getModules(),
-      ]);
+      const [fetchedComponents, fetchedModules, fetchedAssets] =
+        await Promise.all([
+          getComponentsWithAnimations(),
+          getModules(),
+          getAssets(),
+        ]);
       setComponents(fetchedComponents);
       setModuleAddress(fetchedModules[0]?.address);
+      setAssets(fetchedAssets);
     } catch (error) {
       console.error("Error refreshing components: ", error);
     }
@@ -55,8 +60,10 @@ export default function AnimationPage({
   return (
     <div className="w-screen h-screen flex flex-col justify-start items-center p-10 bg-gray-50">
       <LayoutScene
+        id={parseInt(id)}
         title={title}
         components={components}
+        assets={assets}
         refresh={refreshComponents}
       ></LayoutScene>
 

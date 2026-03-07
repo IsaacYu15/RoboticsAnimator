@@ -1,9 +1,14 @@
 "use client";
 
-import { getComponentById, updateComponent } from "@/app/actions/components";
+import {
+  addComponent,
+  getComponentById,
+  updateComponent,
+} from "@/app/actions/components";
+import { deleteAsset } from "@/app/actions/assets";
 import { HORIZ_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
 import { ComponentType } from "@/app/constants/components";
-import { Component, Direction } from "@/shared-types";
+import { Asset, Component, Direction } from "@/shared-types";
 import { useEffect, useRef, useState } from "react";
 import { Mesh, Object3D } from "three";
 import DragResizer from "../dragHandlers/dragResizer";
@@ -18,8 +23,10 @@ import Scene from "./sceneObjects/scene";
 import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 
 export interface LayoutSceneProps {
+  id: number;
   title: string;
   components: Component[];
+  assets: Asset[];
   refresh: () => void;
 }
 
@@ -135,7 +142,32 @@ export default function LayoutScene(props: LayoutSceneProps) {
     );
   };
 
-  //renders different panels for the component
+  const handleSpawnAsset = async (asset: Asset) => {
+    const result = await addComponent({
+      type: asset.type,
+      name: asset.name,
+      colour: asset.colour,
+      config: asset.config,
+      x: 0,
+      y: 0,
+      z: 0,
+      rot_x: 0,
+      rot_y: 0,
+      rot_z: 0,
+    });
+
+    if (result.success) {
+      await props.refresh();
+    }
+  };
+
+  const handleDeleteAsset = async (asset: Asset) => {
+    const result = await deleteAsset(asset.id);
+    if (result.success) {
+      await props.refresh();
+    }
+  };
+
   const getComponentPanel = () => {
     if (!panelState) return null;
 
@@ -155,17 +187,16 @@ export default function LayoutScene(props: LayoutSceneProps) {
   return (
     <>
       <div onClick={() => setCanvasActive(false)}>
-        <DragResizer
-          minDim={HORIZ_DRAGGABLE_SECTIONS}
-          dragDirection={Direction.RIGHT}
-        >
-          <PropertiesPanel
-            title={props.title}
-            components={props.components}
-            setSelectedComponentId={setSelectedComponentId}
-            selectedComponentId={selectedComponentId}
-          ></PropertiesPanel>
-        </DragResizer>
+        <PropertiesPanel
+          id={props.id}
+          title={props.title}
+          components={props.components}
+          assets={props.assets}
+          setSelectedComponentId={setSelectedComponentId}
+          selectedComponentId={selectedComponentId}
+          onSpawnAsset={handleSpawnAsset}
+          onDeleteAsset={handleDeleteAsset}
+        ></PropertiesPanel>
       </div>
 
       <Scene

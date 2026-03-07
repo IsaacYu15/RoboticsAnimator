@@ -1,9 +1,5 @@
 import { degreesToRadians } from "@/app/services/math";
-import {
-  Component,
-  OBJECT_TYPE_TO_MODEL_PATH,
-  ObjectType,
-} from "@/shared-types";
+import { Component, OBJECT_TYPE_CONFIG, ObjectType } from "@/shared-types";
 import { useGLTF } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
@@ -20,7 +16,7 @@ const MODEL_SCALE = 0.02;
 
 export default function Object(props: ObjectProps) {
   const groupRef = useRef<Group>(null);
-  const modelPath = OBJECT_TYPE_TO_MODEL_PATH[props.objectType];
+  const modelPath = OBJECT_TYPE_CONFIG[props.objectType].model;
   const { scene } = useGLTF(modelPath);
 
   useEffect(() => {

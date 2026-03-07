@@ -1,25 +1,24 @@
-import { ComponentType } from "@/app/constants/components";
 import { Component } from "@/shared-types/components";
-import Item from "./item";
+import Item from "./partItem";
 
-interface ItemHeirachyProps {
+interface PartItemHeirachyProps {
   components: Component[];
   selectedComponentId: number | null;
   setSelectedComponentId: (id: number) => void;
 }
 
-export default function ItemHeirachy({
+export default function PartItemHeirachy({
   components,
   selectedComponentId,
   setSelectedComponentId,
-}: ItemHeirachyProps) {
+}: PartItemHeirachyProps) {
   return (
-    <div className="w-full px-6 py-4 pb-4">
+    <div className="w-full px-6 py-4">
       {components.map((component) => (
         <Item
           key={component.id}
           name={component.name}
-          type={component.type as ComponentType}
+          type={component.type}
           selected={component.id === selectedComponentId}
           setSelected={() => {
             setSelectedComponentId(component.id);
