@@ -1,3 +1,5 @@
+import { X } from "lucide-react";
+
 export interface SearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -5,19 +7,19 @@ export interface SearchBarProps {
 
 export default function SearchBar(props: SearchBarProps) {
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <input
         type="text"
-        placeholder="find..."
-        className="w-full border border-gray-300 rounded-md p-2"
+        placeholder="searching..."
+        className="w-full border border-gray-300 bg-white rounded-md py-1 px-2"
         value={props.searchQuery}
         onChange={(e) => props.setSearchQuery(e.target.value)}
       />
       <button
-        className="bg-blue-500 text-white p-2 rounded-md absolute right-0 top-0"
+        className="absolute top-1/2 -translate-y-1/2 right-0 text-gray-medium-dark hover:text-gray-medium"
         onClick={() => props.setSearchQuery("")}
       >
-        x
+        <X />
       </button>
     </div>
   );

@@ -70,21 +70,21 @@ export default function DragResizer(props: DragResizerProps) {
     >
       <div
         onMouseDown={handleResize}
-        className={`absolute bg-slate-950/40 rounded-full
+        className={`absolute
           ${
             isHorizontal
-              ? "top-1/2 -translate-y-1/2 h-12 w-1.5 cursor-col-resize"
+              ? "top-1/2 -translate-y-1/2 h-full w-1.5 cursor-col-resize"
               : ""
           }
           ${
             isVertical
-              ? "left-1/2 -translate-x-1/2 w-12 h-1.5 cursor-row-resize"
+              ? "left-1/2 -translate-x-1/2 w-full h-1.5 cursor-row-resize"
               : ""
           }
-          ${props.dragDirection === Direction.LEFT ? "left-1" : ""}
-          ${props.dragDirection === Direction.RIGHT ? "right-1" : ""}
-          ${props.dragDirection === Direction.UP ? "top-1" : ""}
-          ${props.dragDirection === Direction.DOWN ? "bottom-1" : ""}
+          ${props.dragDirection === Direction.LEFT ? "left-0" : ""}
+          ${props.dragDirection === Direction.RIGHT ? "right-0" : ""}
+          ${props.dragDirection === Direction.UP ? "top-0" : ""}
+          ${props.dragDirection === Direction.DOWN ? "bottom-0" : ""}
         `}
       />
 

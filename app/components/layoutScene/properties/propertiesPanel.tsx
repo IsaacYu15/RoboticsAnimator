@@ -2,6 +2,7 @@
 
 import { Asset, Component, Direction } from "@/shared-types";
 import { PanelRight, SquareArrowRightExit } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import IconButton from "../../input/iconButton";
 import TabButton from "../../input/tabButton";
@@ -11,6 +12,7 @@ import AssetItemHeirachy from "./assetItemHeirachy";
 import { updateAnimation } from "@/app/actions/animations";
 import DragResizer from "../../dragHandlers/dragResizer";
 import { HORIZ_DRAGGABLE_SECTIONS } from "../../dragHandlers/constants";
+import { STATE_MACHINE_ROUTE } from "@/app/constants/routes";
 
 export interface PropertiesPanelProps {
   id: number;
@@ -30,6 +32,7 @@ enum ItemListTab {
 }
 
 export default function PropertiesPanel(props: PropertiesPanelProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [title, setTitle] = useState("");
 
@@ -70,7 +73,10 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
           <div className="bg-gray-light h-screen py-6">
             <div className="w-full px-6 pb-4 flex flex-col gap-2 border-b border-gray-light-medium">
               <div className="flex flex-row justify-between w-full items-center">
-                <IconButton icon={SquareArrowRightExit} onClick={() => {}} />
+                <IconButton
+                  icon={SquareArrowRightExit}
+                  onClick={() => router.push(STATE_MACHINE_ROUTE)}
+                />
                 <IconButton
                   icon={PanelRight}
                   onClick={() => {

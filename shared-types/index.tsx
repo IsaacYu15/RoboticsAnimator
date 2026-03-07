@@ -27,6 +27,10 @@ export type Transform = {
   rotZ: number;
 };
 
+export type TransformMode = "translate" | "rotate";
+
+export type MovementMode = "pan" | "firstPerson";
+
 export enum ComponentTypes {
   SERVO,
 }

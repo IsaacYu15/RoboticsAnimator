@@ -8,7 +8,13 @@ import {
 import { deleteAsset } from "@/app/actions/assets";
 import { HORIZ_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
 import { ComponentType } from "@/app/constants/components";
-import { Asset, Component, Direction } from "@/shared-types";
+import {
+  Asset,
+  Component,
+  Direction,
+  MovementMode,
+  TransformMode,
+} from "@/shared-types";
 import { useEffect, useRef, useState } from "react";
 import { Mesh, Object3D } from "three";
 import DragResizer from "../dragHandlers/dragResizer";
@@ -21,6 +27,7 @@ import { ServoPanel } from "./editComponentPanel/servoPanel";
 import PropertiesPanel from "./properties/propertiesPanel";
 import Scene from "./sceneObjects/scene";
 import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
+import { Eye, Hand, LucideIcon, Move, Rotate3D } from "lucide-react";
 
 export interface LayoutSceneProps {
   id: number;
@@ -35,32 +42,19 @@ export default function LayoutScene(props: LayoutSceneProps) {
   const [selectedComponentId, setSelectedComponentId] = useState<number | null>(
     null,
   );
-
   const [panelState, setPanelState] = useState<PanelState | null>(null);
+  const [transformMode, setTransformMode] =
+    useState<TransformMode>("translate");
+  const [movementMode, setMovementMode] = useState<MovementMode>("firstPerson");
 
   const objectRefs = useRef<Record<number, Object3D>>({});
-
-  const updatePanelState = async (id: number | null) => {
-    if (id === null) {
-      setPanelState(null);
-      return;
-    }
-
-    const component = await getComponentById(id);
-    if (!component) {
-      console.error("Selected object contains and invalid component id");
-      return;
-    }
-
-    setPanelState(createPanelState(component));
-  };
 
   useEffect(() => {
     // eslint-disable-next-line
     updatePanelState(selectedComponentId);
   }, [selectedComponentId]);
 
-  //for any changes to the panel state we want to see an immediate update
+  /* Immediate Updates */
   useEffect(() => {
     if (selectedComponentId === null) return;
 
@@ -81,6 +75,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
     }
   }, [selectedComponentId, panelState]);
 
+  /* Object Ref Management */
   const registerObjectRef = (componentId: number, object: Object3D) => {
     objectRefs.current[componentId] = object;
   };
@@ -113,7 +108,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
     }
   };
 
-  //strictly used for saving the object when transforming with gizmos
+  /* Save Logic */
   const saveObjectTransform = async () => {
     if (selectedComponentId === null) return;
 
@@ -168,6 +163,70 @@ export default function LayoutScene(props: LayoutSceneProps) {
     }
   };
 
+  /* Transform Button Nav */
+  const TransformButton = ({
+    icon: Icon,
+    isSelected,
+    onClick,
+  }: {
+    icon: LucideIcon;
+    isSelected?: boolean;
+    onClick: () => void;
+  }) => {
+    return (
+      <button
+        onClick={onClick}
+        className={`relative cursor-pointer p-1 rounded ${isSelected ? "bg-blue-light" : ""}`}
+      >
+        <Icon
+          className={`w-5 h-5 ${isSelected ? "text-gray-medium-dark" : "text-gray-medium"}`}
+        />
+      </button>
+    );
+  };
+
+  const TransformButtonContainer = () => {
+    return (
+      <div className="flex flex-col gap-1 bg-gray-light rounded-lg p-1">
+        <TransformButton
+          icon={movementMode == "firstPerson" ? Eye : Hand}
+          isSelected={false}
+          onClick={() =>
+            setMovementMode(
+              movementMode == "firstPerson" ? "pan" : "firstPerson",
+            )
+          }
+        />
+        <TransformButton
+          icon={Move}
+          isSelected={"translate" == transformMode}
+          onClick={() => setTransformMode("translate")}
+        />
+        <TransformButton
+          icon={Rotate3D}
+          isSelected={"rotate" == transformMode}
+          onClick={() => setTransformMode("rotate")}
+        />
+      </div>
+    );
+  };
+
+  /* Component Panel */
+  const updatePanelState = async (id: number | null) => {
+    if (id === null) {
+      setPanelState(null);
+      return;
+    }
+
+    const component = await getComponentById(id);
+    if (!component) {
+      console.error("Selected object contains and invalid component id");
+      return;
+    }
+
+    setPanelState(createPanelState(component));
+  };
+
   const getComponentPanel = () => {
     if (!panelState) return null;
 
@@ -202,6 +261,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
       <Scene
         components={props.components}
         canvasActive={canvasActive}
+        transformMode={transformMode}
+        movementMode={movementMode}
+        setMovementMode={setMovementMode}
         setCanvasActive={setCanvasActive}
         selectedComponentId={selectedComponentId}
         setSelectedComponentId={handleSetSelectedComponentId}
@@ -210,14 +272,21 @@ export default function LayoutScene(props: LayoutSceneProps) {
         saveObjectChanges={saveObjectTransform}
       ></Scene>
 
-      {selectedComponentId && (
+      {selectedComponentId ? (
         <div onClick={() => setCanvasActive(false)}>
           <DragResizer
             minDim={HORIZ_DRAGGABLE_SECTIONS}
             dragDirection={Direction.LEFT}
           >
             {getComponentPanel()}
+            <div className="absolute top-6 -left-[48px] flex flex-col gap-1 z-10">
+              <TransformButtonContainer />
+            </div>
           </DragResizer>
+        </div>
+      ) : (
+        <div className="absolute top-6 right-6 flex flex-col gap-1 z-10">
+          <TransformButtonContainer />
         </div>
       )}
     </>

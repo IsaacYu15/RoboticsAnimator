@@ -67,19 +67,20 @@ export default function AnimationPage({
         refresh={refreshComponents}
       ></LayoutScene>
 
+      <button
+        className="bg-slate-800 text-white p-2 rounded-2xl mb-0.5"
+        onClick={() => {
+          sendAnimation(components, moduleAddress);
+        }}
+      >
+        Play
+      </button>
+
       <DragResizer
         minDim={VERT_DRAGGABLE_SECTIONS}
         dragDirection={Direction.UP}
       >
         <>
-          <button
-            className="bg-slate-800 text-white p-2 rounded-2xl mb-0.5"
-            onClick={() => {
-              sendAnimation(components, moduleAddress);
-            }}
-          >
-            Play
-          </button>
           <div className="bg-slate-800 h-full w-full flex flex-row gap-2 pt-5">
             <DragResizer
               minDim={HORIZ_DRAGGABLE_SECTIONS}
