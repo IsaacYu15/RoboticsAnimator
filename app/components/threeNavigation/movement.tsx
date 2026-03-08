@@ -11,7 +11,11 @@ import { useInputContext } from "@/app/context/inputContext";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import { Vector3 } from "three";
-import { CAMERA_LOOK_SPEED, CAMERA_MOVE_SPEED } from "./constants";
+import {
+  CAMERA_LOOK_SPEED,
+  CAMERA_MOVE_SPEED,
+  CAMERA_ZOOM_SPEED,
+} from "./constants";
 import { MovementMode } from "@/shared-types";
 
 export interface MovementProps {
@@ -20,8 +24,9 @@ export interface MovementProps {
 }
 export default function Movement({ mode, setMovementMode }: MovementProps) {
   const { camera } = useThree();
+  const { inputs, mousePos, scrollRef } = useInputContext();
   const mouseLastPos = useRef({ x: 0, y: 0 });
-  const { inputs, mousePos } = useInputContext();
+  const scrollLastPos = useRef(0);
 
   const moveForward = () => {
     const forward = new Vector3();
@@ -88,8 +93,18 @@ export default function Movement({ mode, setMovementMode }: MovementProps) {
       delta * CAMERA_MOVE_SPEED,
     );
 
+    //scroll should not be normalized, we should be able to scroll faster than the move speed
+    const scrollDelta = scrollRef.current - scrollLastPos.current;
+    if (scrollDelta !== 0) {
+      camera.position.addScaledVector(
+        moveForward(),
+        -Math.sign(scrollDelta) * CAMERA_ZOOM_SPEED * delta,
+      );
+    }
+
     //update mouse pos
     mouseLastPos.current = { ...mousePos.current };
+    scrollLastPos.current = scrollRef.current;
   });
   return null;
 }

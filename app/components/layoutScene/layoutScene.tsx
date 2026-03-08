@@ -2,6 +2,7 @@
 
 import {
   addComponent,
+  deleteComponent,
   getComponentById,
   updateComponent,
 } from "@/app/actions/components";
@@ -28,6 +29,7 @@ import PropertiesPanel from "./properties/propertiesPanel";
 import Scene from "./sceneObjects/scene";
 import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 import { Eye, Hand, LucideIcon, Move, Rotate3D } from "lucide-react";
+import { KEY_BACKSPACE } from "@/app/constants";
 
 export interface LayoutSceneProps {
   id: number;
@@ -48,6 +50,23 @@ export default function LayoutScene(props: LayoutSceneProps) {
   const [movementMode, setMovementMode] = useState<MovementMode>("firstPerson");
 
   const objectRefs = useRef<Record<number, Object3D>>({});
+
+  useEffect(() => {
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      if (e.key === KEY_BACKSPACE && selectedComponentId !== null) {
+        e.preventDefault();
+        const result = await deleteComponent(selectedComponentId);
+        if (result.success) {
+          setSelectedComponentId(null);
+          setPanelState(null);
+          await props.refresh();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedComponentId, props]);
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -143,6 +162,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
       name: asset.name,
       colour: asset.colour,
       config: asset.config,
+      pin: 0,
       x: 0,
       y: 0,
       z: 0,
@@ -244,7 +264,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
   };
 
   return (
-    <>
+    <div
+      className={`${movementMode == "firstPerson" ? "cursor-default" : "cursor-grab"} w-full h-full`}
+    >
       <div onClick={() => setCanvasActive(false)}>
         <PropertiesPanel
           id={props.id}
@@ -289,6 +311,6 @@ export default function LayoutScene(props: LayoutSceneProps) {
           <TransformButtonContainer />
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -12,14 +12,17 @@ import React, {
 const InputContext = createContext<{
   inputs: RefObject<Set<string>>;
   mousePos: RefObject<Point>;
+  scrollRef: RefObject<number>;
 }>({
   inputs: { current: new Set<string>() },
   mousePos: { current: { x: 0, y: 0 } },
+  scrollRef: { current: 0 },
 });
 
 export const InputProvider = ({ children }: { children: React.ReactNode }) => {
   const inputs = useRef<Set<string>>(new Set<string>());
   const mousePos = useRef<Point>({ x: 0, y: 0 });
+  const scrollRef = useRef<number>(0);
 
   useEffect(() => {
     const setMousePos = (e?: MouseEvent) => {
@@ -43,6 +46,9 @@ export const InputProvider = ({ children }: { children: React.ReactNode }) => {
     const onContextMenu = (e: MouseEvent) => {
       e.preventDefault();
     };
+    const onWheel = (e: WheelEvent) => {
+      scrollRef.current += e.deltaY;
+    };
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
@@ -50,6 +56,7 @@ export const InputProvider = ({ children }: { children: React.ReactNode }) => {
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("contextmenu", onContextMenu);
+    window.addEventListener("wheel", onWheel);
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
@@ -58,11 +65,12 @@ export const InputProvider = ({ children }: { children: React.ReactNode }) => {
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("contextmenu", onContextMenu);
+      window.removeEventListener("wheel", onWheel);
     };
   }, []);
 
   return (
-    <InputContext.Provider value={{ inputs: inputs, mousePos: mousePos }}>
+    <InputContext.Provider value={{ inputs, mousePos, scrollRef }}>
       {children}
     </InputContext.Provider>
   );

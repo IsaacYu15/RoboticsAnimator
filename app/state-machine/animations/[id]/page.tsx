@@ -15,6 +15,7 @@ import { sendAnimation } from "@/app/services/servoController";
 import { getModules } from "@/app/actions/modules";
 import { getAnimationById } from "@/app/actions/animations";
 import { getAssets } from "@/app/actions/assets";
+import TimelineToolbar from "./timelineToolbar";
 
 export default function AnimationPage({
   params,
@@ -27,6 +28,28 @@ export default function AnimationPage({
   const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
+
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLiveMode, setIsLiveMode] = useState(false);
+
+  const handleFastForward = useCallback(() => {
+    // TODO: implement fast forward logic
+  }, []);
+
+  const handleRestart = useCallback(() => {
+    // TODO: implement restart logic
+  }, []);
+
+  const handlePlay = useCallback(
+    async (playing: boolean) => {
+      setIsPlaying((prev) => !prev);
+      if (playing) {
+        await sendAnimation(components, moduleAddress);
+      }
+    },
+    [setIsPlaying, components, moduleAddress],
+  );
 
   //fetch all async calls together to avoid multiple re-renders
   const refreshComponents = useCallback(async () => {
@@ -58,7 +81,7 @@ export default function AnimationPage({
   }, [id]);
 
   return (
-    <div className="w-screen h-screen flex flex-col justify-start items-center p-10 bg-gray-50">
+    <div className="w-screen h-screen flex flex-col justify-start items-center bg-white">
       <LayoutScene
         id={parseInt(id)}
         title={title}
@@ -67,20 +90,24 @@ export default function AnimationPage({
         refresh={refreshComponents}
       ></LayoutScene>
 
-      <button
-        className="bg-slate-800 text-white p-2 rounded-2xl mb-0.5"
-        onClick={() => {
-          sendAnimation(components, moduleAddress);
-        }}
-      >
-        Play
-      </button>
-
       <DragResizer
         minDim={VERT_DRAGGABLE_SECTIONS}
         dragDirection={Direction.UP}
       >
         <>
+          <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-full flex flex-row gap-1 z-10">
+            <TimelineToolbar
+              playbackSpeed={playbackSpeed}
+              setPlaybackSpeed={setPlaybackSpeed}
+              isPlaying={isPlaying}
+              setIsPlaying={handlePlay}
+              onFastForward={handleFastForward}
+              onRestart={handleRestart}
+              isLiveMode={isLiveMode}
+              setIsLiveMode={setIsLiveMode}
+            />
+          </div>
+
           <div className="bg-slate-800 h-full w-full flex flex-row gap-2 pt-5">
             <DragResizer
               minDim={HORIZ_DRAGGABLE_SECTIONS}
