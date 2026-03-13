@@ -13,7 +13,7 @@ import { ToastMessages } from "../../toast/toastMessages";
 
 interface ServoPanelProps {
   state: ServoPanelState;
-  setState: (state: PanelState | null) => void;
+  setState: (state?: PanelState) => void;
 }
 
 export function ServoPanel({ state, setState }: ServoPanelProps) {

@@ -5,7 +5,7 @@ import { ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { Box3, Group, Mesh, Vector3 } from "three";
 
-export interface ObjectProps {
+interface ObjectProps {
   component: Component;
   objectType: ObjectType;
   onSelect: () => void;

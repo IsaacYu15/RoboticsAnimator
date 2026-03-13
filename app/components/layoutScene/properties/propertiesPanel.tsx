@@ -14,13 +14,13 @@ import DragResizer from "../../dragHandlers/dragResizer";
 import { HORIZ_DRAGGABLE_SECTIONS } from "../../dragHandlers/constants";
 import { STATE_MACHINE_ROUTE } from "@/app/constants/routes";
 
-export interface PropertiesPanelProps {
+interface PropertiesPanelProps {
   id: number;
   title: string;
   components: Component[];
   assets: Asset[];
 
-  selectedComponentId: number | null;
+  selectedComponentId?: number;
   setSelectedComponentId: (id: number) => void;
   onSpawnAsset: (asset: Asset) => void;
   onDeleteAsset: (asset: Asset) => void;

@@ -5,7 +5,7 @@ import { AnimationEvent } from "@/shared-types";
 import { useState, useEffect, useRef } from "react";
 import KeyframeTooltip from "./keyframeTooltip";
 
-export interface KeyFrameProps {
+interface KeyFrameProps {
   event: AnimationEvent;
   onRefresh: () => void;
 }

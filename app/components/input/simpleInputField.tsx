@@ -13,17 +13,17 @@ interface SimpleInputFieldProps {
 }
 
 function Input({ field }: { field: Field }) {
-  const [editValue, setEditValue] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditValue(String(e.target.value));
   };
 
   const handleBlur = () => {
-    if (editValue !== null) {
+    if (editValue !== undefined) {
       field.onValidate(editValue);
     }
-    setEditValue(null);
+    setEditValue(undefined);
   };
 
   return (
@@ -38,14 +38,14 @@ function Input({ field }: { field: Field }) {
   );
 }
 
-export default function SimpleInputField(props: SimpleInputFieldProps) {
+export default function SimpleInputField({ label, fields }: SimpleInputFieldProps) {
   return (
     <div className="flex flex-row items-center justify-between">
-      <p className="flex-1">{props.label}</p>
+      <p className="flex-1">{label}</p>
 
       <div className="flex flex-row items-start justify-end gap-2 w-2/3">
-        {props.fields.map((field, index) => (
-          <Input key={`${props.label}-${index}`} field={field} />
+        {fields.map((field, index) => (
+          <Input key={`${label}-${index}`} field={field} />
         ))}
       </div>
     </div>

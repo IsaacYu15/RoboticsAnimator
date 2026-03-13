@@ -1,8 +1,8 @@
-import AssetThumbnail from "@/app/components/assetThumbnail/assetThumbnail";
+import AssetThumbnail from "@/app/components/identifiers/assetThumbnail";
 import { Asset } from "@/shared-types";
 import { Trash2 } from "lucide-react";
 
-export interface AssetItemProps {
+interface AssetItemProps {
   asset: Asset;
   onSpawn: (asset: Asset) => void;
   onDelete: (asset: Asset) => void;
@@ -20,7 +20,7 @@ export default function AssetItem({
     >
       <div className="flex flex-row items-center gap-1 w-full aspect-square relative">
         <div className="flex flex-col gap-1 items-center justify-center">
-          <AssetThumbnail type={asset.type} />
+          <AssetThumbnail type={asset.type ?? undefined} />
           <h5 className="flex-1 text-left">{asset.name}</h5>
         </div>
 

@@ -1,5 +1,5 @@
 interface ColourPaletteProps {
-  selectedColour: string | null;
+  selectedColour?: string;
   setSelectedColour: (colour: string) => void;
 }
 

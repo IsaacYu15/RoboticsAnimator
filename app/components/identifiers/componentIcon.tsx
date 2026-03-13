@@ -2,16 +2,16 @@ import { ComponentType } from "@/app/constants/components";
 import { ObjectType } from "@/shared-types";
 import { SettingsIcon } from "lucide-react";
 
-export function getObjectType(componentType: string | null): ObjectType | null {
+export function getObjectType(componentType?: string): ObjectType | undefined {
   switch (componentType) {
     case ComponentType.SERVO:
       return ObjectType.SG90_SERVO;
     default:
-      return null;
+      return undefined;
   }
 }
 
-export function getComponentIcon(type: string | null) {
+export function ComponentIcon(type?: string) {
   switch (type) {
     case ComponentType.SERVO:
       return <SettingsIcon className="icon-default" />;

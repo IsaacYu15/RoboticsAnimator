@@ -119,6 +119,7 @@ export default function AnimationPage({
                 {components.map((component) => (
                   <ComponentTag
                     key={component.id}
+                    type={component.type}
                     name={component.name}
                     selected={false}
                   />

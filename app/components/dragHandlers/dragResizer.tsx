@@ -3,7 +3,7 @@
 import { ReactNode, useState } from "react";
 import { Direction } from "@/shared-types";
 
-export interface DragResizerProps {
+interface DragResizerProps {
   minDim: number;
   dragDirection: Direction;
   children: ReactNode;

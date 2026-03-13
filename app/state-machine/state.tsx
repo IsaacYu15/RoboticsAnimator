@@ -5,7 +5,7 @@ import { updateState } from "@actions/states";
 import DragMover from "../components/dragHandlers/dragMover";
 import { useRef } from "react";
 
-export interface StateProps extends State {
+interface StateProps extends State {
   onTransitionClick: (id: number) => void;
   onClick: (id: number) => void;
   isSelected?: boolean;

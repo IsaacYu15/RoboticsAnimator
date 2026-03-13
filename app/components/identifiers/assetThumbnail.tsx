@@ -1,21 +1,21 @@
 "use client";
 
-import { getObjectType } from "@/app/components/layoutScene/utils";
+import { getObjectType } from "@/app/components/identifiers/componentIcon";
 import { OBJECT_TYPE_CONFIG } from "@/shared-types";
 import Image from "next/image";
 
-export interface ModelThumbnailProps {
-  type: string | null;
+interface AssetThumbnailProps {
+  type?: string;
   size?: number;
 }
 
 export default function AssetThumbnail({
   type,
   size = 75,
-}: ModelThumbnailProps) {
+}: AssetThumbnailProps) {
   const objectType = getObjectType(type);
 
-  if (objectType === null) {
+  if (objectType === undefined) {
     return (
       <div
         style={{ width: size, height: size }}

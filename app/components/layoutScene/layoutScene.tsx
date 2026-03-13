@@ -31,7 +31,7 @@ import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 import { Eye, Hand, LucideIcon, Move, Rotate3D } from "lucide-react";
 import { KEY_BACKSPACE } from "@/app/constants";
 
-export interface LayoutSceneProps {
+interface LayoutSceneProps {
   id: number;
   title: string;
   components: Component[];
@@ -41,10 +41,8 @@ export interface LayoutSceneProps {
 
 export default function LayoutScene(props: LayoutSceneProps) {
   const [canvasActive, setCanvasActive] = useState(false);
-  const [selectedComponentId, setSelectedComponentId] = useState<number | null>(
-    null,
-  );
-  const [panelState, setPanelState] = useState<PanelState | null>(null);
+  const [selectedComponentId, setSelectedComponentId] = useState<number>();
+  const [panelState, setPanelState] = useState<PanelState>();
   const [transformMode, setTransformMode] =
     useState<TransformMode>("translate");
   const [movementMode, setMovementMode] = useState<MovementMode>("firstPerson");
@@ -55,14 +53,14 @@ export default function LayoutScene(props: LayoutSceneProps) {
     const handleKeyDown = async (e: KeyboardEvent) => {
       if (
         e.key === KEY_BACKSPACE &&
-        selectedComponentId !== null &&
+        selectedComponentId !== undefined &&
         canvasActive
       ) {
         e.preventDefault();
         const result = await deleteComponent(selectedComponentId);
         if (result.success) {
-          setSelectedComponentId(null);
-          setPanelState(null);
+          setSelectedComponentId(undefined);
+          setPanelState(undefined);
           await props.refresh();
         }
       }
@@ -79,7 +77,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
 
   /* Immediate Updates */
   useEffect(() => {
-    if (selectedComponentId === null) return;
+    if (selectedComponentId === undefined) return;
 
     const selectedObject = objectRefs.current[selectedComponentId];
 
@@ -103,7 +101,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
     objectRefs.current[componentId] = object;
   };
 
-  const handleSetSelectedComponentId = async (componentId: number | null) => {
+  const handleSetSelectedComponentId = async (componentId?: number) => {
     if (selectedComponentId && selectedComponentId !== componentId) {
       const selectedObject = objectRefs.current[selectedComponentId];
 
@@ -122,17 +120,17 @@ export default function LayoutScene(props: LayoutSceneProps) {
       await props.refresh();
     }
 
-    if (componentId !== null) {
+    if (componentId !== undefined) {
       setSelectedComponentId(componentId);
     } else {
-      setSelectedComponentId(null);
-      setPanelState(null);
+      setSelectedComponentId(undefined);
+      setPanelState(undefined);
     }
   };
 
   /* Save Logic */
   const saveObjectTransform = async () => {
-    if (selectedComponentId === null) return;
+    if (selectedComponentId === undefined) return;
 
     const selectedObject = objectRefs.current[selectedComponentId];
 
@@ -155,7 +153,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
             rotY: radiansToDegrees(selectedObject.rotation.y),
             rotZ: radiansToDegrees(selectedObject.rotation.z),
           })
-        : null,
+        : undefined,
     );
   };
 
@@ -235,9 +233,9 @@ export default function LayoutScene(props: LayoutSceneProps) {
   };
 
   /* Component Panel */
-  const updatePanelState = async (id: number | null) => {
-    if (id === null) {
-      setPanelState(null);
+  const updatePanelState = async (id?: number) => {
+    if (id === undefined) {
+      setPanelState(undefined);
       return;
     }
 

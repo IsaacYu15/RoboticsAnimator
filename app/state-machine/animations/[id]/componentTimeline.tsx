@@ -4,7 +4,7 @@ import { addAnimationEvent } from "@/app/actions/animation-event";
 import { AnimationEvent, ComponentWithAnimation } from "@/shared-types";
 import KeyFrame from "./keyframe";
 
-export interface ComponentTimeLineProps {
+interface ComponentTimeLineProps {
   animations: AnimationEvent[];
   component: ComponentWithAnimation;
   animationId: number;

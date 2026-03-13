@@ -1,4 +1,4 @@
-export interface NavButtonProps {
+interface NavButtonProps {
   name: string;
   href: string;
   active: boolean;

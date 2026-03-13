@@ -6,7 +6,7 @@ import CircleButton, {
   CircleButtonSize,
 } from "@/app/components/input/circleButton";
 
-export interface TimelineToolbarProps {
+interface TimelineToolbarProps {
   playbackSpeed: number;
   setPlaybackSpeed: (speed: number) => void;
   isPlaying: boolean;

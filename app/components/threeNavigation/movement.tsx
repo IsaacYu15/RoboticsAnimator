@@ -18,7 +18,7 @@ import {
 } from "./constants";
 import { MovementMode } from "@/shared-types";
 
-export interface MovementProps {
+interface MovementProps {
   mode: MovementMode;
   setMovementMode: (mode: MovementMode) => void;
 }

@@ -5,7 +5,7 @@ export enum CircleButtonSize {
   Large,
 }
 
-export interface CircleButtonProps {
+interface CircleButtonProps {
   icon?: LucideIcon;
   onClick: () => void;
   size?: CircleButtonSize;

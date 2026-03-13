@@ -1,4 +1,4 @@
-export interface TabButtonProps {
+interface TabButtonProps {
   text: string;
   active: boolean;
   onClick: () => void;

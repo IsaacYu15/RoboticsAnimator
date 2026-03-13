@@ -6,10 +6,10 @@ import { TransformControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { RefObject } from "react";
 import { Group, Object3D } from "three";
-import { getObjectType } from "../utils";
+import { getObjectType } from "../../identifiers/componentIcon";
 import Object from "./object";
 
-export interface SceneProps {
+interface SceneProps {
   components: Component[];
 
   canvasActive: boolean;
@@ -18,8 +18,8 @@ export interface SceneProps {
   movementMode: MovementMode;
   setMovementMode: (mode: MovementMode) => void;
 
-  selectedComponentId: number | null;
-  setSelectedComponentId: (componentId: number | null) => void;
+  selectedComponentId?: number;
+  setSelectedComponentId: (componentId?: number) => void;
 
   objectRefs: RefObject<Record<number, Object3D>>;
   registerObjectRef: (componentId: number, object: Group) => void;
@@ -35,12 +35,12 @@ export default function Scene(props: SceneProps) {
         zoom: 1,
         position: [0, 0, 5],
       }}
-      onPointerMissed={() => props.setSelectedComponentId(null)}
+      onPointerMissed={() => props.setSelectedComponentId(undefined)}
       onClick={() => props.setCanvasActive(true)}
     >
       <gridHelper />
 
-      {props.selectedComponentId && (
+      {props.selectedComponentId !== undefined && (
         <TransformControls
           mode={props.transformMode}
           object={props.objectRefs.current[props.selectedComponentId]}
@@ -49,8 +49,8 @@ export default function Scene(props: SceneProps) {
       )}
 
       {props.components.map((component: Component) => {
-        const objectType = getObjectType(component.type);
-        if (objectType === null) return null;
+        const objectType = getObjectType(component.type ?? undefined);
+        if (objectType === undefined) return null;
 
         return (
           <Object

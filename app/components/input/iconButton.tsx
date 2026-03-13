@@ -1,6 +1,6 @@
 import { LucideIcon } from "lucide-react";
 
-export interface IconButtonProps {
+interface IconButtonProps {
   icon: LucideIcon;
   onClick: () => void;
 }

@@ -1,8 +1,8 @@
-import { getComponentIcon } from "../utils";
+import { ComponentIcon } from "../../identifiers/componentIcon";
 
-export interface PartItemProps {
-  name: string | null;
-  type: string | null;
+interface PartItemProps {
+  name?: string;
+  type?: string;
   level: number;
   selected: boolean;
   setSelected: () => void;
@@ -13,9 +13,9 @@ const LEVEL_INDENTATION = 16;
 export default function PartItem({
   name,
   type,
+  level,
   selected,
   setSelected,
-  level,
 }: PartItemProps) {
   return (
     <button
@@ -28,7 +28,7 @@ export default function PartItem({
         className={`flex flex-row items-center gap-1 h-8`}
         style={{ paddingLeft: `${level * LEVEL_INDENTATION}px` }}
       >
-        {getComponentIcon(type)}
+        {ComponentIcon(type)}
         <h5>{name}</h5>
       </div>
     </button>

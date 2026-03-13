@@ -26,10 +26,10 @@ export default function StateMachineCanvas({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [selectedStateId, setSelectedStateId] = useState<number | null>(null);
-  const [fromId, setFromId] = useState<number | null>(null);
+  const [selectedStateId, setSelectedStateId] = useState<number>();
+  const [fromId, setFromId] = useState<number>();
   const [editName, setEditName] = useState("");
-  const [editAnimId, setEditAnimId] = useState<number | null>(null);
+  const [editAnimId, setEditAnimId] = useState<number>();
 
   const statesMap = new Map(initialStates.map((s) => [s.id, s]));
 
@@ -56,12 +56,12 @@ export default function StateMachineCanvas({
 
   const handleStateClick = (id: number) => {
     if (selectedStateId === id) {
-      setSelectedStateId(null);
+      setSelectedStateId(undefined);
     } else {
       const data = statesMap.get(id);
       setSelectedStateId(id);
       setEditName(data?.name || "");
-      setEditAnimId(data?.animation_id || null);
+      setEditAnimId(data?.animation_id ?? undefined);
     }
   };
 
@@ -86,7 +86,7 @@ export default function StateMachineCanvas({
         to_id: toId,
         condition: "",
       });
-      setFromId(null);
+      setFromId(undefined);
     }
   };
 
@@ -140,7 +140,7 @@ export default function StateMachineCanvas({
                 className="bg-red-50 text-red-600 p-3 rounded-xl font-medium"
                 onClick={() => {
                   deleteState(selectedStateId);
-                  setSelectedStateId(null);
+                  setSelectedStateId(undefined);
                 }}
               >
                 Delete State

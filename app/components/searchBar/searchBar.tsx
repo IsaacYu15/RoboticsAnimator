@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-export interface SearchBarProps {
+interface SearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }

@@ -10,10 +10,7 @@ interface KeyframeTooltipProps {
   onClose: () => void;
 }
 
-export default function KeyframeTooltip({
-  event,
-  onClose,
-}: KeyframeTooltipProps) {
+export default function KeyframeTooltip({ event, onClose }: KeyframeTooltipProps) {
   const [action, setAction] = useState(event.action);
 
   const handleSave = async () => {

@@ -5,29 +5,29 @@ import { Component, Transform, UpdateComponentInput } from "@/shared-types";
 export abstract class PanelState {
   type: ComponentType;
   name: string;
-  colour: string | null;
-  pin: number | null;
+  colour?: string;
+  pin?: number;
   x: number;
   y: number;
   z: number;
   rotX: number;
   rotY: number;
   rotZ: number;
-  config: string | null;
+  config?: string;
 
   constructor(component: Component) {
     this.type = component.type as ComponentType;
     this.name = component.name ?? "";
-    this.colour = component.colour;
-    this.pin = component.pin;
+    this.colour = component.colour ?? undefined;
+    this.pin = component.pin ?? undefined;
     this.x = component.x;
     this.y = component.y;
     this.z = component.z;
     this.rotX = component.rot_x;
     this.rotY = component.rot_y;
     this.rotZ = component.rot_z;
-    this.config = component.config;
-    this.parseConfig(component.config);
+    this.config = component.config ?? undefined;
+    this.parseConfig(component.config ?? undefined);
   }
 
   updateTransform(transform: Transform): this {
@@ -55,7 +55,7 @@ export abstract class PanelState {
     };
   }
 
-  abstract parseConfig(config: string | null): void;
+  abstract parseConfig(config?: string): void;
   abstract generateConfig(): string;
 
   clone(): this {
@@ -64,14 +64,14 @@ export abstract class PanelState {
 }
 
 export class ServoPanelState extends PanelState {
-  pwmMinAngle: number | null = 0;
-  pwmMaxAngle: number | null = 0;
+  pwmMinAngle?: number = 0;
+  pwmMaxAngle?: number = 0;
 
-  parseConfig(config: string | null): void {
-    const parsed = config ? JSON.parse(config) : null;
+  parseConfig(config?: string): void {
+    const parsed = config ? JSON.parse(config) : undefined;
 
-    this.pwmMinAngle = parsed?.pwmMinAngle ?? null;
-    this.pwmMaxAngle = parsed?.pwmMaxAngle ?? null;
+    this.pwmMinAngle = parsed?.pwmMinAngle ?? undefined;
+    this.pwmMaxAngle = parsed?.pwmMaxAngle ?? undefined;
   }
 
   generateConfig(): string {

@@ -3,7 +3,7 @@ import Item from "./partItem";
 
 interface PartItemHeirachyProps {
   components: Component[];
-  selectedComponentId: number | null;
+  selectedComponentId?: number;
   setSelectedComponentId: (id: number) => void;
 }
 
@@ -17,8 +17,8 @@ export default function PartItemHeirachy({
       {components.map((component) => (
         <Item
           key={component.id}
-          name={component.name}
-          type={component.type}
+          name={component.name ?? undefined}
+          type={component.type ?? undefined}
           selected={component.id === selectedComponentId}
           setSelected={() => {
             setSelectedComponentId(component.id);

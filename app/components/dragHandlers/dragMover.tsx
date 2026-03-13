@@ -1,7 +1,7 @@
 "use client";
 import { ReactNode, useRef, useState } from "react";
 
-export interface DragMoverProps {
+interface DragMoverProps {
   children: ReactNode;
   x: number;
   y: number;

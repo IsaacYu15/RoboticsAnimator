@@ -1,6 +1,6 @@
 import { Point } from "@/shared-types";
 
-export interface ArrowProps {
+interface ArrowProps {
   from: Point;
   to: Point;
 }

@@ -3,10 +3,7 @@ interface PlaybackSliderProps {
   onChange: (value: number) => void;
 }
 
-export default function PlaybackSlider({
-  value,
-  onChange,
-}: PlaybackSliderProps) {
+export default function PlaybackSlider({ value, onChange }: PlaybackSliderProps) {
   const MAX_SPEED = 2.0;
   const MIN_SPEED = 0.25;
 

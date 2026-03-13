@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 
-export interface ToastProps {
+interface ToastProps {
   message: string;
   onDismiss: () => void;
 }
