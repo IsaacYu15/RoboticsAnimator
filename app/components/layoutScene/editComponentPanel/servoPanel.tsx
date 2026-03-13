@@ -1,6 +1,6 @@
 "use client";
 
-import { tryParseInt } from "@/app/services/parse";
+import { tryParseFloat, tryParseInt } from "@/app/services/parse";
 
 import ColourPalette from "../../colourPalette/colourPalette";
 import SimpleInputField from "../../input/simpleInputField";
@@ -69,7 +69,8 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
           fields={[
             {
               value: state.pin ?? 0,
-              onChange: (value) => updateField("pin", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("pin", tryParseInt(value) ?? 0),
             },
           ]}
         />
@@ -78,7 +79,7 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
           fields={[
             {
               value: state.pwmMinAngle ?? 0,
-              onChange: (value) =>
+              onValidate: (value) =>
                 updateField("pwmMinAngle", tryParseInt(value) ?? 0),
             },
           ]}
@@ -88,7 +89,7 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
           fields={[
             {
               value: state.pwmMaxAngle ?? 0,
-              onChange: (value) =>
+              onValidate: (value) =>
                 updateField("pwmMaxAngle", tryParseInt(value) ?? 0),
             },
           ]}
@@ -102,15 +103,18 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
           fields={[
             {
               value: state.x,
-              onChange: (value) => updateField("x", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("x", tryParseFloat(value) ?? 0),
             },
             {
               value: state.y,
-              onChange: (value) => updateField("y", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("y", tryParseFloat(value) ?? 0),
             },
             {
               value: state.z,
-              onChange: (value) => updateField("z", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("z", tryParseFloat(value) ?? 0),
             },
           ]}
         />
@@ -119,15 +123,18 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
           fields={[
             {
               value: state.rotX,
-              onChange: (value) => updateField("rotX", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("rotX", tryParseFloat(value) ?? 0),
             },
             {
               value: state.rotY,
-              onChange: (value) => updateField("rotY", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("rotY", tryParseFloat(value) ?? 0),
             },
             {
               value: state.rotZ,
-              onChange: (value) => updateField("rotZ", tryParseInt(value) ?? 0),
+              onValidate: (value) =>
+                updateField("rotZ", tryParseFloat(value) ?? 0),
             },
           ]}
         />

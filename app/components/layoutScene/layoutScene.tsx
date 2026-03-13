@@ -53,7 +53,11 @@ export default function LayoutScene(props: LayoutSceneProps) {
 
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
-      if (e.key === KEY_BACKSPACE && selectedComponentId !== null) {
+      if (
+        e.key === KEY_BACKSPACE &&
+        selectedComponentId !== null &&
+        canvasActive
+      ) {
         e.preventDefault();
         const result = await deleteComponent(selectedComponentId);
         if (result.success) {
@@ -66,7 +70,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedComponentId, props]);
+  }, [selectedComponentId, props, canvasActive]);
 
   useEffect(() => {
     // eslint-disable-next-line

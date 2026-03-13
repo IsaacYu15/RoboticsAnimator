@@ -110,11 +110,11 @@ class AnimationController {
         addComponent(type, pin, keyframe, keyframeCount);
       }
     
-      printData();
-
       //reset to start
       isPlaying = true;
       currentTime = 0;
+
+      printData();
     }
 
     void playCurrentAnimation(float delta_time)
@@ -149,10 +149,20 @@ class AnimationController {
         //servo types
         if (strcmp(components[i].type, "servo") == 0)
         {
-          const int inputAngle = linearInterpolation(currentTime, 
-            curr_kf.trigger_time, next_kf.trigger_time,
-            atoi(curr_kf.action), atoi(next_kf.action)
-          );
+          int inputAngle;
+          
+          // before first keyframe, take the value of the first keyframe
+          if (currentTime < curr_kf.trigger_time)
+          {
+            inputAngle = atoi(curr_kf.action);
+          }
+          else
+          {
+            inputAngle = linearInterpolation(currentTime, 
+              curr_kf.trigger_time, next_kf.trigger_time,
+              atoi(curr_kf.action), atoi(next_kf.action)
+            );
+          }
             
           pwm.setPWM(components[i].pin, 0, angleToPWM(inputAngle));
         }
@@ -175,8 +185,14 @@ class AnimationController {
     void refresh() {
       for (int i = 0; i < componentCount; i++) {
         free(components[i].type);
+        for (int j = 0; j < components[i].keyframeCount; j++) {
+          free(components[i].keyframes[j].action);
+        }
+        free(components[i].keyframes);
       }
       componentCount = 0;
+      isPlaying = false;
+      currentTime = 0;
     }
 
     void printData() {

@@ -1,4 +1,5 @@
 import { ComponentType } from "@/app/constants/components";
+import { roundToDecimals } from "@/app/services/parse";
 import { Component, Transform, UpdateComponentInput } from "@/shared-types";
 
 export abstract class PanelState {
@@ -30,12 +31,12 @@ export abstract class PanelState {
   }
 
   updateTransform(transform: Transform): this {
-    this.x = transform.x;
-    this.y = transform.y;
-    this.z = transform.z;
-    this.rotX = transform.rotX;
-    this.rotY = transform.rotY;
-    this.rotZ = transform.rotZ;
+    this.x = roundToDecimals(transform.x);
+    this.y = roundToDecimals(transform.y);
+    this.z = roundToDecimals(transform.z);
+    this.rotX = roundToDecimals(transform.rotX);
+    this.rotY = roundToDecimals(transform.rotY);
+    this.rotZ = roundToDecimals(transform.rotZ);
     return this;
   }
 

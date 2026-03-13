@@ -141,17 +141,15 @@ export default function AnimationPage({
                 ))}
               </div>
               <div className="h-full w-full flex flex-col justify-start">
-                {components.map((component: ComponentWithAnimation) =>
-                  component.animation_events.length > 0 ? (
-                    <ComponentTimeline
-                      key={component.id}
-                      component={component}
-                      animationId={component.animation_events[0].animation_id}
-                      animations={component.animation_events}
-                      refresh={refreshComponents}
-                    />
-                  ) : null,
-                )}
+                {components.map((component: ComponentWithAnimation) => (
+                  <ComponentTimeline
+                    key={component.id}
+                    component={component}
+                    animationId={parseInt(id)}
+                    animations={component.animation_events}
+                    refresh={refreshComponents}
+                  />
+                ))}
               </div>
             </div>
           </div>
