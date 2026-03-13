@@ -9,7 +9,7 @@ export interface ModelThumbnailProps {
   size?: number;
 }
 
-export default function ModelThumbnail({
+export default function AssetThumbnail({
   type,
   size = 75,
 }: ModelThumbnailProps) {
