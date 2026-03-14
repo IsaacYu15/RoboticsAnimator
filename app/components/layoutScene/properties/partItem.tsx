@@ -26,7 +26,7 @@ export default function PartItem({
     >
       <div
         className={`flex flex-row items-center gap-1 h-8`}
-        style={{ paddingLeft: `${level * LEVEL_INDENTATION}px` }}
+        style={{ paddingLeft: level * LEVEL_INDENTATION }}
       >
         {ComponentIcon(type)}
         <h5>{name}</h5>

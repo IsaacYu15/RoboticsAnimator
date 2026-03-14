@@ -9,32 +9,44 @@ interface ComponentTimeLineProps {
   component: ComponentWithAnimation;
   animationId: number;
   refresh: () => void;
+  timelineUnitWidth: number;
 }
 
-export default function ComponentTimeLine(props: ComponentTimeLineProps) {
+export default function ComponentTimeLine({
+  animations,
+  component,
+  animationId,
+  refresh,
+  timelineUnitWidth,
+}: ComponentTimeLineProps) {
   const handleDoubleClick = async (e: React.MouseEvent) => {
     const timeline = e.currentTarget;
     const timelineRect = timeline.getBoundingClientRect();
     const newX = e.clientX - timelineRect.left;
-    const newTriggerTime = newX / 100;
+    const newTriggerTime = newX / timelineUnitWidth;
 
     await addAnimationEvent({
-      animation_id: props.animationId,
-      component_id: props.component.id,
+      animation_id: animationId,
+      component_id: component.id,
       trigger_time: newTriggerTime,
       action: "0",
     });
 
-    props.refresh();
+    refresh();
   };
 
   return (
     <div
       onDoubleClick={handleDoubleClick}
-      className="h-10 w-full flex flex-row items-center relative"
+      className="h-full w-full bg-white border border-gray-light-medium border-t-0 flex flex-row items-center relative"
     >
-      {props.animations.map((event: AnimationEvent) => (
-        <KeyFrame key={event.id} event={event} onRefresh={props.refresh} />
+      {animations.map((event: AnimationEvent) => (
+        <KeyFrame
+          key={event.id}
+          event={event}
+          onRefresh={refresh}
+          timelineUnitWidth={timelineUnitWidth}
+        />
       ))}
     </div>
   );

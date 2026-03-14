@@ -4,18 +4,27 @@ import { updateAnimationEvent } from "@/app/actions/animation-event";
 import { AnimationEvent } from "@/shared-types";
 import { useState, useEffect, useRef } from "react";
 import KeyframeTooltip from "./keyframeTooltip";
+import { clamp } from "@/app/services/math";
 
 interface KeyFrameProps {
   event: AnimationEvent;
   onRefresh: () => void;
+  timelineUnitWidth: number;
 }
 
-export default function KeyFrame({ event, onRefresh }: KeyFrameProps) {
+export default function KeyFrame({
+  event,
+  onRefresh,
+  timelineUnitWidth,
+}: KeyFrameProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
   const wasDragged = useRef(false);
-  const [position, setPosition] = useState(Number(event.trigger_time) * 100);
+  const [dragPosition, setDragPosition] = useState<number>();
+
+  const position =
+    dragPosition ?? Number(event.trigger_time) * timelineUnitWidth;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -30,8 +39,12 @@ export default function KeyFrame({ event, onRefresh }: KeyFrameProps) {
       const timeline = ref.current.parentElement?.parentElement;
       if (timeline) {
         const timelineRect = timeline.getBoundingClientRect();
-        const newX = e.clientX - timelineRect.left;
-        setPosition(newX);
+        const newX = clamp(
+          0,
+          e.clientX - timelineRect.left,
+          timelineRect.width,
+        );
+        setDragPosition(newX);
       }
     };
 
@@ -45,13 +58,22 @@ export default function KeyFrame({ event, onRefresh }: KeyFrameProps) {
         const timeline = ref.current.parentElement?.parentElement;
         if (timeline) {
           const timelineRect = timeline.getBoundingClientRect();
-          const newX = e.clientX - timelineRect.left;
-          const newTriggerTime = newX / 100;
+          const rawX = e.clientX - timelineRect.left;
+          const snappedX =
+            Math.round(rawX / timelineUnitWidth) * timelineUnitWidth;
+          const newTriggerTime = snappedX / timelineUnitWidth;
+
+          setDragPosition(snappedX);
+
           await updateAnimationEvent(event.id, {
             trigger_time: newTriggerTime,
-          }).then(() => onRefresh());
+          });
+
+          await onRefresh();
+          setDragPosition(undefined);
         }
       } else {
+        setDragPosition(undefined);
         setShowTooltip((prev) => !prev);
       }
     };
@@ -68,17 +90,14 @@ export default function KeyFrame({ event, onRefresh }: KeyFrameProps) {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, event.id, onRefresh]);
+  }, [isDragging, event.id, onRefresh, timelineUnitWidth]);
 
   return (
-    <div
-      className="absolute -translate-x-1/2"
-      style={{ left: `${position}px` }}
-    >
+    <div className=" absolute -translate-x-1/2" style={{ left: position }}>
       <button
         ref={ref}
         onMouseDown={handleMouseDown}
-        className="w-5 h-5 bg-white"
+        className="size-3 bg-gray-medium rotate-45 rounded-xs"
       ></button>
       {showTooltip && (
         <KeyframeTooltip

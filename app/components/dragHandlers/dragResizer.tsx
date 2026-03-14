@@ -68,9 +68,11 @@ export default function DragResizer(props: DragResizerProps) {
         height: isVertical ? dim : "100%",
       }}
     >
+      {props.children}
+
       <div
         onMouseDown={handleResize}
-        className={`absolute
+        className={`absolute z-100
           ${
             isHorizontal
               ? "top-1/2 -translate-y-1/2 h-full w-1.5 cursor-col-resize"
@@ -87,8 +89,6 @@ export default function DragResizer(props: DragResizerProps) {
           ${props.dragDirection === Direction.DOWN ? "bottom-0" : ""}
         `}
       />
-
-      {props.children}
     </div>
   );
 }
