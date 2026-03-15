@@ -10,6 +10,7 @@ interface ComponentTimeLineProps {
   animationId: number;
   refresh: () => void;
   timelineUnitWidth: number;
+  timelineUnitSeconds: number;
 }
 
 export default function ComponentTimeLine({
@@ -18,12 +19,14 @@ export default function ComponentTimeLine({
   animationId,
   refresh,
   timelineUnitWidth,
+  timelineUnitSeconds,
 }: ComponentTimeLineProps) {
   const handleDoubleClick = async (e: React.MouseEvent) => {
     const timeline = e.currentTarget;
     const timelineRect = timeline.getBoundingClientRect();
-    const newX = e.clientX - timelineRect.left;
-    const newTriggerTime = newX / timelineUnitWidth;
+    const rawX = e.clientX - timelineRect.left;
+    const snappedUnits = Math.round(rawX / timelineUnitWidth);
+    const newTriggerTime = snappedUnits * timelineUnitSeconds;
 
     await addAnimationEvent({
       animation_id: animationId,
@@ -46,6 +49,7 @@ export default function ComponentTimeLine({
           event={event}
           onRefresh={refresh}
           timelineUnitWidth={timelineUnitWidth}
+          timelineUnitSeconds={timelineUnitSeconds}
         />
       ))}
     </div>

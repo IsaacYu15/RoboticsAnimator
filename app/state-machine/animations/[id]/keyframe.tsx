@@ -10,12 +10,14 @@ interface KeyFrameProps {
   event: AnimationEvent;
   onRefresh: () => void;
   timelineUnitWidth: number;
+  timelineUnitSeconds: number;
 }
 
 export default function KeyFrame({
   event,
   onRefresh,
   timelineUnitWidth,
+  timelineUnitSeconds,
 }: KeyFrameProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -24,7 +26,8 @@ export default function KeyFrame({
   const [dragPosition, setDragPosition] = useState<number>();
 
   const position =
-    dragPosition ?? Number(event.trigger_time) * timelineUnitWidth;
+    dragPosition ??
+    (Number(event.trigger_time) / timelineUnitSeconds) * timelineUnitWidth;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -59,9 +62,9 @@ export default function KeyFrame({
         if (timeline) {
           const timelineRect = timeline.getBoundingClientRect();
           const rawX = e.clientX - timelineRect.left;
-          const snappedX =
-            Math.round(rawX / timelineUnitWidth) * timelineUnitWidth;
-          const newTriggerTime = snappedX / timelineUnitWidth;
+          const snappedUnits = Math.round(rawX / timelineUnitWidth);
+          const snappedX = snappedUnits * timelineUnitWidth;
+          const newTriggerTime = snappedUnits * timelineUnitSeconds;
 
           setDragPosition(snappedX);
 

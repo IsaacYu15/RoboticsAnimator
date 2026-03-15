@@ -206,6 +206,7 @@ export default function AnimationPage({
                       animations={component.animation_events}
                       refresh={refreshComponents}
                       timelineUnitWidth={timelineUnitWidth}
+                      timelineUnitSeconds={SMALLEST_TIMELINE_UNIT_IN_SECONDS}
                     />
                   </div>
                 ))}
