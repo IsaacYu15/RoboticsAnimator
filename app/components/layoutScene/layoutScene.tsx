@@ -16,7 +16,7 @@ import {
   MovementMode,
   TransformMode,
 } from "@/shared-types";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Mesh, Object3D } from "three";
 import DragResizer from "../dragHandlers/dragResizer";
 import {
@@ -122,6 +122,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
 
     if (componentId !== undefined) {
       setSelectedComponentId(componentId);
+      await updatePanelState(componentId);
     } else {
       setSelectedComponentId(undefined);
       setPanelState(undefined);
@@ -248,9 +249,8 @@ export default function LayoutScene(props: LayoutSceneProps) {
     setPanelState(createPanelState(component));
   };
 
-  const getComponentPanel = () => {
+  const getComponentPanel = useCallback(() => {
     if (!panelState) return null;
-
     switch (panelState.type) {
       case ComponentType.SERVO:
         return (
@@ -262,7 +262,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
       default:
         return null;
     }
-  };
+  }, [panelState]);
 
   return (
     <div
@@ -274,7 +274,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
           title={props.title}
           components={props.components}
           assets={props.assets}
-          setSelectedComponentId={setSelectedComponentId}
+          setSelectedComponentId={handleSetSelectedComponentId}
           selectedComponentId={selectedComponentId}
           onSpawnAsset={handleSpawnAsset}
           onDeleteAsset={handleDeleteAsset}

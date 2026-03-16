@@ -67,9 +67,13 @@ export class ServoPanelState extends PanelState {
   pwmMinAngle?: number = 0;
   pwmMaxAngle?: number = 0;
 
-  parseConfig(config?: string): void {
-    const parsed = config ? JSON.parse(config) : undefined;
+  constructor(component: Component) {
+    super(component);
+    this.parseConfig(component.config ?? "");
+  }
 
+  parseConfig(config: string): void {
+    const parsed = JSON.parse(config);
     this.pwmMinAngle = parsed?.pwmMinAngle ?? undefined;
     this.pwmMaxAngle = parsed?.pwmMaxAngle ?? undefined;
   }
