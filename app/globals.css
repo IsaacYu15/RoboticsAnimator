@@ -28,7 +28,7 @@
 }
 
 .icon-default {
-  @apply w-5 h-5 text-gray-medium-dark shrink-0;
+  @apply size-5 p-1 text-gray-medium-dark shrink-0;
 }
 
 .input-default {
@@ -40,31 +40,31 @@
 }
 
 .panel-section-col-default {
-  @apply w-full px-6 py-4 pb-4 border-b border-gray-light-medium flex flex-col gap-2;
+  @apply w-full px-6 py-4 pb-4 border-b border-gray-light-medium flex flex-col gap-1;
 }
 
 h1 {
-  @apply text-4xl;
-}
-
-h2 {
   @apply text-3xl;
 }
 
-h3 {
+h2 {
   @apply text-2xl;
 }
 
-h4 {
-  @apply text-xl text-gray-medium-dark;
+h3 {
+  @apply text-xl;
 }
 
-h5 {
+h4 {
   @apply text-base text-gray-medium-dark;
 }
 
-p {
+h5 {
   @apply text-sm text-gray-medium-dark;
+}
+
+p {
+  @apply text-xs text-gray-medium-dark;
 }
 
 /* stick to 1 2 4 8 16 24 32 48*/

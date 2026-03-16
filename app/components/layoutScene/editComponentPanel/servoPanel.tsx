@@ -1,15 +1,18 @@
 "use client";
 
 import { tryParseFloat, tryParseInt } from "@/app/services/parse";
+import { AXIS_COLOURS } from "@/app/constants";
 
 import ColourPalette from "../../colourPalette/colourPalette";
+import IconInputField from "../../input/iconInputField";
 import SimpleInputField from "../../input/simpleInputField";
 import { PanelState, ServoPanelState } from "./panelState";
-import { FileUp } from "lucide-react";
+import { Cable, FileUp } from "lucide-react";
 import IconButton from "../../input/iconButton";
 import { createAsset } from "@/app/actions/assets";
 import { useToast } from "@/app/context/toastContext";
 import { ToastMessages } from "../../toast/toastMessages";
+import { PwmMax, PwmMin } from "@/public/icons/animation-page";
 
 interface ServoPanelProps {
   state: ServoPanelState;
@@ -32,7 +35,7 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
     const asset = {
       name: state.name,
       type: "servo",
-      config: state.config,
+      config: state.generateConfig(),
     };
     const result = await createAsset(asset);
 
@@ -45,9 +48,9 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
 
   return (
     <div className="bg-gray-light h-screen py-6">
-      <div className=" w-full px-6 pb-4 flex flex-row items-center justify-between border-b border-gray-light-medium ">
+      <div className="w-full px-6 pb-4 flex flex-row items-start justify-between border-b border-gray-light-medium ">
         <input
-          className="title-input-default text-lg"
+          className="title-input-default text-sm"
           value={state.name}
           onChange={(e) => updateField("name", e.target.value)}
         />
@@ -55,45 +58,37 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
       </div>
 
       <div className="panel-section-col-default">
-        <h5>Colour</h5>
-        <ColourPalette
-          selectedColour={state.colour}
-          setSelectedColour={(colour) => updateField("colour", colour)}
-        />
-      </div>
-
-      <div className="panel-section-col-default">
         <h5>Settings</h5>
-        <SimpleInputField
-          label="Pin"
-          fields={[
-            {
+        <div className="grid grid-cols-2 gap-2">
+          <ColourPalette
+            selectedColour={state.colour}
+            setSelectedColour={(colour) => updateField("colour", colour)}
+          />
+          <IconInputField
+            icon={Cable}
+            field={{
               value: state.pin ?? 0,
               onValidate: (value) =>
                 updateField("pin", tryParseInt(value) ?? 0),
-            },
-          ]}
-        />
-        <SimpleInputField
-          label="PWM Min"
-          fields={[
-            {
+            }}
+          />
+          <IconInputField
+            icon={PwmMin}
+            field={{
               value: state.pwmMinAngle ?? 0,
               onValidate: (value) =>
                 updateField("pwmMinAngle", tryParseInt(value) ?? 0),
-            },
-          ]}
-        />
-        <SimpleInputField
-          label="PWM Max"
-          fields={[
-            {
+            }}
+          />
+          <IconInputField
+            icon={PwmMax}
+            field={{
               value: state.pwmMaxAngle ?? 0,
               onValidate: (value) =>
                 updateField("pwmMaxAngle", tryParseInt(value) ?? 0),
-            },
-          ]}
-        />
+            }}
+          />
+        </div>
       </div>
 
       <div className="panel-section-col-default">
@@ -105,16 +100,19 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
               value: state.x,
               onValidate: (value) =>
                 updateField("x", tryParseFloat(value) ?? 0),
+              barColor: AXIS_COLOURS.x,
             },
             {
               value: state.y,
               onValidate: (value) =>
                 updateField("y", tryParseFloat(value) ?? 0),
+              barColor: AXIS_COLOURS.y,
             },
             {
               value: state.z,
               onValidate: (value) =>
                 updateField("z", tryParseFloat(value) ?? 0),
+              barColor: AXIS_COLOURS.z,
             },
           ]}
         />
@@ -125,16 +123,19 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
               value: state.rotX,
               onValidate: (value) =>
                 updateField("rotX", tryParseFloat(value) ?? 0),
+              barColor: AXIS_COLOURS.x,
             },
             {
               value: state.rotY,
               onValidate: (value) =>
                 updateField("rotY", tryParseFloat(value) ?? 0),
+              barColor: AXIS_COLOURS.y,
             },
             {
               value: state.rotZ,
               onValidate: (value) =>
                 updateField("rotZ", tryParseFloat(value) ?? 0),
+              barColor: AXIS_COLOURS.z,
             },
           ]}
         />

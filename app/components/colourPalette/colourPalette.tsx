@@ -1,28 +1,18 @@
+import { COLOUR_LIST } from "@/app/constants";
+
 interface ColourPaletteProps {
   selectedColour?: string;
   setSelectedColour: (colour: string) => void;
 }
 
-const colourList = [
-  { hex: "#fa2121", bgClass: "bg-red", borderClass: "border-red-dark" },
-  { hex: "#6189f9", bgClass: "bg-blue", borderClass: "border-blue-dark" },
-  { hex: "#61f973", bgClass: "bg-green", borderClass: "border-green-dark" },
-  { hex: "#fac124", bgClass: "bg-yellow", borderClass: "border-yellow-dark" },
-  {
-    hex: "#4d4d4d",
-    bgClass: "bg-gray-medium-dark",
-    borderClass: "border-gray-dark",
-  },
-];
-
 export default function ColourPalette(props: ColourPaletteProps) {
   return (
     <div>
-      <div className="flex flex-row gap-2">
-        {colourList.map((colour, i) => (
+      <div className="w-full h-full flex flex-row gap-2 items-center">
+        {COLOUR_LIST.map((colour, i) => (
           <div
             key={i}
-            className={`w-8 h-8 rounded-lg 
+            className={`size-5 rounded-sm 
               ${props.selectedColour === colour.hex ? "outline-2 outline-offset-2 outline-blue-light" : "outline-none"} 
               ${colour.bgClass} ${colour.borderClass} 
               border-2 cursor-pointer`}
