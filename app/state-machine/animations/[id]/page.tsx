@@ -44,7 +44,7 @@ export default function AnimationPage({
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(false);
-  const [currentTime, setCurrentTime] = useState(10);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const timelineRef = useRef<HTMLDivElement>(null);
   const [timelineStart, setTimelineStart] = useState(0);
@@ -148,6 +148,7 @@ export default function AnimationPage({
         <LayoutScene
           id={parseInt(id)}
           title={title}
+          moduleAddress={moduleAddress}
           components={components}
           assets={assets}
           refresh={refreshComponents}
@@ -255,7 +256,9 @@ export default function AnimationPage({
                           refresh={refreshComponents}
                           onTimeChange={setCurrentTime}
                           timelineUnitWidth={timelineUnitWidth}
-                          timelineUnitSeconds={SMALLEST_TIMELINE_UNIT_IN_SECONDS}
+                          timelineUnitSeconds={
+                            SMALLEST_TIMELINE_UNIT_IN_SECONDS
+                          }
                         />
                       </div>
                     ))}

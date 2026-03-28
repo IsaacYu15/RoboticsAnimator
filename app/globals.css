@@ -28,11 +28,11 @@
 }
 
 .icon-default {
-  @apply size-5 p-1 text-gray-medium-dark shrink-0;
+  @apply size-4 text-gray-medium-dark;
 }
 
 .input-default {
-  @apply bg-white border-gray-light-medium border-2 focus:border-blue-light focus:outline-none rounded-lg px-2 py-1 text-xs;
+  @apply h-6 bg-white border-gray-light-medium border-2 focus:border-blue-light focus:outline-none rounded-sm px-2 text-xs;
 }
 
 .title-input-default {

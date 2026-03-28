@@ -1,4 +1,4 @@
-import { ComponentWithAnimation } from "@/shared-types";
+import { ComponentTypes, ComponentWithAnimation } from "@/shared-types";
 import axios from "axios";
 
 type KeyFrame = {
@@ -16,14 +16,43 @@ type AnimationPayload = {
   animation: AnimatedComponent[];
 };
 
-type AnimationResponse = {
+type ControllerResponse = {
   success: boolean;
+};
+
+export const calibrateComponent = async (
+  pin: number,
+  type: ComponentTypes,
+  address?: string,
+): Promise<ControllerResponse> => {
+  try {
+    if (!address) {
+      console.log("Address is required");
+      return { success: false };
+    }
+
+    const payload = JSON.stringify({
+      pin,
+      type,
+    });
+
+    const response = await axios.post(`http://${address}/calibrate`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      timeout: 5000,
+    });
+
+    return { success: response.status === 200 };
+  } catch (error) {
+    throw new Error(`Failed to calibrate component: ${error}`);
+  }
 };
 
 export const sendAnimation = async (
   animationData: ComponentWithAnimation[],
   address?: string,
-): Promise<AnimationResponse> => {
+): Promise<ControllerResponse> => {
   try {
     if (!address) {
       console.log("Address is required");
@@ -40,8 +69,8 @@ export const sendAnimation = async (
       },
       timeout: 5000,
     });
-    console.log("Animation sent successfully:", response.status);
-    return { success: true };
+
+    return { success: response.status === 200 };
   } catch (error) {
     throw new Error(`Failed to send animation to ESP32: ${error}`);
   }

@@ -36,6 +36,7 @@ import { useSelection } from "@/app/context/selectionContext";
 interface LayoutSceneProps {
   id: number;
   title: string;
+  moduleAddress?: string;
   currentTime: number;
   animationEvents: AnimationEvent[];
   components: Component[];
@@ -268,6 +269,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
       case ComponentType.SERVO:
         return (
           <ServoPanel
+            moduleAddress={props.moduleAddress}
             state={panelState as ServoPanelState}
             setState={setPanelState}
             currentTime={props.currentTime}

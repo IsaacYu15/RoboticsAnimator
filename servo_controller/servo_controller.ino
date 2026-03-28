@@ -12,8 +12,18 @@ ESP8266WebServer server(80);
 
 /* ====== CONFIG ======= */
 const int MAX_COMPONENTS = 10;
-const uint16_t MIN_PULSE = 102;   // 0° -> needs tweaking
-const uint16_t MAX_PULSE = 512;   // 180° -> needs tweaking
+const uint16_t MIN_PULSE = 102;
+const uint16_t MAX_PULSE = 512;
+
+/* ====== UTILITY FUNCTIONS ======= */
+int angleToPWM(int angle) {
+  return map(angle, 0, 180, MIN_PULSE, MAX_PULSE);
+}
+
+int linearInterpolation(int currentTime, int timeStart, int timeEnd, int angleStart, int angleEnd)
+{
+  return map(currentTime, timeStart, timeEnd, angleStart, angleEnd);
+}
 
 unsigned long CURRENT_TIME;
 unsigned long LAST_TIME;
@@ -49,16 +59,6 @@ class AnimationController {
       components[componentCount].keyframeCount = keyframeCount;
       components[componentCount].currentKeyframe = 0;
       componentCount++;
-    }
-
-    int angleToPWM(int angle)
-    {
-       return map(angle, 0, 180, MIN_PULSE, MAX_PULSE);
-    }
-
-    int linearInterpolation(int currentTime, int timeStart, int timeEnd, int angleStart, int angleEnd)
-    {
-      return map(currentTime, timeStart, timeEnd, angleStart, angleEnd);
     }
     
   public:
@@ -256,8 +256,11 @@ void setup() {
   //web server routes
   server.on("/start", HTTP_POST, handleAnimationPost);
   server.on("/status", HTTP_GET, handleStatusGet);
+  server.on("/calibrate", HTTP_POST, handleCalibrate);
+
   server.on("/status", HTTP_OPTIONS, handleCORS);
   server.on("/start", HTTP_OPTIONS, handleCORS);
+  server.on("/calibrate", HTTP_OPTIONS, handleCORS);
   
   server.begin();
   
@@ -308,6 +311,34 @@ void handleAnimationPost() {
 void handleStatusGet() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "application/json", "{\"message\":\"ESP32 API connected\"}");
+}
+
+void handleCalibrate() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+
+  if (server.hasArg("plain") == false) {
+    server.send(400, "application/json", "{\"error\":\"No body sent\"}");
+    return;
+  }
+
+  String jsonString = server.arg("plain");
+
+  DynamicJsonDocument doc(4096);
+  DeserializationError error = deserializeJson(doc, jsonString);
+  if (error) {
+    Serial.print("JSON parse error: ");
+    Serial.println(error.c_str());
+    server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+    return;
+  }
+
+  const char* type = doc["type"];
+  const int pin = doc["pin"];
+  if (strcmp(type, "servo") == 0) {
+    pwm.setPWM(pin, 0, angleToPWM(0));
+  }
+
+  server.send(200, "application/json", "{\"status\":\"Calibration complete\"}");
 }
 
 void handleCORS() {

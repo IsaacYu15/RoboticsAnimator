@@ -7,22 +7,23 @@ import ColourPalette from "../../colourPalette/colourPalette";
 import IconInputField from "../../input/iconInputField";
 import SimpleInputField from "../../input/simpleInputField";
 import { PanelState, ServoPanelState } from "./panelState";
-import { Cable, FileUp } from "lucide-react";
+import { Cable, FileUp, TriangleRight, Wrench } from "lucide-react";
 import IconButton from "../../input/iconButton";
 import { createAsset } from "@/app/actions/assets";
 import { useToast } from "@/app/context/toastContext";
 import { PwmMax, PwmMin } from "@/public/icons/animation-page";
-import { PiAngle } from "react-icons/pi";
 import { useSelection } from "@/app/context/selectionContext";
 import {
   addAnimationEvent,
   updateAnimationEvent,
 } from "@/app/actions/animation-event";
 import { useEffect, useState, useMemo } from "react";
-import { AnimationEvent } from "@/shared-types";
+import { AnimationEvent, ComponentTypes } from "@/shared-types";
 import { linearInterpolation } from "@/app/services/math";
+import { calibrateComponent } from "@/app/services/servoController";
 
 interface ServoPanelProps {
+  moduleAddress?: string;
   state: ServoPanelState;
   setState: (state?: PanelState) => void;
   currentTime: number;
@@ -32,6 +33,7 @@ interface ServoPanelProps {
 }
 
 export function ServoPanel({
+  moduleAddress,
   state,
   setState,
   currentTime,
@@ -219,15 +221,31 @@ export function ServoPanel({
 
       <div className="panel-section-col-default">
         <h5>Action</h5>
-        <IconInputField
-          icon={PiAngle}
-          field={{
-            value: angle,
-            onValidate: (value) => {
-              handleAngleChange(tryParseInt(value) ?? 0);
-            },
-          }}
-        />
+        <div className="flex flex-row items-center gap-2">
+          <div className="flex-1">
+            <IconInputField
+              icon={TriangleRight}
+              field={{
+                value: angle,
+                onValidate: (value) => {
+                  handleAngleChange(tryParseInt(value) ?? 0);
+                },
+              }}
+            />
+          </div>
+
+          <IconButton
+            icon={Wrench}
+            onClick={() =>
+              calibrateComponent(
+                state.pin ?? 0,
+                ComponentTypes.SERVO,
+                moduleAddress,
+              )
+            }
+            variant="blue"
+          />
+        </div>
       </div>
     </div>
   );

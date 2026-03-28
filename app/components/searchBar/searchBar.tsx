@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import IconButton from "../input/iconButton";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -15,12 +16,9 @@ export default function SearchBar(props: SearchBarProps) {
         value={props.searchQuery}
         onChange={(e) => props.setSearchQuery(e.target.value)}
       />
-      <button
-        className="absolute top-1/2 -translate-y-1/2 right-0 text-gray-medium-dark hover:text-gray-medium"
-        onClick={() => props.setSearchQuery("")}
-      >
-        <X />
-      </button>
+      <div className="absolute inset-y-0 right-2 flex items-center">
+        <IconButton icon={X} onClick={() => props.setSearchQuery("")} />
+      </div>
     </div>
   );
 }
