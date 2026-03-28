@@ -11,15 +11,65 @@ import { Cable, FileUp } from "lucide-react";
 import IconButton from "../../input/iconButton";
 import { createAsset } from "@/app/actions/assets";
 import { useToast } from "@/app/context/toastContext";
-import { ToastMessages } from "../../toast/toastMessages";
 import { PwmMax, PwmMin } from "@/public/icons/animation-page";
+import { PiAngle } from "react-icons/pi";
+import { useSelection } from "@/app/context/selectionContext";
+import {
+  addAnimationEvent,
+  updateAnimationEvent,
+} from "@/app/actions/animation-event";
+import { useEffect, useState, useMemo } from "react";
+import { AnimationEvent } from "@/shared-types";
+import { linearInterpolation } from "@/app/services/math";
 
 interface ServoPanelProps {
   state: ServoPanelState;
   setState: (state?: PanelState) => void;
+  currentTime: number;
+  componentEvents: AnimationEvent[];
+  animationId: number;
+  onRefresh: () => void;
 }
 
-export function ServoPanel({ state, setState }: ServoPanelProps) {
+export function ServoPanel({
+  state,
+  setState,
+  currentTime,
+  componentEvents,
+  animationId,
+  onRefresh,
+}: ServoPanelProps) {
+  const toast = useToast();
+  const { selectedComponent } = useSelection();
+  const [angle, setAngle] = useState(0);
+
+  const interpolatedAngle = useMemo(() => {
+    if (componentEvents.length === 0) return 0;
+
+    let currentKeyframe = componentEvents[0];
+    let nextKeyframe = componentEvents[0];
+
+    for (let i = 0; i < componentEvents.length; i++) {
+      const eventTime = Number(componentEvents[i].trigger_time);
+      if (eventTime <= currentTime) {
+        currentKeyframe = componentEvents[i];
+        nextKeyframe = componentEvents[i + 1] ?? componentEvents[i];
+      }
+    }
+
+    const currentAngle = tryParseInt(currentKeyframe.action) ?? 0;
+    const nextAngle = tryParseInt(nextKeyframe.action) ?? 0;
+    const currentKeyTime = Number(currentKeyframe.trigger_time);
+    const nextKeyTime = Number(nextKeyframe.trigger_time);
+
+    if (currentKeyframe === nextKeyframe || currentKeyTime === nextKeyTime) {
+      return currentAngle;
+    }
+
+    const t = (currentTime - currentKeyTime) / (nextKeyTime - currentKeyTime);
+    return Math.round(linearInterpolation(currentAngle, nextAngle, t));
+  }, [currentTime, componentEvents]);
+
   const updateField = <K extends keyof ServoPanelState>(
     field: K,
     value: ServoPanelState[K],
@@ -28,8 +78,6 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
     (newState[field] as ServoPanelState[K]) = value;
     setState(newState);
   };
-
-  const toast = useToast();
 
   const saveAsAsset = async () => {
     const asset = {
@@ -40,11 +88,39 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
     const result = await createAsset(asset);
 
     if (result.success) {
-      toast.toast(ToastMessages.ASSET_SAVED);
+      toast.toast("Asset Saved");
     } else {
-      toast.toast(ToastMessages.ERROR(result.error));
+      toast.toast("Error saving asset");
     }
   };
+
+  const handleAngleChange = async (newAngle: number) => {
+    if (!selectedComponent) return;
+
+    const existingKeyframe = componentEvents.find(
+      (e) => Number(e.trigger_time) === currentTime,
+    );
+
+    if (existingKeyframe) {
+      await updateAnimationEvent(existingKeyframe.id, {
+        action: newAngle.toString(),
+      });
+    } else {
+      await addAnimationEvent({
+        animation_id: animationId,
+        component_id: selectedComponent.id,
+        trigger_time: currentTime,
+        action: newAngle.toString(),
+      });
+    }
+
+    setAngle(newAngle);
+    onRefresh();
+  };
+
+  useEffect(() => {
+    setAngle(interpolatedAngle);
+  }, [interpolatedAngle]);
 
   return (
     <div className="bg-gray-light h-screen py-6">
@@ -138,6 +214,19 @@ export function ServoPanel({ state, setState }: ServoPanelProps) {
               barColor: AXIS_COLOURS.z,
             },
           ]}
+        />
+      </div>
+
+      <div className="panel-section-col-default">
+        <h5>Action</h5>
+        <IconInputField
+          icon={PiAngle}
+          field={{
+            value: angle,
+            onValidate: (value) => {
+              handleAngleChange(tryParseInt(value) ?? 0);
+            },
+          }}
         />
       </div>
     </div>

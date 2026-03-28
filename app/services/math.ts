@@ -13,3 +13,7 @@ export const degreesToRadians = (degrees: number) => {
 export const round = (value: number, precision: number) => {
   return Math.round(value * precision) / precision;
 };
+
+export const linearInterpolation = (a: number, b: number, t: number) => {
+  return a + (b - a) * t;
+};

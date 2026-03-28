@@ -1,4 +1,6 @@
-export const tryParseInt = (input: string) => {
+export const tryParseInt = (input?: string) => {
+  if (!input) return null;
+
   const value = parseInt(input.trim());
 
   if (Number.isNaN(value)) {
@@ -8,7 +10,9 @@ export const tryParseInt = (input: string) => {
   return value;
 };
 
-export const tryParseFloat = (input: string, decimals: number = 2) => {
+export const tryParseFloat = (input?: string, decimals: number = 2) => {
+  if (!input) return null;
+
   const value = parseFloat(input.trim());
 
   if (Number.isNaN(value)) {

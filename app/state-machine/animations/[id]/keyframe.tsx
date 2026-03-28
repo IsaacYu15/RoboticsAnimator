@@ -1,116 +1,89 @@
 "use client";
 
-import { updateAnimationEvent } from "@/app/actions/animation-event";
-import { AnimationEvent } from "@/shared-types";
-import { useState, useEffect, useRef } from "react";
-import KeyframeTooltip from "./keyframeTooltip";
-import { clamp } from "@/app/services/math";
+import { RefObject, useEffect, useCallback } from "react";
+import {
+  deleteAnimationEvent,
+  updateAnimationEvent,
+} from "@/app/actions/animation-event";
+import { useSelection } from "@/app/context/selectionContext";
+import { AnimationEvent, Component } from "@/shared-types";
+import { KEY_BACKSPACE } from "@/app/constants";
+import { useTimelineDrag } from "./useTimelineDrag";
 
 interface KeyFrameProps {
+  timelineRef: RefObject<HTMLDivElement | null>;
   event: AnimationEvent;
+  component: Component;
   onRefresh: () => void;
+  onTimeChange: (time: number) => void;
   timelineUnitWidth: number;
   timelineUnitSeconds: number;
 }
 
 export default function KeyFrame({
+  timelineRef,
   event,
+  component,
   onRefresh,
+  onTimeChange,
   timelineUnitWidth,
   timelineUnitSeconds,
 }: KeyFrameProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const ref = useRef<HTMLButtonElement>(null);
-  const wasDragged = useRef(false);
-  const [dragPosition, setDragPosition] = useState<number>();
+  const { selectComponent, selectedKeyframeId, selectKeyframe } =
+    useSelection();
 
-  const position =
-    dragPosition ??
-    (Number(event.trigger_time) / timelineUnitSeconds) * timelineUnitWidth;
+  const isSelected = selectedKeyframeId === event.id;
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsDragging(true);
-    wasDragged.current = false;
-  };
+  const handleDragEnd = useCallback(
+    async (newTime: number) => {
+      await updateAnimationEvent(event.id, { trigger_time: newTime });
+      await onRefresh();
+    },
+    [event.id, onRefresh],
+  );
+
+  const handleClick = useCallback(() => {
+    selectKeyframe(event.id);
+    selectComponent(component);
+    onTimeChange(Number(event.trigger_time));
+  }, [selectKeyframe, selectComponent, event.id, component, onTimeChange, event.trigger_time]);
+
+  const { ref, position, handleMouseDown } = useTimelineDrag<HTMLButtonElement>(
+    {
+      timelineRef,
+      timelineUnitWidth,
+      timelineUnitSeconds,
+      initialTime: Number(event.trigger_time),
+      onDragEnd: handleDragEnd,
+      onClick: handleClick,
+    },
+  );
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !ref.current) return;
-      wasDragged.current = true;
-      const timeline = ref.current.parentElement?.parentElement;
-      if (timeline) {
-        const timelineRect = timeline.getBoundingClientRect();
-        const newX = clamp(
-          0,
-          e.clientX - timelineRect.left,
-          timelineRect.width,
-        );
-        setDragPosition(newX);
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      if (!isSelected) return;
+
+      if (e.key === KEY_BACKSPACE) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        selectKeyframe(undefined);
+        await deleteAnimationEvent(event.id);
+        onRefresh();
       }
     };
 
-    const handleMouseUp = async (e: MouseEvent) => {
-      if (!isDragging) return;
-
-      setIsDragging(false);
-
-      if (wasDragged.current) {
-        if (!ref.current) return;
-        const timeline = ref.current.parentElement?.parentElement;
-        if (timeline) {
-          const timelineRect = timeline.getBoundingClientRect();
-          const rawX = e.clientX - timelineRect.left;
-          const snappedUnits = Math.round(rawX / timelineUnitWidth);
-          const snappedX = snappedUnits * timelineUnitWidth;
-          const newTriggerTime = snappedUnits * timelineUnitSeconds;
-
-          setDragPosition(snappedX);
-
-          await updateAnimationEvent(event.id, {
-            trigger_time: newTriggerTime,
-          });
-
-          await onRefresh();
-          setDragPosition(undefined);
-        }
-      } else {
-        setDragPosition(undefined);
-        setShowTooltip((prev) => !prev);
-      }
-    };
-
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
-    } else {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isDragging, event.id, onRefresh, timelineUnitWidth]);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [isSelected, event.id, onRefresh, selectKeyframe]);
 
   return (
-    <div className=" absolute -translate-x-1/2" style={{ left: position }}>
+    <div className="absolute -translate-x-1/2" style={{ left: position }}>
       <button
         ref={ref}
         onMouseDown={handleMouseDown}
-        className="size-3 bg-gray-medium rotate-45 rounded-xs"
+        className={`size-3 rotate-45 rounded-xs ${isSelected ? "bg-gray-medium-dark" : "bg-gray-medium"}`}
       ></button>
-      {showTooltip && (
-        <KeyframeTooltip
-          event={event}
-          onClose={() => {
-            setShowTooltip(false);
-            onRefresh();
-          }}
-        />
-      )}
     </div>
   );
 }

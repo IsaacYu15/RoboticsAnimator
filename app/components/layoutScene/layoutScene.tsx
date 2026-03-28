@@ -10,13 +10,14 @@ import { deleteAsset } from "@/app/actions/assets";
 import { HORIZ_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
 import { ComponentType } from "@/app/constants/components";
 import {
+  AnimationEvent,
   Asset,
   Component,
   Direction,
   MovementMode,
   TransformMode,
 } from "@/shared-types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Mesh, Object3D } from "three";
 import DragResizer from "../dragHandlers/dragResizer";
 import {
@@ -30,10 +31,13 @@ import Scene from "./sceneObjects/scene";
 import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 import { Eye, Hand, LucideIcon, Move, Rotate3D } from "lucide-react";
 import { KEY_BACKSPACE } from "@/app/constants";
+import { useSelection } from "@/app/context/selectionContext";
 
 interface LayoutSceneProps {
   id: number;
   title: string;
+  currentTime: number;
+  animationEvents: AnimationEvent[];
   components: Component[];
   assets: Asset[];
   refresh: () => void;
@@ -41,7 +45,8 @@ interface LayoutSceneProps {
 
 export default function LayoutScene(props: LayoutSceneProps) {
   const [canvasActive, setCanvasActive] = useState(false);
-  const [selectedComponentId, setSelectedComponentId] = useState<number>();
+  const { selectedComponent, selectComponent, clearSelection } = useSelection();
+
   const [panelState, setPanelState] = useState<PanelState>();
   const [transformMode, setTransformMode] =
     useState<TransformMode>("translate");
@@ -53,13 +58,13 @@ export default function LayoutScene(props: LayoutSceneProps) {
     const handleKeyDown = async (e: KeyboardEvent) => {
       if (
         e.key === KEY_BACKSPACE &&
-        selectedComponentId !== undefined &&
+        selectedComponent?.id !== undefined &&
         canvasActive
       ) {
         e.preventDefault();
-        const result = await deleteComponent(selectedComponentId);
+        const result = await deleteComponent(selectedComponent?.id);
         if (result.success) {
-          setSelectedComponentId(undefined);
+          clearSelection();
           setPanelState(undefined);
           await props.refresh();
         }
@@ -68,18 +73,18 @@ export default function LayoutScene(props: LayoutSceneProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedComponentId, props, canvasActive]);
+  }, [selectedComponent?.id, props, canvasActive, clearSelection]);
 
   useEffect(() => {
     // eslint-disable-next-line
-    updatePanelState(selectedComponentId);
-  }, [selectedComponentId]);
+    updatePanelState(selectedComponent?.id);
+  }, [selectedComponent?.id]);
 
   /* Immediate Updates */
   useEffect(() => {
-    if (selectedComponentId === undefined) return;
+    if (selectedComponent?.id === undefined) return;
 
-    const selectedObject = objectRefs.current[selectedComponentId];
+    const selectedObject = objectRefs.current[selectedComponent?.id];
 
     if (selectedObject && panelState) {
       selectedObject.position.set(panelState.x, panelState.y, panelState.z);
@@ -94,7 +99,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
         }
       });
     }
-  }, [selectedComponentId, panelState]);
+  }, [selectedComponent?.id, panelState]);
 
   /* Object Ref Management */
   const registerObjectRef = (componentId: number, object: Object3D) => {
@@ -102,10 +107,10 @@ export default function LayoutScene(props: LayoutSceneProps) {
   };
 
   const handleSetSelectedComponentId = async (componentId?: number) => {
-    if (selectedComponentId && selectedComponentId !== componentId) {
-      const selectedObject = objectRefs.current[selectedComponentId];
+    if (selectedComponent?.id && selectedComponent?.id !== componentId) {
+      const selectedObject = objectRefs.current[selectedComponent?.id];
 
-      await updateComponent(selectedComponentId, {
+      await updateComponent(selectedComponent?.id, {
         name: panelState?.name,
         x: selectedObject?.position.x ?? 0,
         y: selectedObject?.position.y ?? 0,
@@ -121,21 +126,22 @@ export default function LayoutScene(props: LayoutSceneProps) {
     }
 
     if (componentId !== undefined) {
-      setSelectedComponentId(componentId);
+      const component = props.components.find((c) => c.id === componentId);
+      selectComponent(component);
       await updatePanelState(componentId);
     } else {
-      setSelectedComponentId(undefined);
+      clearSelection();
       setPanelState(undefined);
     }
   };
 
   /* Save Logic */
   const saveObjectTransform = async () => {
-    if (selectedComponentId === undefined) return;
+    if (selectedComponent?.id === undefined) return;
 
-    const selectedObject = objectRefs.current[selectedComponentId];
+    const selectedObject = objectRefs.current[selectedComponent?.id];
 
-    await updateComponent(selectedComponentId, {
+    await updateComponent(selectedComponent?.id, {
       x: selectedObject.position.x,
       y: selectedObject.position.y,
       z: selectedObject.position.z,
@@ -201,7 +207,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
         className={`relative cursor-pointer p-1 rounded ${isSelected ? "bg-blue-light" : ""}`}
       >
         <Icon
-          className={`w-5 h-5 ${isSelected ? "text-gray-medium-dark" : "text-gray-medium"}`}
+          className={`size-5 p-1 ${isSelected ? "text-gray-medium-dark" : "text-gray-medium"}`}
         />
       </button>
     );
@@ -249,6 +255,13 @@ export default function LayoutScene(props: LayoutSceneProps) {
     setPanelState(createPanelState(component));
   };
 
+  const componentEvents = useMemo(() => {
+    if (!selectedComponent) return [];
+    return props.animationEvents
+      .filter((e) => e.component_id === selectedComponent.id)
+      .sort((a, b) => Number(a.trigger_time) - Number(b.trigger_time));
+  }, [selectedComponent, props.animationEvents]);
+
   const getComponentPanel = useCallback(() => {
     if (!panelState) return null;
     switch (panelState.type) {
@@ -257,12 +270,16 @@ export default function LayoutScene(props: LayoutSceneProps) {
           <ServoPanel
             state={panelState as ServoPanelState}
             setState={setPanelState}
+            currentTime={props.currentTime}
+            componentEvents={componentEvents}
+            animationId={props.id}
+            onRefresh={props.refresh}
           />
         );
       default:
         return null;
     }
-  }, [panelState]);
+  }, [panelState, props.currentTime, componentEvents, props.id, props.refresh]);
 
   return (
     <div
@@ -275,7 +292,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
           components={props.components}
           assets={props.assets}
           setSelectedComponentId={handleSetSelectedComponentId}
-          selectedComponentId={selectedComponentId}
+          selectedComponentId={selectedComponent?.id}
           onSpawnAsset={handleSpawnAsset}
           onDeleteAsset={handleDeleteAsset}
         ></PropertiesPanel>
@@ -288,14 +305,14 @@ export default function LayoutScene(props: LayoutSceneProps) {
         movementMode={movementMode}
         setMovementMode={setMovementMode}
         setCanvasActive={setCanvasActive}
-        selectedComponentId={selectedComponentId}
+        selectedComponentId={selectedComponent?.id}
         setSelectedComponentId={handleSetSelectedComponentId}
         objectRefs={objectRefs}
         registerObjectRef={registerObjectRef}
         saveObjectChanges={saveObjectTransform}
       ></Scene>
 
-      {selectedComponentId ? (
+      {selectedComponent?.id ? (
         <div onClick={() => setCanvasActive(false)}>
           <DragResizer
             minDim={HORIZ_DRAGGABLE_SECTIONS}

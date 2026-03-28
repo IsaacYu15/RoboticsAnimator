@@ -1,27 +1,34 @@
 "use client";
 
+import { RefObject } from "react";
 import { addAnimationEvent } from "@/app/actions/animation-event";
 import { AnimationEvent, ComponentWithAnimation } from "@/shared-types";
 import KeyFrame from "./keyframe";
 
 interface ComponentTimeLineProps {
+  timelineRef: RefObject<HTMLDivElement | null>;
   animations: AnimationEvent[];
   component: ComponentWithAnimation;
   animationId: number;
   refresh: () => void;
+  onTimeChange: (time: number) => void;
   timelineUnitWidth: number;
   timelineUnitSeconds: number;
 }
 
 export default function ComponentTimeLine({
+  timelineRef,
   animations,
   component,
   animationId,
   refresh,
+  onTimeChange,
   timelineUnitWidth,
   timelineUnitSeconds,
 }: ComponentTimeLineProps) {
   const handleDoubleClick = async (e: React.MouseEvent) => {
+    if (e.target !== e.currentTarget) return;
+
     const timeline = e.currentTarget;
     const timelineRect = timeline.getBoundingClientRect();
     const rawX = e.clientX - timelineRect.left;
@@ -46,8 +53,11 @@ export default function ComponentTimeLine({
       {animations.map((event: AnimationEvent) => (
         <KeyFrame
           key={event.id}
+          timelineRef={timelineRef}
           event={event}
+          component={component}
           onRefresh={refresh}
+          onTimeChange={onTimeChange}
           timelineUnitWidth={timelineUnitWidth}
           timelineUnitSeconds={timelineUnitSeconds}
         />
