@@ -281,7 +281,14 @@ export default function LayoutScene(props: LayoutSceneProps) {
       default:
         return null;
     }
-  }, [panelState, props.currentTime, componentEvents, props.id, props.refresh]);
+  }, [
+    panelState,
+    props.currentTime,
+    componentEvents,
+    props.id,
+    props.refresh,
+    props.moduleAddress,
+  ]);
 
   return (
     <div
