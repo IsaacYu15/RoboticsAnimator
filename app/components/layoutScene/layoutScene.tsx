@@ -32,6 +32,7 @@ import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
 import { Eye, Hand, LucideIcon, Move, Rotate3D } from "lucide-react";
 import { KEY_BACKSPACE } from "@/app/constants";
 import { useSelection } from "@/app/context/selectionContext";
+import { ConnectionStatus } from "@/shared-types";
 
 interface LayoutSceneProps {
   id: number;
@@ -42,6 +43,9 @@ interface LayoutSceneProps {
   components: Component[];
   assets: Asset[];
   refresh: () => void;
+  websocketStatus: ConnectionStatus;
+  websocketConnect: () => void;
+  websocketDisconnect: () => void;
 }
 
 export default function LayoutScene(props: LayoutSceneProps) {
@@ -298,12 +302,16 @@ export default function LayoutScene(props: LayoutSceneProps) {
         <PropertiesPanel
           id={props.id}
           title={props.title}
+          moduleAddress={props.moduleAddress}
           components={props.components}
           assets={props.assets}
           setSelectedComponentId={handleSetSelectedComponentId}
           selectedComponentId={selectedComponent?.id}
           onSpawnAsset={handleSpawnAsset}
           onDeleteAsset={handleDeleteAsset}
+          websocketStatus={props.websocketStatus}
+          websocketConnect={props.websocketConnect}
+          websocketDisconnect={props.websocketDisconnect}
         ></PropertiesPanel>
       </div>
 

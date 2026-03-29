@@ -28,6 +28,7 @@ import {
   TIMELINE_HEADER_HEIGHT,
   ZOOM_FACTOR,
 } from "./constants";
+import useESPWebSocket from "@/app/hooks/useESPWebSocket";
 
 export default function AnimationPage({
   params,
@@ -41,10 +42,8 @@ export default function AnimationPage({
   const [assets, setAssets] = useState<Asset[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
 
-  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [playHeadTime, setPlayHeadTime] = useState(0);
 
   const timelineRef = useRef<HTMLDivElement>(null);
   const [timelineStart, setTimelineStart] = useState(0);
@@ -52,6 +51,20 @@ export default function AnimationPage({
   const [timelineUnitWidth, setTimelineUnitWidth] = useState(0);
 
   const toast = useToast();
+
+  const {
+    currentTime,
+    isPlaying,
+    isPaused,
+    pauseResume,
+    websocketStatus,
+    websocketConnect,
+    websocketDisconnect,
+  } = useESPWebSocket(moduleAddress);
+
+  useEffect(() => {
+    setPlayHeadTime(currentTime / 1000);
+  }, [currentTime]);
 
   const timelineWidth = useCallback(() => {
     return (
@@ -94,22 +107,20 @@ export default function AnimationPage({
     [timelineStart, timelineEnd],
   );
 
-  const handleFastForward = useCallback(() => {
-    // TODO: implement fast forward logic
-  }, []);
-
   const handleRestart = useCallback(() => {
     // TODO: implement restart logic
   }, []);
 
-  const handlePlay = async (playing: boolean) => {
-    setIsPlaying((prev) => !prev);
-    if (playing) {
+  const handlePlay = async () => {
+    if (!isPlaying) {
       try {
         await sendAnimation(components, moduleAddress);
       } catch (error) {
         toast.toast(`Error sending animation: ${error}`);
       }
+    } else {
+      console.log("pauseResume");
+      pauseResume();
     }
   };
 
@@ -154,6 +165,9 @@ export default function AnimationPage({
           refresh={refreshComponents}
           currentTime={currentTime}
           animationEvents={components.flatMap((c) => c.animation_events)}
+          websocketStatus={websocketStatus}
+          websocketConnect={websocketConnect}
+          websocketDisconnect={websocketDisconnect}
         />
 
         <DragResizer
@@ -161,13 +175,13 @@ export default function AnimationPage({
           dragDirection={Direction.UP}
         >
           <>
-            <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-full flex flex-row gap-1 z-10">
+            {isPlaying && (
+              <div className="fixed inset-0 bg-black opacity-50 z-75" />
+            )}
+            <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-full flex flex-row gap-1 z-100">
               <TimelineToolbar
-                playbackSpeed={playbackSpeed}
-                setPlaybackSpeed={setPlaybackSpeed}
-                isPlaying={isPlaying}
-                setIsPlaying={handlePlay}
-                onFastForward={handleFastForward}
+                isPlaying={isPlaying && !isPaused}
+                handlePlay={handlePlay}
                 onRestart={handleRestart}
                 isLiveMode={isLiveMode}
                 setIsLiveMode={setIsLiveMode}
@@ -212,8 +226,8 @@ export default function AnimationPage({
                     timelineRef={timelineRef}
                     timelineUnitWidth={timelineUnitWidth}
                     timelineUnitSeconds={SMALLEST_TIMELINE_UNIT_IN_SECONDS}
-                    currentTime={currentTime}
-                    onTimeChange={setCurrentTime}
+                    currentTime={playHeadTime}
+                    onTimeChange={setPlayHeadTime}
                   />
                   <div
                     className="flex flex-row bg-gray-medium relative z-50"
@@ -254,7 +268,7 @@ export default function AnimationPage({
                           animationId={parseInt(id)}
                           animations={component.animation_events}
                           refresh={refreshComponents}
-                          onTimeChange={setCurrentTime}
+                          onTimeChange={() => {}}
                           timelineUnitWidth={timelineUnitWidth}
                           timelineUnitSeconds={
                             SMALLEST_TIMELINE_UNIT_IN_SECONDS

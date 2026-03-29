@@ -30,7 +30,7 @@ export default function IconButton({
   return (
     <button
       onClick={onClick}
-      className={`relative size-6 flex items-center justify-center rounded-sm cursor-pointer ${styles.button}`}
+      className={`relative size-6 -mx-1 flex items-center justify-center rounded-sm cursor-pointer ${styles.button}`}
     >
       <Icon className={`relative ${styles.icon}`} />
     </button>

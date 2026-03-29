@@ -2,6 +2,7 @@
 #include <Adafruit_PWMServoDriver.h>
 
 #include <ESP8266WiFi.h>
+#include <WebSocketsServer.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
 
@@ -9,11 +10,16 @@
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 ESP8266WebServer server(80);
+WebSocketsServer webSocket = WebSocketsServer(81);
 
 /* ====== CONFIG ======= */
 const int MAX_COMPONENTS = 10;
 const uint16_t MIN_PULSE = 102;
 const uint16_t MAX_PULSE = 512;
+
+unsigned long CURRENT_TIME;
+unsigned long LAST_TIME;
+unsigned long DELTA_TIME;
 
 /* ====== UTILITY FUNCTIONS ======= */
 int angleToPWM(int angle) {
@@ -24,10 +30,6 @@ int linearInterpolation(int currentTime, int timeStart, int timeEnd, int angleSt
 {
   return map(currentTime, timeStart, timeEnd, angleStart, angleEnd);
 }
-
-unsigned long CURRENT_TIME;
-unsigned long LAST_TIME;
-unsigned long DELTA_TIME;
 
 /* ====== ANIMATION ======= */
 struct Keyframe {
@@ -65,12 +67,15 @@ class AnimationController {
     AnimatedComponent* components;
     int componentCount;
     bool isPlaying;
+    bool isPaused;
     float currentTime;
+    float animationLength;
     
     AnimationController() {
       components = (AnimatedComponent*)malloc(MAX_COMPONENTS * sizeof(AnimatedComponent));
       componentCount = 0;
       isPlaying = false;
+      isPaused = false;
     }
 
     void startAnimation(const String& jsonString) {
@@ -87,6 +92,7 @@ class AnimationController {
       }
     
       // parse Json
+      animationLength=doc["animationLength"];
       JsonArray animation = doc["animation"];
       for (JsonObject comp : animation) {
         const char* type = comp["type"];
@@ -112,19 +118,15 @@ class AnimationController {
     
       //reset to start
       isPlaying = true;
+      isPaused = false;
       currentTime = 0;
 
       printData();
     }
 
     void playCurrentAnimation(float delta_time)
-    {
-      if (isAnimationFinished())
-      {
-        isPlaying = false;
-      }
-           
-      if (!isPlaying) {
+    {           
+      if (!isPlaying || isPaused) {
         return;
       }
         
@@ -169,17 +171,16 @@ class AnimationController {
       }
 
       currentTime += delta_time;
+
+      if (isAnimationFinished())
+      {
+        refresh();
+      }
     }
 
     bool isAnimationFinished()
     {
-      int componentFinishedCounter = 0;
-      for (int i = 0; i < componentCount; i ++) {
-        if (components[i].currentKeyframe >= components[i].keyframeCount)
-          componentFinishedCounter++;
-      }
-
-      return componentFinishedCounter == componentCount;
+      return currentTime > animationLength + 250; //small buffer
     }
     
     void refresh() {
@@ -192,6 +193,7 @@ class AnimationController {
       }
       componentCount = 0;
       isPlaying = false;
+      isPaused = false;
       currentTime = 0;
     }
 
@@ -201,6 +203,8 @@ class AnimationController {
       Serial.println(componentCount);
       Serial.print("Is Playing: ");
       Serial.println(isPlaying ? "true" : "false");
+      Serial.print("Animation Length: ");
+      Serial.println(animationLength);
       
       for (int i = 0; i < componentCount; i++) {
         Serial.println("\n--- Component " + String(i) + " ---");
@@ -234,6 +238,52 @@ class AnimationController {
 
 AnimationController* animationController;
 
+/* ====== WEB SOCKETS ======= */
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
+  switch (type) {
+    case WStype_DISCONNECTED:
+      Serial.printf("Client [%u] disconnected\n", num);
+      break;
+    case WStype_CONNECTED:
+      Serial.printf("Client [%u] connected\n", num);
+      break;
+    case WStype_TEXT:
+      handleWebSocketMessage(num, payload, length);
+      break;
+    default:
+      break;
+  }
+}
+
+void handleWebSocketMessage(uint8_t num, uint8_t* payload, size_t length) {
+  const char* message = (char*)payload;
+
+  Serial.print("Recieved request: ");
+  Serial.println(message);
+  
+  if (strcmp(message, "pauseResume") == 0)
+  {
+    animationController->isPaused = !animationController->isPaused;
+
+    if (animationController->isPaused)
+    {
+      Serial.println("Animation Resumed");
+    } else {
+      Serial.println("Animation Paused");
+    }
+  }
+}
+
+void broadcastProgress() {
+  String json = "{\"currentTime\":" + String(animationController->currentTime) + 
+                ",\"isPlaying\":" + (animationController->isPlaying ? "true" : "false") +
+                ",\"isPaused\":" + (animationController->isPaused ? "true" : "false") + "}";
+  webSocket.broadcastTXT(json);
+}
+
+unsigned long lastBroadcast = 0;
+const unsigned long BROADCAST_INTERVAL = 50;
+
 void setup() {
   //baud rate
   Serial.begin(9600); 
@@ -263,6 +313,10 @@ void setup() {
   server.on("/calibrate", HTTP_OPTIONS, handleCORS);
   
   server.begin();
+
+  //wesocket
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
   
   //pwm configuration
   pwm.begin();
@@ -275,8 +329,9 @@ void setup() {
 }
 
 void loop() {
-  //web requests
+  //handle server and websockets
   server.handleClient();
+  webSocket.loop();
 
   //time
   LAST_TIME = CURRENT_TIME;
@@ -285,6 +340,14 @@ void loop() {
   
   //animation
   animationController->playCurrentAnimation(DELTA_TIME);
+
+  //broadcast websocket
+  if (CURRENT_TIME - lastBroadcast > BROADCAST_INTERVAL) {
+    broadcastProgress();
+    lastBroadcast = millis();
+  }
+
+  yield();
 }
 
 void handleAnimationPost() {

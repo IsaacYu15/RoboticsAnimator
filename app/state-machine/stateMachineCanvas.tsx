@@ -115,7 +115,9 @@ export default function StateMachineCanvas({
                 <input
                   type="number"
                   value={editAnimId ?? ""}
-                  onChange={(e) => setEditAnimId(tryParseInt(e.target.value))}
+                  onChange={(e) =>
+                    setEditAnimId(tryParseInt(e.target.value) ?? 0)
+                  }
                   className="border p-2 w-full rounded-lg"
                 />
               </div>

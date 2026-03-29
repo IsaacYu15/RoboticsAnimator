@@ -6,6 +6,7 @@ export * from "./animation-event";
 export * from "./components";
 export * from "./object";
 export * from "./assets";
+export * from "./esp";
 
 export type Point = {
   x: number;
@@ -34,6 +35,8 @@ export type MovementMode = "pan" | "firstPerson";
 export enum ComponentTypes {
   SERVO = "servo",
 }
+
+export type ConnectionStatus = "disconnected" | "connecting" | "connected";
 
 export enum FormAction {
   UPDATE,

@@ -1,4 +1,5 @@
 import { ComponentTypes, ComponentWithAnimation } from "@/shared-types";
+import { getHttpUrl } from "@/shared-types/esp";
 import axios from "axios";
 
 type KeyFrame = {
@@ -13,6 +14,7 @@ type AnimatedComponent = {
 };
 
 type AnimationPayload = {
+  animationLength: number;
   animation: AnimatedComponent[];
 };
 
@@ -36,12 +38,16 @@ export const calibrateComponent = async (
       type,
     });
 
-    const response = await axios.post(`http://${address}/calibrate`, payload, {
-      headers: {
-        "Content-Type": "application/json",
+    const response = await axios.post(
+      getHttpUrl(address, "/calibrate"),
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        timeout: 5000,
       },
-      timeout: 5000,
-    });
+    );
 
     return { success: response.status === 200 };
   } catch (error) {
@@ -60,10 +66,11 @@ export const sendAnimation = async (
     }
 
     const payload = JSON.stringify(buildPayload(animationData), null, 2);
-    console.log(`Sending to: http://${address}/start`);
+    const url = getHttpUrl(address, "/start");
+    console.log(`Sending to: ${url}`);
     console.log("Sending animation payload:", payload);
 
-    const response = await axios.post(`http://${address}/start`, payload, {
+    const response = await axios.post(url, payload, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -79,6 +86,8 @@ export const sendAnimation = async (
 const buildPayload = (
   animationData: ComponentWithAnimation[],
 ): AnimationPayload => {
+  let animationLength = 0;
+
   const payload: AnimatedComponent[] = animationData.map((value) => {
     console.log("Sending payload: \n", value);
     if (value.type === null)
@@ -87,6 +96,7 @@ const buildPayload = (
       throw new Error(`Component of id: ${value.id} is missing a pin`);
 
     const keyframes: KeyFrame[] = value.animation_events.map((event) => {
+      animationLength = Math.max(animationLength, event.trigger_time * 1000);
       return {
         trigger_time: event.trigger_time * 1000, //convert to millisecond
         action: event.action,
@@ -101,6 +111,7 @@ const buildPayload = (
   });
 
   return {
+    animationLength: animationLength,
     animation: payload,
   };
 };

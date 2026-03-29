@@ -1,6 +1,13 @@
 "use client";
 
-import { Asset, Component, Direction } from "@/shared-types";
+import {
+  Asset,
+  Component,
+  ConnectionStatus,
+  Direction,
+  getHttpUrl,
+  getWebSocketUrl,
+} from "@/shared-types";
 import { PanelRight, SquareArrowRightExit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,10 +20,13 @@ import { updateAnimation } from "@/app/actions/animations";
 import DragResizer from "../../dragHandlers/dragResizer";
 import { HORIZ_DRAGGABLE_SECTIONS } from "../../dragHandlers/constants";
 import { STATE_MACHINE_ROUTE } from "@/app/constants/routes";
+import useESPWebServer from "@/app/hooks/useESPWebServer";
+import StatusDisplay from "../../connection/statusDisplay";
 
 interface PropertiesPanelProps {
   id: number;
   title: string;
+  moduleAddress?: string;
   components: Component[];
   assets: Asset[];
 
@@ -24,6 +34,10 @@ interface PropertiesPanelProps {
   setSelectedComponentId: (id: number) => void;
   onSpawnAsset: (asset: Asset) => void;
   onDeleteAsset: (asset: Asset) => void;
+
+  websocketStatus: ConnectionStatus;
+  websocketConnect: () => void;
+  websocketDisconnect: () => void;
 }
 
 enum ItemListTab {
@@ -41,6 +55,10 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
 
   const isPartsActive = currentTab === ItemListTab.Parts;
   const isAssetsActive = currentTab === ItemListTab.Assets;
+
+  const { checkServerStatus, serverStatus } = useESPWebServer(
+    props.moduleAddress,
+  );
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -94,6 +112,18 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
                   });
                 }}
               />
+              <div className="flex flex-col">
+                <StatusDisplay
+                  status={serverStatus}
+                  label={`server: ${getHttpUrl(props.moduleAddress)}`}
+                  connect={checkServerStatus}
+                />
+                <StatusDisplay
+                  status={props.websocketStatus}
+                  label={`websocket: ${getWebSocketUrl(props.moduleAddress)}`}
+                  connect={props.websocketConnect}
+                />
+              </div>
             </div>
 
             <div className="panel-section-col-default">
