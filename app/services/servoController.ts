@@ -1,6 +1,11 @@
-import { ComponentTypes, ComponentWithAnimation } from "@/shared-types";
+import {
+  ComponentTypes,
+  ComponentWithAnimation,
+  AnimationEvent,
+} from "@/shared-types";
 import { getHttpUrl } from "@/shared-types/esp";
 import axios from "axios";
+import { interpolateAngle } from "../state-machine/utils";
 
 type KeyFrame = {
   trigger_time: number;
@@ -81,6 +86,33 @@ export const sendAnimation = async (
   } catch (error) {
     throw new Error(`Failed to send animation to ESP32: ${error}`);
   }
+};
+
+export const buildFramePayload = (
+  currentTime: number,
+  animationData: ComponentWithAnimation[],
+): AnimationEvent[] => {
+  console.log("Building frame payload for current time:", currentTime);
+  return animationData.flatMap((component) => {
+    if (
+      component.animation_events.length === 0 ||
+      component.type === null ||
+      component.pin === null
+    )
+      return [];
+
+    const angle = interpolateAngle(component.animation_events, currentTime);
+
+    return {
+      id: 0,
+      animation_id: 0,
+      component_id: component.id,
+      trigger_time: 0,
+      pin: component.pin,
+      type: component.type,
+      action: angle.toString(),
+    };
+  });
 };
 
 const buildPayload = (

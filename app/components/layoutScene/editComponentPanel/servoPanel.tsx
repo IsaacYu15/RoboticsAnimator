@@ -1,6 +1,7 @@
 "use client";
 
-import { tryParseFloat, tryParseInt } from "@/app/services/parse";
+import { tryParseFloat, tryParseInt } from "@/app/utils/parse";
+import { interpolateAngle } from "@/app/state-machine/utils";
 import { AXIS_COLOURS } from "@/app/constants";
 
 import ColourPalette from "../../colourPalette/colourPalette";
@@ -19,7 +20,6 @@ import {
 } from "@/app/actions/animation-event";
 import { useEffect, useState, useMemo } from "react";
 import { AnimationEvent, ComponentTypes } from "@/shared-types";
-import { linearInterpolation } from "@/app/services/math";
 import { calibrateComponent } from "@/app/services/servoController";
 
 interface ServoPanelProps {
@@ -45,32 +45,10 @@ export function ServoPanel({
   const { selectedComponent } = useSelection();
   const [angle, setAngle] = useState(0);
 
-  const interpolatedAngle = useMemo(() => {
-    if (componentEvents.length === 0) return 0;
-
-    let currentKeyframe = componentEvents[0];
-    let nextKeyframe = componentEvents[0];
-
-    for (let i = 0; i < componentEvents.length; i++) {
-      const eventTime = Number(componentEvents[i].trigger_time);
-      if (eventTime <= currentTime) {
-        currentKeyframe = componentEvents[i];
-        nextKeyframe = componentEvents[i + 1] ?? componentEvents[i];
-      }
-    }
-
-    const currentAngle = tryParseInt(currentKeyframe.action) ?? 0;
-    const nextAngle = tryParseInt(nextKeyframe.action) ?? 0;
-    const currentKeyTime = Number(currentKeyframe.trigger_time);
-    const nextKeyTime = Number(nextKeyframe.trigger_time);
-
-    if (currentKeyframe === nextKeyframe || currentKeyTime === nextKeyTime) {
-      return currentAngle;
-    }
-
-    const t = (currentTime - currentKeyTime) / (nextKeyTime - currentKeyTime);
-    return Math.round(linearInterpolation(currentAngle, nextAngle, t));
-  }, [currentTime, componentEvents]);
+  const interpolatedAngle = useMemo(
+    () => interpolateAngle(componentEvents, currentTime),
+    [currentTime, componentEvents],
+  );
 
   const updateField = <K extends keyof ServoPanelState>(
     field: K,

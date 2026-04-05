@@ -1,5 +1,5 @@
 import { ComponentType } from "@/app/constants/components";
-import { roundToDecimals } from "@/app/services/parse";
+import { roundToDecimals } from "@/app/utils/parse";
 import { Component, Transform, UpdateComponentInput } from "@/shared-types";
 
 export abstract class PanelState {

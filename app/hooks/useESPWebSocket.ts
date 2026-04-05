@@ -1,6 +1,6 @@
 "use client";
 
-import { ConnectionStatus } from "@/shared-types";
+import { ConnectionStatus, AnimationEvent } from "@/shared-types";
 import { getWebSocketUrl } from "@/shared-types/esp";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useRetryConnection from "./useRetryConnection";
@@ -17,6 +17,7 @@ export default function useESPWebSocket(address?: string): {
   isPaused: boolean;
   websocketStatus: ConnectionStatus;
   pauseResume: () => void;
+  sendFrame: (entries: AnimationEvent[]) => void;
   websocketConnect: () => void;
   websocketDisconnect: () => void;
 } {
@@ -94,8 +95,15 @@ export default function useESPWebSocket(address?: string): {
   }, []);
 
   const pauseResume = useCallback(() => {
-    send("pauseResume");
+    send(JSON.stringify({ type: "pauseResume" }));
   }, [send]);
+
+  const sendFrame = useCallback(
+    (entries: AnimationEvent[]) => {
+      send(JSON.stringify({ type: "frame", data: entries }));
+    },
+    [send],
+  );
 
   useEffect(() => {
     addressRef.current = address;
@@ -133,6 +141,7 @@ export default function useESPWebSocket(address?: string): {
     isPaused,
     websocketStatus: retryStatus,
     pauseResume,
+    sendFrame,
     websocketConnect,
     websocketDisconnect,
   };

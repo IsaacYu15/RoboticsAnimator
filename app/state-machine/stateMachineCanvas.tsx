@@ -7,7 +7,7 @@ import { createState, updateState, deleteState } from "@actions/states";
 import { createTransition } from "@actions/transitions";
 import { createAnimation } from "@actions/animations";
 import { State, Transition, Direction } from "@/shared-types";
-import { tryParseInt } from "../services/parse";
+import { tryParseInt } from "../utils/parse";
 import DragResizer from "../components/dragHandlers/dragResizer";
 import { HORIZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers/constants";
 import StateComponent from "./state";

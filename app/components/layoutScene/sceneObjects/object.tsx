@@ -1,4 +1,4 @@
-import { degreesToRadians } from "@/app/services/math";
+import { degreesToRadians } from "@/app/utils/math";
 import { Component, OBJECT_TYPE_CONFIG, ObjectType } from "@/shared-types";
 import { useGLTF } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";

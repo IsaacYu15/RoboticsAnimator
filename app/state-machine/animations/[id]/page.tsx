@@ -12,12 +12,15 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
 import Playhead from "./timelinePlayhead";
-import { sendAnimation } from "@/app/services/servoController";
+import {
+  sendAnimation,
+  buildFramePayload,
+} from "@/app/services/servoController";
 import { getModules } from "@/app/actions/modules";
 import { getAnimationById } from "@/app/actions/animations";
 import { getAssets } from "@/app/actions/assets";
 import TimelineToolbar from "./timelineToolbar";
-import { formatDecimals } from "@/app/services/parse";
+import { formatDecimals } from "@/app/utils/parse";
 import { useToast } from "@/app/context/toastContext";
 import { SelectionProvider } from "@/app/context/selectionContext";
 import {
@@ -57,35 +60,17 @@ export default function AnimationPage({
     isPlaying,
     isPaused,
     pauseResume,
+    sendFrame,
     websocketStatus,
     websocketConnect,
     websocketDisconnect,
   } = useESPWebSocket(moduleAddress);
-
-  useEffect(() => {
-    setPlayHeadTime(currentTime / 1000);
-  }, [currentTime]);
 
   const timelineWidth = useCallback(() => {
     return (
       (timelineEnd - timelineStart) / SMALLEST_TIMELINE_UNIT_IN_SECONDS + 1
     );
   }, [timelineStart, timelineEnd]);
-
-  useEffect(() => {
-    if (!timelineRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width;
-      const currentWidth = timelineWidth();
-      if (width) {
-        setTimelineUnitWidth(width / currentWidth);
-      }
-    });
-
-    observer.observe(timelineRef.current);
-    return () => observer.disconnect();
-  }, [timelineWidth]);
 
   const handleTimelineWheel = useCallback(
     (e: React.WheelEvent) => {
@@ -112,6 +97,8 @@ export default function AnimationPage({
   }, []);
 
   const handlePlay = async () => {
+    setIsLiveMode(false);
+
     if (!isPlaying) {
       try {
         await sendAnimation(components, moduleAddress);
@@ -142,6 +129,25 @@ export default function AnimationPage({
   }, []);
 
   useEffect(() => {
+    if (!timelineRef.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width;
+      const currentWidth = timelineWidth();
+      if (width) {
+        setTimelineUnitWidth(width / currentWidth);
+      }
+    });
+
+    observer.observe(timelineRef.current);
+    return () => observer.disconnect();
+  }, [timelineWidth]);
+
+  useEffect(() => {
+    setPlayHeadTime(currentTime / 1000);
+  }, [currentTime]);
+
+  useEffect(() => {
     const setup = async () => {
       const animation = await getAnimationById(parseInt(id));
       setTitle(animation?.name ?? "Animation");
@@ -152,6 +158,15 @@ export default function AnimationPage({
     setup();
     // eslint-disable-next-line
   }, [id]);
+
+  useEffect(() => {
+    if (!isLiveMode) return;
+
+    const payload = buildFramePayload(playHeadTime, components);
+    if (payload.length > 0) {
+      sendFrame(payload);
+    }
+  }, [playHeadTime, isLiveMode, components, sendFrame]);
 
   return (
     <SelectionProvider>

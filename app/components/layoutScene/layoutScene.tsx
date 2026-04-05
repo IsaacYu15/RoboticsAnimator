@@ -29,7 +29,7 @@ import {
 import { ServoPanel } from "./editComponentPanel/servoPanel";
 import PropertiesPanel from "./properties/propertiesPanel";
 import Scene from "./sceneObjects/scene";
-import { degreesToRadians, radiansToDegrees } from "@/app/services/math";
+import { degreesToRadians, radiansToDegrees } from "@/app/utils/math";
 import { Eye, Hand, LucideIcon, Move, Rotate3D } from "lucide-react";
 import { KEY_BACKSPACE } from "@/app/constants";
 import { useSelection } from "@/app/context/selectionContext";

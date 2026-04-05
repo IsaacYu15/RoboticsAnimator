@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, RefObject } from "react";
-import { clamp } from "@/app/services/math";
+import { clamp } from "@/app/utils/math";
 
 interface UseTimelineDragOptions {
   timelineRef: RefObject<HTMLElement | null>;

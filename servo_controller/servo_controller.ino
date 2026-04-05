@@ -261,7 +261,14 @@ void handleWebSocketMessage(uint8_t num, uint8_t* payload, size_t length) {
   Serial.print("Recieved request: ");
   Serial.println(message);
   
-  if (strcmp(message, "pauseResume") == 0)
+  DynamicJsonDocument doc(2048);
+  DeserializationError error = deserializeJson(doc, message);
+  if (error) return;
+
+  const char* type = doc["type"];
+  if (!type) return;
+
+  if (strcmp(type, "pauseResume") == 0)
   {
     animationController->isPaused = !animationController->isPaused;
 
@@ -270,6 +277,21 @@ void handleWebSocketMessage(uint8_t num, uint8_t* payload, size_t length) {
       Serial.println("Animation Resumed");
     } else {
       Serial.println("Animation Paused");
+    }
+  }
+  else if (strcmp(type, "frame") == 0)
+  {
+    JsonArray data = doc["data"];
+    for (JsonObject entry : data)
+    {
+      const char* compType = entry["type"];
+      int pin = entry["pin"];
+      const char* action = entry["action"];
+
+      if (strcmp(compType, "servo") == 0)
+      {
+        pwm.setPWM(pin, 0, angleToPWM(atoi(action)));
+      }
     }
   }
 }
