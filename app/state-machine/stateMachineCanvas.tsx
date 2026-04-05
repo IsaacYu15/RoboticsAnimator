@@ -177,12 +177,12 @@ export default function StateMachineCanvas({
         />
       ))}
 
-      {initialTransitions.map((t) => {
+      {/* {initialTransitions.map((t) => {
         const from = statesMap.get(t.from_id);
         const to = statesMap.get(t.to_id);
         if (!from || !to) return null;
         return <Arrow key={t.id} from={from} to={to} />;
-      })}
+      })} */}
     </div>
   );
 }

@@ -1,15 +1,10 @@
 "use client";
 
 import { RefObject, useEffect, useCallback } from "react";
-import {
-  deleteAnimationEvent,
-  updateAnimationEvent,
-} from "@/app/actions/animation-event";
+import { updateAnimationEvent } from "@/app/actions/animation-event";
 import { useSelection } from "@/app/context/selectionContext";
 import { AnimationEvent, Component } from "@/shared-types";
-import { KEY_BACKSPACE } from "@/app/constants";
 import { useTimelineDrag } from "./useTimelineDrag";
-import { isInputFieldFocused } from "../../utils";
 
 interface KeyFrameProps {
   timelineRef: RefObject<HTMLDivElement | null>;
@@ -30,10 +25,7 @@ export default function KeyFrame({
   timelineUnitWidth,
   timelineUnitSeconds,
 }: KeyFrameProps) {
-  const { selectComponent, selectedKeyframeId, selectKeyframe } =
-    useSelection();
-
-  const isSelected = selectedKeyframeId === event.id;
+  const { selectComponent } = useSelection();
 
   const handleDragEnd = useCallback(
     async (newTime: number) => {
@@ -44,17 +36,9 @@ export default function KeyFrame({
   );
 
   const handleClick = useCallback(() => {
-    selectKeyframe(event.id);
     selectComponent(component);
     onTimeChange(Number(event.trigger_time));
-  }, [
-    selectKeyframe,
-    selectComponent,
-    event.id,
-    component,
-    onTimeChange,
-    event.trigger_time,
-  ]);
+  }, [selectComponent, component, onTimeChange, event.trigger_time]);
 
   const { ref, position, handleMouseDown } = useTimelineDrag<HTMLButtonElement>(
     {
@@ -67,30 +51,12 @@ export default function KeyFrame({
     },
   );
 
-  useEffect(() => {
-    const handleKeyDown = async (e: KeyboardEvent) => {
-      if (!isSelected || isInputFieldFocused(e)) return;
-
-      if (e.key === KEY_BACKSPACE) {
-        e.stopPropagation();
-        e.preventDefault();
-
-        selectKeyframe(undefined);
-        await deleteAnimationEvent(event.id);
-        onRefresh();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isSelected, event.id, onRefresh, selectKeyframe]);
-
   return (
     <div className="absolute -translate-x-1/2" style={{ left: position }}>
       <button
         ref={ref}
         onMouseDown={handleMouseDown}
-        className={`size-3 rotate-45 rounded-xs ${isSelected ? "bg-gray-medium-dark" : "bg-gray-medium"}`}
+        className={`size-3 rotate-45 rounded-xs bg-gray-medium`}
       ></button>
     </div>
   );

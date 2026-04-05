@@ -6,6 +6,7 @@ import {
   getComponentById,
   updateComponent,
 } from "@/app/actions/components";
+import { deleteAnimationEvent } from "@/app/actions/animation-event";
 import { deleteAsset } from "@/app/actions/assets";
 import { HORIZ_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
 import { ComponentType } from "@/app/constants/components";
@@ -58,27 +59,56 @@ export default function LayoutScene(props: LayoutSceneProps) {
   const [movementMode, setMovementMode] = useState<MovementMode>("firstPerson");
 
   const objectRefs = useRef<Record<number, Object3D>>({});
+  const sceneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      setCanvasActive(sceneRef.current?.contains(e.target as Node) ?? false);
+    };
+
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
+      if (e.key !== KEY_BACKSPACE || !selectedComponent) return;
+
+      const target = e.target as HTMLElement;
       if (
-        e.key === KEY_BACKSPACE &&
-        selectedComponent?.id !== undefined &&
-        canvasActive
-      ) {
-        e.preventDefault();
-        const result = await deleteComponent(selectedComponent?.id);
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      )
+        return;
+
+      e.preventDefault();
+
+      const keyframe = props.animationEvents.find(
+        (ev) =>
+          Number(ev.trigger_time) === props.currentTime &&
+          ev.component_id === selectedComponent.id,
+      );
+
+      if (canvasActive) {
+        const result = await deleteComponent(selectedComponent.id);
         if (result.success) {
           clearSelection();
           setPanelState(undefined);
           await props.refresh();
         }
       }
+
+      if (keyframe) {
+        await deleteAnimationEvent(keyframe.id);
+        await props.refresh();
+        return;
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedComponent?.id, props, canvasActive, clearSelection]);
+  }, [selectedComponent, props, canvasActive, clearSelection]);
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -298,7 +328,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
     <div
       className={`${movementMode == "firstPerson" ? "cursor-default" : "cursor-grab"} w-full h-full`}
     >
-      <div onClick={() => setCanvasActive(false)}>
+      <div>
         <PropertiesPanel
           id={props.id}
           title={props.title}
@@ -315,22 +345,23 @@ export default function LayoutScene(props: LayoutSceneProps) {
         ></PropertiesPanel>
       </div>
 
-      <Scene
-        components={props.components}
-        canvasActive={canvasActive}
-        transformMode={transformMode}
-        movementMode={movementMode}
-        setMovementMode={setMovementMode}
-        setCanvasActive={setCanvasActive}
-        selectedComponentId={selectedComponent?.id}
-        setSelectedComponentId={handleSetSelectedComponentId}
-        objectRefs={objectRefs}
-        registerObjectRef={registerObjectRef}
-        saveObjectChanges={saveObjectTransform}
-      ></Scene>
+      <div ref={sceneRef} className="w-full h-full">
+        <Scene
+          components={props.components}
+          canvasActive={canvasActive}
+          transformMode={transformMode}
+          movementMode={movementMode}
+          setMovementMode={setMovementMode}
+          selectedComponentId={selectedComponent?.id}
+          setSelectedComponentId={handleSetSelectedComponentId}
+          objectRefs={objectRefs}
+          registerObjectRef={registerObjectRef}
+          saveObjectChanges={saveObjectTransform}
+        ></Scene>
+      </div>
 
       {selectedComponent?.id ? (
-        <div onClick={() => setCanvasActive(false)}>
+        <div>
           <DragResizer
             minDim={HORIZ_DRAGGABLE_SECTIONS}
             dragDirection={Direction.LEFT}

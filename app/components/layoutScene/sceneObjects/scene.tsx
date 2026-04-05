@@ -13,7 +13,6 @@ interface SceneProps {
   components: Component[];
 
   canvasActive: boolean;
-  setCanvasActive: (active: boolean) => void;
   transformMode: TransformMode;
   movementMode: MovementMode;
   setMovementMode: (mode: MovementMode) => void;
@@ -36,7 +35,6 @@ export default function Scene(props: SceneProps) {
         position: [0, 0, 5],
       }}
       onPointerMissed={() => props.setSelectedComponentId(undefined)}
-      onClick={() => props.setCanvasActive(true)}
     >
       <gridHelper />
 
