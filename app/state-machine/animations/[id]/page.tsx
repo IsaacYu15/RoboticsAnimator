@@ -163,7 +163,7 @@ export default function AnimationPage({
           components={components}
           assets={assets}
           refresh={refreshComponents}
-          currentTime={currentTime}
+          currentTime={playHeadTime}
           animationEvents={components.flatMap((c) => c.animation_events)}
           websocketStatus={websocketStatus}
           websocketConnect={websocketConnect}
@@ -268,7 +268,7 @@ export default function AnimationPage({
                           animationId={parseInt(id)}
                           animations={component.animation_events}
                           refresh={refreshComponents}
-                          onTimeChange={() => {}}
+                          onTimeChange={setPlayHeadTime}
                           timelineUnitWidth={timelineUnitWidth}
                           timelineUnitSeconds={
                             SMALLEST_TIMELINE_UNIT_IN_SECONDS

@@ -35,6 +35,10 @@ export default function ComponentTimeLine({
     const snappedUnits = Math.round(rawX / timelineUnitWidth);
     const newTriggerTime = snappedUnits * timelineUnitSeconds;
 
+    //do not add keyframe if it already exists
+    if (animations.some((a) => Number(a.trigger_time) === newTriggerTime))
+      return;
+
     await addAnimationEvent({
       animation_id: animationId,
       component_id: component.id,

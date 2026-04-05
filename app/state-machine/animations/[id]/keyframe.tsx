@@ -9,6 +9,7 @@ import { useSelection } from "@/app/context/selectionContext";
 import { AnimationEvent, Component } from "@/shared-types";
 import { KEY_BACKSPACE } from "@/app/constants";
 import { useTimelineDrag } from "./useTimelineDrag";
+import { isInputFieldFocused } from "../../utils";
 
 interface KeyFrameProps {
   timelineRef: RefObject<HTMLDivElement | null>;
@@ -46,7 +47,14 @@ export default function KeyFrame({
     selectKeyframe(event.id);
     selectComponent(component);
     onTimeChange(Number(event.trigger_time));
-  }, [selectKeyframe, selectComponent, event.id, component, onTimeChange, event.trigger_time]);
+  }, [
+    selectKeyframe,
+    selectComponent,
+    event.id,
+    component,
+    onTimeChange,
+    event.trigger_time,
+  ]);
 
   const { ref, position, handleMouseDown } = useTimelineDrag<HTMLButtonElement>(
     {
@@ -61,7 +69,7 @@ export default function KeyFrame({
 
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
-      if (!isSelected) return;
+      if (!isSelected || isInputFieldFocused(e)) return;
 
       if (e.key === KEY_BACKSPACE) {
         e.stopPropagation();
