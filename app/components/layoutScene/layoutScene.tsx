@@ -242,7 +242,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
         className={`relative cursor-pointer p-1 rounded ${isSelected ? "bg-blue-light" : ""}`}
       >
         <Icon
-          className={`size-5 p-1 ${isSelected ? "text-gray-medium-dark" : "text-gray-medium"}`}
+          className={`icon-default ${isSelected ? "text-gray-medium-dark" : "text-gray-medium"}`}
         />
       </button>
     );
