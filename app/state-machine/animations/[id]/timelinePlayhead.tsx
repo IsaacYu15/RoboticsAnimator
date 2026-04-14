@@ -10,6 +10,7 @@ interface TimelinePlayheadProps {
   timelineUnitSeconds: number;
   currentTime: number;
   onTimeChange: (time: number) => void;
+  leftOffset?: number;
 }
 
 export default function TimelinePlayhead({
@@ -18,6 +19,7 @@ export default function TimelinePlayhead({
   timelineUnitSeconds,
   currentTime,
   onTimeChange,
+  leftOffset = 0,
 }: TimelinePlayheadProps) {
   const { ref, position, handleMouseDown } = useTimelineDrag<HTMLDivElement>({
     timelineRef,
@@ -30,7 +32,7 @@ export default function TimelinePlayhead({
   return (
     <div
       className="absolute top-0 bottom-0 -translate-x-1/2 flex flex-col items-center pointer-events-none z-100"
-      style={{ left: position }}
+      style={{ left: leftOffset + position }}
     >
       <div
         ref={ref}

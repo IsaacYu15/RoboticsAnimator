@@ -52,7 +52,7 @@ export default function KeyFrame({
   );
 
   return (
-    <div className="absolute -translate-x-1/2" style={{ left: position }}>
+    <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: position }}>
       <button
         ref={ref}
         onMouseDown={handleMouseDown}

@@ -1,9 +1,23 @@
 "use client";
 
-import { RefObject } from "react";
-import { addAnimationEvent } from "@/app/actions/animation-event";
-import { AnimationEvent, ComponentWithAnimation } from "@/shared-types";
+import { RefObject, useCallback } from "react";
+import {
+  addAnimationEvent,
+  updateAnimationEvent,
+} from "@/app/actions/animation-event";
+import {
+  AnimationEvent,
+  BezierControlPoints,
+  ComponentWithAnimation,
+} from "@/shared-types";
+import {
+  GRAPH_TAG_HEIGHT,
+  TimelineMode,
+  CONST_COMPONENT_RANGE,
+} from "./constants";
 import KeyFrame from "./keyframe";
+import EasingCurve from "./easingCurve";
+import { parseEasing, serializeEasing } from "@/app/utils/parse";
 
 interface ComponentTimeLineProps {
   timelineRef: RefObject<HTMLDivElement | null>;
@@ -14,6 +28,7 @@ interface ComponentTimeLineProps {
   onTimeChange: (time: number) => void;
   timelineUnitWidth: number;
   timelineUnitSeconds: number;
+  timelineMode: TimelineMode;
 }
 
 export default function ComponentTimeLine({
@@ -25,7 +40,21 @@ export default function ComponentTimeLine({
   onTimeChange,
   timelineUnitWidth,
   timelineUnitSeconds,
+  timelineMode,
 }: ComponentTimeLineProps) {
+  const timeToPosition = useCallback(
+    (time: number) => (time / timelineUnitSeconds) * timelineUnitWidth,
+    [timelineUnitSeconds, timelineUnitWidth],
+  );
+
+  const setControlPoints = useCallback(
+    async (eventId: number, cp: BezierControlPoints) => {
+      await updateAnimationEvent(eventId, { easing: serializeEasing(cp) });
+      refresh();
+    },
+    [refresh],
+  );
+
   const handleDoubleClick = async (e: React.MouseEvent) => {
     if (e.target !== e.currentTarget) return;
 
@@ -52,20 +81,44 @@ export default function ComponentTimeLine({
   return (
     <div
       onDoubleClick={handleDoubleClick}
-      className="h-full w-full bg-white border border-gray-light-medium border-t-0 flex flex-row items-center relative"
+      className="h-full w-full bg-white border border-gray-light-medium border-t-0 flex flex-row items-center relative overflow-visible"
     >
-      {animations.map((event: AnimationEvent) => (
-        <KeyFrame
-          key={event.id}
-          timelineRef={timelineRef}
-          event={event}
-          component={component}
-          onRefresh={refresh}
-          onTimeChange={onTimeChange}
-          timelineUnitWidth={timelineUnitWidth}
-          timelineUnitSeconds={timelineUnitSeconds}
-        />
-      ))}
+      {animations.map((event) => {
+        return (
+          <div key={event.id}>
+            {timelineMode === TimelineMode.KEYFRAME && (
+              <KeyFrame
+                timelineRef={timelineRef}
+                event={event}
+                component={component}
+                onRefresh={refresh}
+                onTimeChange={onTimeChange}
+                timelineUnitWidth={timelineUnitWidth}
+                timelineUnitSeconds={timelineUnitSeconds}
+              />
+            )}
+          </div>
+        );
+      })}
+      {timelineMode === TimelineMode.GRAPH &&
+        animations.map((event, i) => {
+          const next = animations[i + 1];
+          if (!next) return null;
+          return (
+            <EasingCurve
+              key={`curve-${event.id}`}
+              startX={timeToPosition(Number(event.trigger_time))}
+              endX={timeToPosition(Number(next.trigger_time))}
+              height={GRAPH_TAG_HEIGHT}
+              start={parseInt(event.action) || 0}
+              end={parseInt(next.action) || 0}
+              min={CONST_COMPONENT_RANGE[component.type ?? ""].min}
+              max={CONST_COMPONENT_RANGE[component.type ?? ""].max}
+              controlPoints={parseEasing(event.easing)}
+              onControlPointsChange={(cp) => setControlPoints(event.id, cp)}
+            />
+          );
+        })}
     </div>
   );
 }

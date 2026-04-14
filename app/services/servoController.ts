@@ -2,14 +2,17 @@ import {
   ComponentTypes,
   ComponentWithAnimation,
   AnimationEvent,
+  EASING_PRESETS,
 } from "@/shared-types";
 import { getHttpUrl } from "@/shared-types/esp";
 import axios from "axios";
 import { interpolateAngle } from "../state-machine/utils";
+import { serializeEasing } from "../utils/parse";
 
 type KeyFrame = {
   trigger_time: number;
   action: string;
+  easing: string;
 };
 
 type AnimatedComponent = {
@@ -111,6 +114,7 @@ export const buildFramePayload = (
       pin: component.pin,
       type: component.type,
       action: angle.toString(),
+      easing: serializeEasing(EASING_PRESETS.linear),
     };
   });
 };
@@ -130,8 +134,9 @@ const buildPayload = (
     const keyframes: KeyFrame[] = value.animation_events.map((event) => {
       animationLength = Math.max(animationLength, event.trigger_time * 1000);
       return {
-        trigger_time: event.trigger_time * 1000, //convert to millisecond
+        trigger_time: event.trigger_time * 1000,
         action: event.action,
+        easing: event.easing,
       };
     });
 

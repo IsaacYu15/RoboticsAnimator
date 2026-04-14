@@ -51,3 +51,17 @@ export enum Direction {
 }
 
 export type IconButtonVariant = "default" | "blue";
+
+export type BezierControlPoints = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+};
+
+export const EASING_PRESETS: Record<string, BezierControlPoints> = {
+  linear: { x1: 0, y1: 0, x2: 1, y2: 1 },
+  easeIn: { x1: 0.42, y1: 0, x2: 1, y2: 1 },
+  easeOut: { x1: 0, y1: 0, x2: 0.58, y2: 1 },
+  easeInOut: { x1: 0.42, y1: 0, x2: 0.58, y2: 1 },
+};

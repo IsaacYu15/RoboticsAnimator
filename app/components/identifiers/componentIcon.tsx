@@ -16,6 +16,6 @@ export function ComponentIcon(type?: string) {
     case ComponentType.SERVO:
       return <SettingsIcon className="icon-default" />;
     default:
-      return null;
+      return <div className="icon-default" />;
   }
 }
