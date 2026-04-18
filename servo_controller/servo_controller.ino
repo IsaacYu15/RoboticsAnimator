@@ -26,15 +26,44 @@ int angleToPWM(int angle) {
   return map(angle, 0, 180, MIN_PULSE, MAX_PULSE);
 }
 
-int linearInterpolation(int currentTime, int timeStart, int timeEnd, int angleStart, int angleEnd)
-{
-  return map(currentTime, timeStart, timeEnd, angleStart, angleEnd);
+float cubicBezierX(float t, float x1, float x2) {
+  float mt = 1.0f - t;
+  return 3.0f * mt * mt * t * x1 + 3.0f * mt * t * t * x2 + t * t * t;
+}
+
+float cubicBezierY(float t, float y1, float y2) {
+  float mt = 1.0f - t;
+  return 3.0f * mt * mt * t * y1 + 3.0f * mt * t * t * y2 + t * t * t;
+}
+
+float cubicBezierDxDt(float t, float x1, float x2) {
+  return 3.0f * x1 * (1.0f - 4.0f * t + 3.0f * t * t)
+       + 3.0f * x2 * (2.0f * t - 3.0f * t * t)
+       + 3.0f * t * t;
+}
+
+int easedInterpolation(float currentTime, float timeStart, float timeEnd, int angleStart, int angleEnd, float ex1, float ey1, float ex2, float ey2) {
+  float x = (currentTime - timeStart) / (timeEnd - timeStart);
+
+  float u = x;
+  for (int i = 0; i < 8; i++) {
+    float err = cubicBezierX(u, ex1, ex2) - x;
+    float slope = cubicBezierDxDt(u, ex1, ex2);
+    if (fabs(slope) < 1e-6f) break;
+    u -= err / slope;
+    if (u < 0.0f) u = 0.0f;
+    if (u > 1.0f) u = 1.0f;
+  }
+
+  float eased = cubicBezierY(u, ey1, ey2);
+  return angleStart + (int)((angleEnd - angleStart) * eased + 0.5f);
 }
 
 /* ====== ANIMATION ======= */
 struct Keyframe {
   float trigger_time;
   char* action;
+  float ex1, ey1, ex2, ey2;
 };
 
 struct AnimatedComponent {
@@ -109,7 +138,12 @@ class AnimationController {
           const char* actionStr = kf["action"];
           keyframe[i].action = (char*)malloc(strlen(actionStr) + 1);
           strcpy(keyframe[i].action, actionStr);
-  
+
+          const char* easingStr = kf["easing"] | "0,0,1,1";
+          sscanf(easingStr, "%f,%f,%f,%f",
+            &keyframe[i].ex1, &keyframe[i].ey1,
+            &keyframe[i].ex2, &keyframe[i].ey2);
+
           i++;
         }
         
@@ -129,6 +163,8 @@ class AnimationController {
       if (!isPlaying || isPaused) {
         return;
       }
+
+      Serial.println("yes");
         
       for (int i = 0; i < componentCount; i ++) {
 
@@ -160,9 +196,10 @@ class AnimationController {
           }
           else
           {
-            inputAngle = linearInterpolation(currentTime, 
+            inputAngle = easedInterpolation(currentTime,
               curr_kf.trigger_time, next_kf.trigger_time,
-              atoi(curr_kf.action), atoi(next_kf.action)
+              atoi(curr_kf.action), atoi(next_kf.action),
+              curr_kf.ex1, curr_kf.ey1, curr_kf.ex2, curr_kf.ey2
             );
           }
             
