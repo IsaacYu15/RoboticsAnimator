@@ -163,8 +163,6 @@ class AnimationController {
       if (!isPlaying || isPaused) {
         return;
       }
-
-      Serial.println("yes");
         
       for (int i = 0; i < componentCount; i ++) {
 
