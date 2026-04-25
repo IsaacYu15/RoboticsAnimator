@@ -430,7 +430,7 @@ void handleAnimationPost() {
 
 void handleStatusGet() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "application/json", "{\"message\":\"ESP32 API connected\"}");
+  server.send(200, "application/json", "{\"message\":\"ESP8266 API connected\"}");
 }
 
 void handleCalibrate() {

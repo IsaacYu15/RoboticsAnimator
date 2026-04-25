@@ -82,12 +82,12 @@ export const sendAnimation = async (
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: 5000,
+      timeout: 10000,
     });
 
     return { success: response.status === 200 };
   } catch (error) {
-    throw new Error(`Failed to send animation to ESP32: ${error}`);
+    throw new Error(`Failed to send animation to ESP8266: ${error}`);
   }
 };
 

@@ -9,7 +9,7 @@ import {
 } from "@/app/constants/inputs";
 import { useInputContext } from "@/app/context/inputContext";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Vector3 } from "three";
 import {
   CAMERA_LOOK_SPEED,
@@ -27,6 +27,11 @@ export default function Movement({ mode, setMovementMode }: MovementProps) {
   const { inputs, mousePos, scrollRef } = useInputContext();
   const mouseLastPos = useRef({ x: 0, y: 0 });
   const scrollLastPos = useRef(0);
+
+  useLayoutEffect(() => {
+    scrollLastPos.current = scrollRef.current;
+    mouseLastPos.current = { ...mousePos.current };
+  }, [scrollRef, mousePos]);
 
   const moveForward = () => {
     const forward = new Vector3();
