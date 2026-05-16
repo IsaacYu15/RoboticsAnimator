@@ -1,36 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RAYTRACING
+**Part 1 Demo [here](https://www.youtube.com/watch?v=HW6DJN8scOM)**
 
-## Getting Started
+As someone who has always been amazed by theme park animatronics, I decided to build some software tools to help me
+create and animate robots faster. The robotics animator is a full-stack app that lets you design animations
+through a clean user interface while playing and editing them in real time. 
 
-First, run the development server:
+So far, this process has allowed me to prototype animations **3x** faster. The previous process was to blindly write some code to drive a servo, 
+flash the firmware, watch the animation play out on the robot and then iterate. Using the robotics animator, 
+there is no longer a need to flash the firmware if you want to play an animation as the sequence is directly sent to the microcontroller over HTTP. Additionally,
+via a WebSocket connection, you can also preview a servo's rotation in real time as you create your animations. 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Core Features:
+- A digital twin interface that allows you to create and manipulate a virtual copy of your robot. It's also helpful for storing data like which pins each servo is connected to
+- Animation timelines that allow you to adjust a servo's rotation at a specific time using keyframes. It also offers different forms of interpolation (ease-in, ease-out)
+- A database for storing various animations and hardware / component configurations
+- A WebSocket connection to the microcontroller which allows for real time interactions with the robot via the app such as previewing a frame, playing and pausing animations
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
