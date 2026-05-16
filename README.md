@@ -7,7 +7,7 @@ through a clean user interface while playing and editing them in real time.
 
 So far, this process has allowed me to prototype animations **3x** faster. The previous process was to blindly write some code to drive a servo, 
 flash the firmware, watch the animation play out on the robot and then iterate. Using the robotics animator, 
-there is no longer a need to flash the firmware if you want to play an animation as the sequence is directly sent to the microcontroller over HTTP. Additionally,
+there is no longer a need to flash the firmware as animation sequences are directly sent to the microcontroller over HTTP. Additionally,
 via a WebSocket connection, you can also preview a servo's rotation in real time as you create your animations. 
 
 Core Features:
