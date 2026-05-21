@@ -1,4 +1,4 @@
-# RAYTRACING
+# ROBOTICS ANIMATOR
 **Part 1 Demo [here](https://www.youtube.com/watch?v=HW6DJN8scOM)**
 
 As someone who has always been amazed by theme park animatronics, I decided to build some software tools to help me
