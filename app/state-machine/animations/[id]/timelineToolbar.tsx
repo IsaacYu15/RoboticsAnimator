@@ -1,12 +1,8 @@
-import { Pause, Play, RotateCcw, Zap, ZapOff } from "lucide-react";
-import CircleButton, {
-  CircleButtonSize,
-} from "@/app/components/input/circleButton";
+import { Pause, Play, Zap, ZapOff } from "lucide-react";
 
 interface TimelineToolbarProps {
   isPlaying: boolean;
   handlePlay: () => void;
-  onRestart: () => void;
   isLiveMode: boolean;
   setIsLiveMode: (live: boolean) => void;
 }
@@ -14,33 +10,31 @@ interface TimelineToolbarProps {
 export default function TimelineToolbar({
   isPlaying,
   handlePlay,
-  onRestart,
   isLiveMode,
   setIsLiveMode,
 }: TimelineToolbarProps) {
+  const playIconClasses = `size-4 ${isPlaying ? "text-blue-dark" : "text-gray-medium-dark"} hover:text-blue-dark`;
+  const liveIconClasses = `size-4 ${isLiveMode ? "text-green-dark" : "text-gray-medium-dark"} hover:text-green-dark`;
+
   return (
-    <div className="flex flex-row gap-2 items-center justify-center p-2">
-      <CircleButton
-        icon={RotateCcw}
-        onClick={onRestart}
-        size={CircleButtonSize.Small}
-      />
-      <CircleButton
-        icon={isPlaying ? Pause : Play}
-        onClick={handlePlay}
-        size={CircleButtonSize.Large}
-        active={isPlaying}
-      />
-      <CircleButton
-        icon={isLiveMode ? Zap : ZapOff}
+    <div className="flex flex-row gap-2 items-center justify-center">
+      <button onClick={handlePlay} className="cursor-pointer">
+        {isPlaying ? (
+          <Pause className={playIconClasses} />
+        ) : (
+          <Play className={playIconClasses} />
+        )}
+      </button>
+      <button
         onClick={() => setIsLiveMode(!isLiveMode)}
-        size={CircleButtonSize.Small}
-        active={isLiveMode}
+        className="cursor-pointer"
       >
-        <div
-          className={`absolute -top-0.5 -right-0.5 size-4 ${isLiveMode ? "bg-green" : "bg-red"} border-2 border-blue rounded-full`}
-        ></div>
-      </CircleButton>
+        {isLiveMode ? (
+          <Zap className={liveIconClasses} />
+        ) : (
+          <ZapOff className={liveIconClasses} />
+        )}
+      </button>
     </div>
   );
 }

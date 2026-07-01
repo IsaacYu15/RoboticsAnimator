@@ -1,9 +1,18 @@
 "use client";
 
-import { tryParseFloat, tryParseInt } from "@/app/utils/parse";
+import {
+  parseEasing,
+  serializeEasing,
+  tryParseFloat,
+  tryParseInt,
+} from "@/app/utils/parse";
 import { interpolateAngle } from "@/app/state-machine/utils";
 import { AXIS_COLOURS } from "@/app/constants";
-
+import {
+  EASING_PRESET_ITEMS,
+  MATCH_TOLERANCE,
+} from "@/app/state-machine/animations/[id]/constants";
+import EasingCurve from "@/app/state-machine/animations/[id]/easingCurve";
 import ColourPalette from "../../colourPalette/colourPalette";
 import IconInputField from "../../input/iconInputField";
 import SimpleInputField from "../../input/simpleInputField";
@@ -18,9 +27,15 @@ import {
   addAnimationEvent,
   updateAnimationEvent,
 } from "@/app/actions/animation-event";
-import { useEffect, useState, useMemo } from "react";
-import { AnimationEvent, ComponentTypes } from "@/shared-types";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  AnimationEvent,
+  BezierControlPoints,
+  ComponentTypes,
+  EASING_PRESETS,
+} from "@/shared-types";
 import { calibrateComponent } from "@/app/services/servoController";
+import { clamp } from "@/app/utils/math";
 
 interface ServoPanelProps {
   moduleAddress?: string;
@@ -31,6 +46,24 @@ interface ServoPanelProps {
   animationId: number;
   onRefresh: () => void;
 }
+
+const DEFAULT_CONTROL_POINTS: BezierControlPoints = {
+  x1: 0,
+  y1: 0,
+  x2: 1,
+  y2: 1,
+};
+
+const CURVE_EDITOR_DEFAULT_SIZE = 220;
+
+const areControlPointsEqual = (
+  a: BezierControlPoints,
+  b: BezierControlPoints,
+) =>
+  Math.abs(a.x1 - b.x1) <= MATCH_TOLERANCE &&
+  Math.abs(a.y1 - b.y1) <= MATCH_TOLERANCE &&
+  Math.abs(a.x2 - b.x2) <= MATCH_TOLERANCE &&
+  Math.abs(a.y2 - b.y2) <= MATCH_TOLERANCE;
 
 export function ServoPanel({
   moduleAddress,
@@ -44,11 +77,86 @@ export function ServoPanel({
   const toast = useToast();
   const { selectedComponent } = useSelection();
   const [angle, setAngle] = useState(0);
+  const curveContainerRef = useRef<HTMLDivElement>(null);
+  const [curveEditorDimensions, setCurveEditorDimensions] = useState({
+    width: CURVE_EDITOR_DEFAULT_SIZE,
+    height: CURVE_EDITOR_DEFAULT_SIZE,
+  });
+  const [displayControlPoints, setDisplayControlPoints] =
+    useState<BezierControlPoints>(DEFAULT_CONTROL_POINTS);
 
   const interpolatedAngle = useMemo(
     () => interpolateAngle(componentEvents, currentTime),
     [currentTime, componentEvents],
   );
+
+  const activeSegmentStartIndex = useMemo(() => {
+    if (componentEvents.length < 2) return -1;
+
+    const n = componentEvents.length;
+    const timeAt = (i: number) => Number(componentEvents[i].trigger_time);
+
+    let l = 0;
+    let r = n - 1;
+    let idx = 0;
+
+    while (l <= r) {
+      const mid = Math.floor((l + r) / 2);
+
+      if (timeAt(mid) == currentTime) {
+        idx = mid;
+        break;
+      }
+
+      if (timeAt(mid) < currentTime) {
+        idx = mid;
+        l = mid + 1;
+      } else {
+        r = mid - 1;
+      }
+    }
+
+    return clamp(idx, 0, n - 2);
+  }, [componentEvents, currentTime]);
+
+  const segmentStartKeyframe =
+    activeSegmentStartIndex >= 0
+      ? componentEvents[activeSegmentStartIndex]
+      : undefined;
+
+  const segmentEndKeyframe =
+    activeSegmentStartIndex >= 0
+      ? componentEvents[activeSegmentStartIndex + 1]
+      : undefined;
+
+  const startTime = Number(segmentStartKeyframe?.trigger_time ?? currentTime);
+
+  const endTime = Number(
+    segmentEndKeyframe?.trigger_time ??
+      segmentStartKeyframe?.trigger_time ??
+      currentTime,
+  );
+
+  const selectedControlPoints = useMemo(() => {
+    if (!segmentStartKeyframe) return DEFAULT_CONTROL_POINTS;
+
+    try {
+      return parseEasing(segmentStartKeyframe.easing);
+    } catch {
+      return DEFAULT_CONTROL_POINTS;
+    }
+  }, [segmentStartKeyframe]);
+
+  useEffect(() => {
+    setDisplayControlPoints(selectedControlPoints);
+  }, [selectedControlPoints]);
+
+  const selectedPresetKey = useMemo(() => {
+    const matched = Object.entries(EASING_PRESETS).find(([, points]) =>
+      areControlPointsEqual(points, displayControlPoints),
+    );
+    return matched?.[0];
+  }, [displayControlPoints]);
 
   const updateField = <K extends keyof ServoPanelState>(
     field: K,
@@ -78,7 +186,7 @@ export function ServoPanel({
     if (!selectedComponent) return;
 
     const existingKeyframe = componentEvents.find(
-      (e) => Number(e.trigger_time) === currentTime,
+      (event) => Number(event.trigger_time) === currentTime,
     );
 
     if (existingKeyframe) {
@@ -98,13 +206,61 @@ export function ServoPanel({
     onRefresh();
   };
 
+  const handleEasingGraphChange = async (
+    controlPoints: BezierControlPoints,
+  ) => {
+    if (!segmentStartKeyframe) return;
+    setDisplayControlPoints(controlPoints);
+
+    await updateAnimationEvent(segmentStartKeyframe.id, {
+      easing: serializeEasing(controlPoints),
+    });
+    await onRefresh();
+  };
+
+  const handleEasingPresetChange = async (presetKey: string) => {
+    if (!segmentStartKeyframe || !presetKey || !(presetKey in EASING_PRESETS))
+      return;
+    const presetControlPoints = { ...EASING_PRESETS[presetKey] };
+    setDisplayControlPoints(presetControlPoints);
+
+    await updateAnimationEvent(segmentStartKeyframe.id, {
+      easing: serializeEasing(presetControlPoints),
+    });
+    await onRefresh();
+  };
+
   useEffect(() => {
     setAngle(interpolatedAngle);
   }, [interpolatedAngle]);
 
+  useEffect(() => {
+    const container = curveContainerRef.current;
+    if (!container) return;
+
+    const updateSize = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (width > 0 && height > 0) {
+        setCurveEditorDimensions({ width, height });
+      }
+    };
+
+    updateSize();
+
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) {
+        setCurveEditorDimensions({ width, height });
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="bg-gray-light h-screen py-6">
-      <div className="w-full px-6 pb-4 flex flex-row items-start justify-between border-b border-gray-light-medium ">
+    <div className="bg-gray-light h-full pb-6 overflow-y-auto scrollbar-hidden">
+      <div className="w-full px-6 pb-4 pt-6 flex flex-row items-start justify-between border-b border-gray-light-medium sticky top-0 z-20 bg-gray-light">
         <input
           className="title-input-default text-sm"
           value={state.name}
@@ -112,7 +268,6 @@ export function ServoPanel({
         />
         <IconButton icon={FileUp} onClick={saveAsAsset} />
       </div>
-
       <div className="panel-section-col-default">
         <h5>Settings</h5>
         <div className="grid grid-cols-2 gap-2">
@@ -146,7 +301,6 @@ export function ServoPanel({
           />
         </div>
       </div>
-
       <div className="panel-section-col-default">
         <h5>Transform</h5>
         <SimpleInputField
@@ -196,7 +350,6 @@ export function ServoPanel({
           ]}
         />
       </div>
-
       <div className="panel-section-col-default">
         <h5>Action</h5>
         <div className="flex flex-row items-center gap-2">
@@ -211,7 +364,6 @@ export function ServoPanel({
               }}
             />
           </div>
-
           <IconButton
             icon={Wrench}
             onClick={() =>
@@ -224,6 +376,41 @@ export function ServoPanel({
             variant="blue"
           />
         </div>
+        {segmentStartKeyframe && segmentEndKeyframe && (
+          <div className="mt-2 w-full">
+            <div className="mb-2 flex items-center gap-2">
+              <select
+                className="input-default flex-1"
+                value={selectedPresetKey ?? "custom"}
+                onChange={(e) => handleEasingPresetChange(e.target.value)}
+              >
+                {EASING_PRESET_ITEMS.map((preset) => (
+                  <option key={preset.key} value={preset.key}>
+                    {preset.label}
+                  </option>
+                ))}
+                <option value="custom" disabled>
+                  Custom Bezier Curve
+                </option>
+              </select>
+            </div>
+            <div
+              ref={curveContainerRef}
+              className="relative w-full aspect-square bg-white border border-gray-light-medium rounded-sm overflow-hidden"
+            >
+              <EasingCurve
+                startX={0}
+                endX={curveEditorDimensions.width}
+                height={curveEditorDimensions.height}
+                startTime={startTime}
+                endTime={endTime}
+                currentTime={currentTime}
+                controlPoints={displayControlPoints}
+                onControlPointsChange={handleEasingGraphChange}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

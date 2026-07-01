@@ -1,7 +1,10 @@
 "use client";
 
 import { getComponentsWithAnimations } from "@/app/actions/components";
-import { VERT_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
+import {
+  MAX_VERT_DRAGGABLE_SECTIONS,
+  VERT_DRAGGABLE_SECTIONS,
+} from "@/app/components/dragHandlers/constants";
 import DragResizer from "@/app/components/dragHandlers/dragResizer";
 import LayoutScene from "@/app/components/layoutScene/layoutScene";
 import { Asset, ComponentWithAnimation, Direction } from "@/shared-types";
@@ -19,16 +22,15 @@ import { getAssets } from "@/app/actions/assets";
 import TimelineToolbar from "./timelineToolbar";
 import { useToast } from "@/app/context/toastContext";
 import { SelectionProvider } from "@/app/context/selectionContext";
+import { formatDecimals, tryParseFloat } from "@/app/utils/parse";
+import { clamp } from "@/app/utils/math";
 import {
   KEYFRAME_TAG_HEIGHT,
-  GRAPH_TAG_HEIGHT,
   SMALLEST_TIMELINE_UNIT_IN_SECONDS,
   TAG_COLUMN_WIDTH,
   TIMELINE_HEADER_HEIGHT,
-  TimelineMode,
 } from "./constants";
 import useESPWebSocket from "@/app/hooks/useESPWebSocket";
-import TimelineOptions from "./timelineOptions";
 import TimelineTime from "./timelineTime";
 
 export default function AnimationPage({
@@ -45,12 +47,13 @@ export default function AnimationPage({
 
   const [isLiveMode, setIsLiveMode] = useState(false);
   const [playHeadTime, setPlayHeadTime] = useState(0);
-  const [timelineMode, setTimelineMode] = useState<TimelineMode>(
-    TimelineMode.KEYFRAME,
+  const [playheadInputValue, setPlayheadInputValue] = useState(
+    formatDecimals(0, 3),
   );
+  const [isEditingPlayheadInput, setIsEditingPlayheadInput] = useState(false);
 
   const timelineRef = useRef<HTMLDivElement>(null);
-  const [timelineStart, setTimelineStart] = useState(0);
+  const [timelineStart] = useState(0);
   const [timelineEnd, setTimelineEnd] = useState(10);
   const [timelineUnitWidth, setTimelineUnitWidth] = useState(0);
 
@@ -73,9 +76,17 @@ export default function AnimationPage({
     );
   }, [timelineStart, timelineEnd]);
 
-  const handleRestart = useCallback(() => {
-    // TODO: implement restart logic
-  }, []);
+  const commitPlayheadInput = useCallback(() => {
+    const parsed = tryParseFloat(playheadInputValue, 3);
+    if (parsed === null) {
+      setPlayheadInputValue(formatDecimals(playHeadTime, 3));
+      return;
+    }
+
+    const clampedTime = clamp(parsed, timelineStart, timelineEnd);
+    setPlayHeadTime(clampedTime);
+    setPlayheadInputValue(formatDecimals(clampedTime, 3));
+  }, [playheadInputValue, playHeadTime, timelineStart, timelineEnd]);
 
   const handlePlay = async () => {
     setIsLiveMode(false);
@@ -109,6 +120,27 @@ export default function AnimationPage({
     }
   }, []);
 
+  const handleLocalEventTimeChange = useCallback(
+    (componentId: number, eventId: number, newTime: number) => {
+      setComponents((previous) =>
+        previous.map((component) => {
+          if (component.id !== componentId) return component;
+
+          const updatedEvents = component.animation_events
+            .map((event) =>
+              event.id === eventId
+                ? { ...event, trigger_time: newTime }
+                : event,
+            )
+            .sort((a, b) => Number(a.trigger_time) - Number(b.trigger_time));
+
+          return { ...component, animation_events: updatedEvents };
+        }),
+      );
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!timelineRef.current) return;
 
@@ -127,6 +159,12 @@ export default function AnimationPage({
   useEffect(() => {
     setPlayHeadTime(currentTime / 1000);
   }, [currentTime]);
+
+  useEffect(() => {
+    if (!isEditingPlayheadInput) {
+      setPlayheadInputValue(formatDecimals(playHeadTime, 3));
+    }
+  }, [playHeadTime, isEditingPlayheadInput]);
 
   useEffect(() => {
     const setup = async () => {
@@ -168,23 +206,15 @@ export default function AnimationPage({
 
         <DragResizer
           minDim={VERT_DRAGGABLE_SECTIONS}
+          maxDim={MAX_VERT_DRAGGABLE_SECTIONS}
           dragDirection={Direction.UP}
         >
           <>
             {isPlaying && (
               <div className="fixed inset-0 bg-black opacity-50 z-75" />
             )}
-            <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-full flex flex-row gap-1 z-100">
-              <TimelineToolbar
-                isPlaying={isPlaying && !isPaused}
-                handlePlay={handlePlay}
-                onRestart={handleRestart}
-                isLiveMode={isLiveMode}
-                setIsLiveMode={setIsLiveMode}
-              />
-            </div>
 
-            <div className="h-full w-full bg-gray-light flex flex-col relative">
+            <div className="h-full w-full bg-gray-light flex flex-col relative border-t border-gray-light-medium">
               <Playhead
                 timelineRef={timelineRef}
                 timelineUnitWidth={timelineUnitWidth}
@@ -197,10 +227,42 @@ export default function AnimationPage({
                 className="flex flex-row"
                 style={{ height: TIMELINE_HEADER_HEIGHT }}
               >
-                <TimelineOptions
-                  timelineMode={timelineMode}
-                  setTimelineMode={setTimelineMode}
-                />
+                <div
+                  className="bg-gray-light border-r border-gray-light-medium px-2 flex flex-row items-center gap-2"
+                  style={{ width: TAG_COLUMN_WIDTH }}
+                >
+                  <TimelineToolbar
+                    isPlaying={isPlaying && !isPaused}
+                    handlePlay={handlePlay}
+                    isLiveMode={isLiveMode}
+                    setIsLiveMode={setIsLiveMode}
+                  />
+                  <div className="flex flex-row items-center gap-1 min-w-0 flex-1">
+                    <input
+                      className="w-full min-w-0 bg-white border border-gray-light-medium rounded-xs px-1 py-0.5 text-[10px] text-gray-medium-dark"
+                      value={playheadInputValue}
+                      onFocus={() => setIsEditingPlayheadInput(true)}
+                      onChange={(e) => setPlayheadInputValue(e.target.value)}
+                      onBlur={() => {
+                        setIsEditingPlayheadInput(false);
+                        commitPlayheadInput();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.currentTarget.blur();
+                        }
+                        if (e.key === "Escape") {
+                          setPlayheadInputValue(
+                            formatDecimals(playHeadTime, 3),
+                          );
+                          setIsEditingPlayheadInput(false);
+                          e.currentTarget.blur();
+                        }
+                      }}
+                    />
+                    <span className="text-[10px] text-gray-medium">s</span>
+                  </div>
+                </div>
                 <TimelineTime
                   timelineWidth={timelineWidth}
                   timelineUnitWidth={timelineUnitWidth}
@@ -210,7 +272,7 @@ export default function AnimationPage({
                 />
               </div>
 
-              <div className="flex-1 overflow-y-auto flex flex-row">
+              <div className="flex-1 overflow-y-auto flex flex-row scrollbar-hidden">
                 <div
                   className="flex flex-col"
                   style={{ width: TAG_COLUMN_WIDTH }}
@@ -218,12 +280,7 @@ export default function AnimationPage({
                   {components.map((component) => (
                     <div
                       className="shrink-0"
-                      style={{
-                        height:
-                          timelineMode === TimelineMode.GRAPH
-                            ? GRAPH_TAG_HEIGHT
-                            : KEYFRAME_TAG_HEIGHT,
-                      }}
+                      style={{ height: KEYFRAME_TAG_HEIGHT }}
                       key={component.id}
                     >
                       <ComponentTag
@@ -240,25 +297,21 @@ export default function AnimationPage({
                       <div
                         key={component.id}
                         className="shrink-0"
-                        style={{
-                          height:
-                            timelineMode === TimelineMode.GRAPH
-                              ? GRAPH_TAG_HEIGHT
-                              : KEYFRAME_TAG_HEIGHT,
-                        }}
+                        style={{ height: KEYFRAME_TAG_HEIGHT }}
                       >
                         <ComponentTimeline
                           timelineRef={timelineRef}
                           component={component}
                           animationId={parseInt(id)}
+                          currentTime={playHeadTime}
                           animations={component.animation_events}
+                          onEventTimeChange={handleLocalEventTimeChange}
                           refresh={refreshComponents}
                           onTimeChange={setPlayHeadTime}
                           timelineUnitWidth={timelineUnitWidth}
                           timelineUnitSeconds={
                             SMALLEST_TIMELINE_UNIT_IN_SECONDS
                           }
-                          timelineMode={timelineMode}
                         />
                       </div>
                     ))}

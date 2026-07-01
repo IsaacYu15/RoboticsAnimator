@@ -18,7 +18,10 @@ import PartItemHeirachy from "./partItemHeirachy";
 import AssetItemHeirachy from "./assetItemHeirachy";
 import { updateAnimation } from "@/app/actions/animations";
 import DragResizer from "../../dragHandlers/dragResizer";
-import { HORIZ_DRAGGABLE_SECTIONS } from "../../dragHandlers/constants";
+import {
+  HORIZ_DRAGGABLE_SECTIONS,
+  MAX_HORIZ_DRAGGABLE_SECTIONS,
+} from "../../dragHandlers/constants";
 import { STATE_MACHINE_ROUTE } from "@/app/constants/routes";
 import useESPWebServer from "@/app/hooks/useESPWebServer";
 import StatusDisplay from "../../connection/statusDisplay";
@@ -86,10 +89,11 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
       ) : (
         <DragResizer
           minDim={HORIZ_DRAGGABLE_SECTIONS}
+          maxDim={MAX_HORIZ_DRAGGABLE_SECTIONS}
           dragDirection={Direction.RIGHT}
         >
-          <div className="bg-gray-light h-screen py-6">
-            <div className="w-full px-6 pb-4 flex flex-col gap-2 border-b border-gray-light-medium">
+          <div className="bg-gray-light h-full pb-6 overflow-y-auto scrollbar-hidden">
+            <div className="w-full px-6 pb-4 pt-6 flex flex-col gap-2 border-b border-gray-light-medium sticky top-0 z-20 bg-gray-light">
               <div className="flex flex-row justify-between w-full items-center">
                 <IconButton
                   icon={SquareArrowRightExit}

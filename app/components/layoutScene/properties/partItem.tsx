@@ -29,7 +29,7 @@ export default function PartItem({
         style={{ paddingLeft: level * LEVEL_INDENTATION }}
       >
         {ComponentIcon(type)}
-        <h5>{name}</h5>
+        <h5 className="text-gray-medium-dark">{name}</h5>
       </div>
     </button>
   );

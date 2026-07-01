@@ -14,7 +14,9 @@ export const MAX_TIMELINE_RANGE = 120;
 
 export const EASING_HANDLE_RADIUS = 5;
 export const EASING_HOVER_RADIUS = 3;
-export const EASING_PADDING = 0.1;
+export const EASING_PADDING = 0.2;
+
+export const MATCH_TOLERANCE = 1e-3;
 
 export const EASING_PRESET_ITEMS = [
   { key: "linear", label: "Linear" },

@@ -1,34 +1,27 @@
 "use client";
 
-import { RefObject, useCallback } from "react";
-import {
-  addAnimationEvent,
-  updateAnimationEvent,
-} from "@/app/actions/animation-event";
-import {
-  AnimationEvent,
-  BezierControlPoints,
-  ComponentWithAnimation,
-} from "@/shared-types";
-import {
-  GRAPH_TAG_HEIGHT,
-  TimelineMode,
-  CONST_COMPONENT_RANGE,
-} from "./constants";
+import { RefObject } from "react";
+import { addAnimationEvent } from "@/app/actions/animation-event";
+import { AnimationEvent, ComponentWithAnimation } from "@/shared-types";
 import KeyFrame from "./keyframe";
-import EasingCurve from "./easingCurve";
-import { parseEasing, serializeEasing } from "@/app/utils/parse";
+import { roundToDecimals } from "@/app/utils/parse";
+import { MATCH_TOLERANCE } from "./constants";
 
 interface ComponentTimeLineProps {
   timelineRef: RefObject<HTMLDivElement | null>;
   animations: AnimationEvent[];
   component: ComponentWithAnimation;
   animationId: number;
+  currentTime: number;
+  onEventTimeChange: (
+    componentId: number,
+    eventId: number,
+    newTime: number,
+  ) => void;
   refresh: () => void;
   onTimeChange: (time: number) => void;
   timelineUnitWidth: number;
   timelineUnitSeconds: number;
-  timelineMode: TimelineMode;
 }
 
 export default function ComponentTimeLine({
@@ -36,36 +29,31 @@ export default function ComponentTimeLine({
   animations,
   component,
   animationId,
+  currentTime,
+  onEventTimeChange,
   refresh,
   onTimeChange,
   timelineUnitWidth,
   timelineUnitSeconds,
-  timelineMode,
 }: ComponentTimeLineProps) {
-  const timeToPosition = useCallback(
-    (time: number) => (time / timelineUnitSeconds) * timelineUnitWidth,
-    [timelineUnitSeconds, timelineUnitWidth],
-  );
-
-  const setControlPoints = useCallback(
-    async (eventId: number, cp: BezierControlPoints) => {
-      await updateAnimationEvent(eventId, { easing: serializeEasing(cp) });
-      refresh();
-    },
-    [refresh],
-  );
-
   const handleDoubleClick = async (e: React.MouseEvent) => {
     if (e.target !== e.currentTarget) return;
+    if (timelineUnitWidth <= 0) return;
 
     const timeline = e.currentTarget;
     const timelineRect = timeline.getBoundingClientRect();
     const rawX = e.clientX - timelineRect.left;
-    const snappedUnits = Math.round(rawX / timelineUnitWidth);
-    const newTriggerTime = snappedUnits * timelineUnitSeconds;
+    const newTriggerTime = roundToDecimals(
+      Math.max(0, (rawX / timelineUnitWidth) * timelineUnitSeconds),
+      3,
+    );
 
-    //do not add keyframe if it already exists
-    if (animations.some((a) => Number(a.trigger_time) === newTriggerTime))
+    if (
+      animations.some(
+        (a) =>
+          Math.abs(Number(a.trigger_time) - newTriggerTime) < MATCH_TOLERANCE,
+      )
+    )
       return;
 
     await addAnimationEvent({
@@ -83,42 +71,20 @@ export default function ComponentTimeLine({
       onDoubleClick={handleDoubleClick}
       className="h-full w-full bg-white border border-gray-light-medium border-t-0 flex flex-row items-center relative overflow-visible"
     >
-      {animations.map((event) => {
-        return (
-          <div key={event.id}>
-            {timelineMode === TimelineMode.KEYFRAME && (
-              <KeyFrame
-                timelineRef={timelineRef}
-                event={event}
-                component={component}
-                onRefresh={refresh}
-                onTimeChange={onTimeChange}
-                timelineUnitWidth={timelineUnitWidth}
-                timelineUnitSeconds={timelineUnitSeconds}
-              />
-            )}
-          </div>
-        );
-      })}
-      {timelineMode === TimelineMode.GRAPH &&
-        animations.map((event, i) => {
-          const next = animations[i + 1];
-          if (!next) return null;
-          return (
-            <EasingCurve
-              key={`curve-${event.id}`}
-              startX={timeToPosition(Number(event.trigger_time))}
-              endX={timeToPosition(Number(next.trigger_time))}
-              height={GRAPH_TAG_HEIGHT}
-              start={parseInt(event.action) || 0}
-              end={parseInt(next.action) || 0}
-              min={CONST_COMPONENT_RANGE[component.type ?? ""].min}
-              max={CONST_COMPONENT_RANGE[component.type ?? ""].max}
-              controlPoints={parseEasing(event.easing)}
-              onControlPointsChange={(cp) => setControlPoints(event.id, cp)}
-            />
-          );
-        })}
+      {animations.map((event) => (
+        <KeyFrame
+          key={event.id}
+          timelineRef={timelineRef}
+          event={event}
+          component={component}
+          currentTime={currentTime}
+          onEventTimeChange={onEventTimeChange}
+          onRefresh={refresh}
+          onTimeChange={onTimeChange}
+          timelineUnitWidth={timelineUnitWidth}
+          timelineUnitSeconds={timelineUnitSeconds}
+        />
+      ))}
     </div>
   );
 }

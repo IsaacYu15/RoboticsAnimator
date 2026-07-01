@@ -44,7 +44,7 @@ export default function TimelineTime({
 
   return (
     <div
-      className="flex-1 bg-gray-medium relative"
+      className="flex-1 bg-gray-light relative"
       onWheel={handleTimelineWheel}
     >
       {Array.from({ length: timelineWidth() }).map((_, i) => {
@@ -57,10 +57,10 @@ export default function TimelineTime({
             style={{ left: i * timelineUnitWidth }}
           >
             <div
-              className={`relative w-0 border border-r border-white ${isFullSecond ? "h-2.5" : "h-1.5"}`}
+              className={`relative w-0 border-0.5 border-r border-gray-medium ${isFullSecond ? "h-2.5" : "h-1.5"}`}
             >
               {isFullSecond && (
-                <span className="text-white text-[8px] absolute bottom-1 -translate-y-1/2 -translate-x-1/2">
+                <span className="text-gray-medium text-[8px] absolute bottom-1 -translate-y-1/2 -translate-x-1/2">
                   {formatDecimals(timeUnit, 2)}s
                 </span>
               )}

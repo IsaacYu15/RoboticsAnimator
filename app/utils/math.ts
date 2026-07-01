@@ -13,7 +13,8 @@ export const degreesToRadians = (degrees: number) => {
 };
 
 export const round = (value: number, precision: number) => {
-  return Math.round(value * precision) / precision;
+  const factor = Math.pow(10, precision);
+  return Math.round(value * factor) / factor;
 };
 
 export const linearInterpolation = (a: number, b: number, t: number) => {
@@ -26,6 +27,15 @@ export const cubicBezierEase = (
   p2: Point,
   startRange: number,
   endRange: number,
+): number => {
+  const eased = cubicBezierProgressAtX(x, p1, p2);
+  return Math.round(linearInterpolation(startRange, endRange, eased));
+};
+
+export const cubicBezierProgressAtX = (
+  x: number,
+  p1: Point,
+  p2: Point,
 ): number => {
   const origin: Point = { x: 0, y: 0 };
   const end: Point = { x: 1, y: 1 };
@@ -40,8 +50,7 @@ export const cubicBezierEase = (
     t = t - error / ftangent;
     t = clamp(t, 0, 1);
   }
-
-  const eased = cubicBezier(t, origin, p1, p2, end).y;
+  return clamp(cubicBezier(t, origin, p1, p2, end).y, 0, 1);
   return Math.round(linearInterpolation(startRange, endRange, eased));
 };
 

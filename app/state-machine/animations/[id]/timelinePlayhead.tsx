@@ -26,6 +26,7 @@ export default function TimelinePlayhead({
     timelineUnitWidth,
     timelineUnitSeconds,
     initialTime: currentTime,
+    onDrag: onTimeChange,
     onDragEnd: onTimeChange,
   });
 

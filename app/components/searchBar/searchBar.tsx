@@ -11,7 +11,7 @@ export default function SearchBar(props: SearchBarProps) {
     <div className="relative w-full">
       <input
         type="text"
-        placeholder="searching..."
+        placeholder="Find..."
         className="w-full border border-gray-300 bg-white rounded-md py-1 px-2"
         value={props.searchQuery}
         onChange={(e) => props.setSearchQuery(e.target.value)}

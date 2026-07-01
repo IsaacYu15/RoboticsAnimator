@@ -47,6 +47,14 @@ export const InputProvider = ({ children }: { children: React.ReactNode }) => {
       e.preventDefault();
     };
     const onWheel = (e: WheelEvent) => {
+      const target = e.target;
+
+      if (
+        !(target instanceof Element) ||
+        !target.closest("[data-scene-input='true']")
+      )
+        return;
+
       scrollRef.current += e.deltaY;
     };
 

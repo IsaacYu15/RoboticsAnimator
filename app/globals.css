@@ -67,4 +67,13 @@ p {
   @apply text-xs text-gray-medium-dark;
 }
 
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
 /* stick to 1 2 4 8 16 24 32 48*/

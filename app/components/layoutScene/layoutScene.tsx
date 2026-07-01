@@ -8,7 +8,10 @@ import {
 } from "@/app/actions/components";
 import { deleteAnimationEvent } from "@/app/actions/animation-event";
 import { deleteAsset } from "@/app/actions/assets";
-import { HORIZ_DRAGGABLE_SECTIONS } from "@/app/components/dragHandlers/constants";
+import {
+  HORIZ_DRAGGABLE_SECTIONS,
+  MAX_HORIZ_DRAGGABLE_SECTIONS,
+} from "@/app/components/dragHandlers/constants";
 import { ComponentType } from "@/app/constants/components";
 import {
   AnimationEvent,
@@ -345,7 +348,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
         ></PropertiesPanel>
       </div>
 
-      <div ref={sceneRef} className="w-full h-full">
+      <div ref={sceneRef} className="w-full h-full" data-scene-input="true">
         <Scene
           components={props.components}
           canvasActive={canvasActive}
@@ -364,6 +367,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
         <div>
           <DragResizer
             minDim={HORIZ_DRAGGABLE_SECTIONS}
+            maxDim={MAX_HORIZ_DRAGGABLE_SECTIONS}
             dragDirection={Direction.LEFT}
           >
             {getComponentPanel()}

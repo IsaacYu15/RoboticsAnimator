@@ -1,10 +1,12 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { clamp } from "@/app/utils/math";
 import { Direction } from "@/shared-types";
 
 interface DragResizerProps {
   minDim: number;
+  maxDim: number;
   dragDirection: Direction;
   children: ReactNode;
   isNested?: boolean;
@@ -12,27 +14,29 @@ interface DragResizerProps {
 
 export default function DragResizer(props: DragResizerProps) {
   const [dim, setDim] = useState<number>(props.minDim);
+  const boundedDim = clamp(dim, props.minDim, props.maxDim);
 
   const handleResize = (e: React.MouseEvent) => {
     e.preventDefault();
 
     const onMouseMove = (e: MouseEvent) => {
-      let newDim = dim;
+      let newDim = boundedDim;
 
       switch (props.dragDirection) {
         case Direction.LEFT:
-          newDim = Math.max(window.innerWidth - e.clientX, props.minDim);
+          newDim = window.innerWidth - e.clientX;
           break;
         case Direction.RIGHT:
-          newDim = Math.max(e.clientX, props.minDim);
+          newDim = e.clientX;
           break;
         case Direction.UP:
-          newDim = Math.max(window.innerHeight - e.clientY, props.minDim);
+          newDim = window.innerHeight - e.clientY;
           break;
         case Direction.DOWN:
-          newDim = Math.max(e.clientY, props.minDim);
+          newDim = e.clientY;
           break;
       }
+      newDim = clamp(newDim, props.minDim, props.maxDim);
 
       setDim(newDim);
     };
@@ -54,6 +58,24 @@ export default function DragResizer(props: DragResizerProps) {
     props.dragDirection === Direction.UP ||
     props.dragDirection === Direction.DOWN;
 
+  const horizontalPanelHeight =
+    !props.isNested && isHorizontal
+      ? "calc(100% - var(--bottom-panel-height, 0px))"
+      : "100%";
+
+  useEffect(() => {
+    if (props.dragDirection !== Direction.UP || props.isNested) return;
+
+    document.documentElement.style.setProperty(
+      "--bottom-panel-height",
+      `${boundedDim}px`,
+    );
+
+    return () => {
+      document.documentElement.style.removeProperty("--bottom-panel-height");
+    };
+  }, [boundedDim, props.dragDirection, props.isNested]);
+
   return (
     <div
       className={`z-50
@@ -64,8 +86,8 @@ export default function DragResizer(props: DragResizerProps) {
         ${props.dragDirection === Direction.DOWN ? "top-0 left-0 w-full" : ""}
       `}
       style={{
-        width: isHorizontal ? dim : "100%",
-        height: isVertical ? dim : "100%",
+        width: isHorizontal ? boundedDim : "100%",
+        height: isVertical ? boundedDim : horizontalPanelHeight,
       }}
     >
       {props.children}

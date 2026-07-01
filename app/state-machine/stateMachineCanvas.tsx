@@ -9,9 +9,11 @@ import { createAnimation } from "@actions/animations";
 import { State, Transition, Direction } from "@/shared-types";
 import { tryParseInt } from "../utils/parse";
 import DragResizer from "../components/dragHandlers/dragResizer";
-import { HORIZ_DRAGGABLE_SECTIONS } from "../components/dragHandlers/constants";
+import {
+  HORIZ_DRAGGABLE_SECTIONS,
+  MAX_HORIZ_DRAGGABLE_SECTIONS,
+} from "../components/dragHandlers/constants";
 import StateComponent from "./state";
-import Arrow from "./arrow";
 import { ANIMATION_ROUTE } from "../constants";
 
 interface CanvasProps {
@@ -21,7 +23,6 @@ interface CanvasProps {
 
 export default function StateMachineCanvas({
   initialStates,
-  initialTransitions,
 }: CanvasProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -65,8 +66,7 @@ export default function StateMachineCanvas({
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveSelectedState = async () => {
     if (!selectedStateId || !editAnimId) return;
 
     await updateState(selectedStateId, {
@@ -75,6 +75,11 @@ export default function StateMachineCanvas({
         connect: { id: editAnimId },
       },
     });
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await saveSelectedState();
   };
 
   const handleLinkStates = async (toId: number) => {
@@ -97,6 +102,7 @@ export default function StateMachineCanvas({
       {selectedStateId && (
         <DragResizer
           minDim={HORIZ_DRAGGABLE_SECTIONS}
+          maxDim={MAX_HORIZ_DRAGGABLE_SECTIONS}
           dragDirection={Direction.LEFT}
         >
           <div className="bg-white h-screen p-5 flex flex-col justify-between border-l border-slate-200 shadow-xl">
@@ -133,8 +139,9 @@ export default function StateMachineCanvas({
 
             <div className="flex flex-row gap-1 h-auto">
               <button
-                type="submit"
+                type="button"
                 className="bg-slate-900 text-white p-3 rounded-xl hover:bg-black transition-colors"
+                onClick={saveSelectedState}
               >
                 Save Changes
               </button>
