@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
-import { InputProvider } from "./context/inputContext";
-import { ToastProvider } from "./context/toastContext";
+import { InputProvider } from "@/context/inputContext";
+import { ToastProvider } from "@/context/toastContext";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],

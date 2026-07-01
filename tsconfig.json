@@ -21,7 +21,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@lib/*": ["app/lib/*"],
+      "@/lib/*": ["lib/*"],
       "@actions/*": ["app/actions/*"],
       "@shared-types": ["shared-types/index.ts"]
     }
@@ -34,5 +34,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", ".next"]
 }
