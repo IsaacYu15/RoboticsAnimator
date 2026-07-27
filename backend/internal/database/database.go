@@ -10,6 +10,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	pgxmigrate "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
@@ -21,6 +22,8 @@ func Connect(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parse database url: %w", err)
 	}
+
+	cfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	// connection pool configuration
 	cfg.MaxConns = 5
