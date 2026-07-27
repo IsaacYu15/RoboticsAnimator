@@ -128,11 +128,11 @@ RETURNING id, type, name, colour, config
 `
 
 type UpdateAssetParams struct {
-	Type   pgtype.Text `json:"type"`
-	Name   pgtype.Text `json:"name"`
-	Colour pgtype.Text `json:"colour"`
-	Config []byte      `json:"config"`
-	ID     int32       `json:"id"`
+	Type   pgtype.Text     `json:"type"`
+	Name   pgtype.Text     `json:"name"`
+	Colour pgtype.Text     `json:"colour"`
+	Config json.RawMessage `json:"config"`
+	ID     int32           `json:"id"`
 }
 
 func (q *Queries) UpdateAsset(ctx context.Context, arg UpdateAssetParams) (Asset, error) {

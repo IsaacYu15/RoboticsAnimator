@@ -226,24 +226,24 @@ SET
     rot_y  = COALESCE($8, rot_y),
     rot_z  = COALESCE($9, rot_z),
     colour = COALESCE($10, colour),
-    config = COALESCE($11::jsonb, config)
+    config = COALESCE($11, config)
 WHERE id = $12
 RETURNING id, type, pin, x, y, z, name, rot_x, rot_y, rot_z, colour, config
 `
 
 type UpdateComponentParams struct {
-	Type   pgtype.Text   `json:"type"`
-	Pin    pgtype.Int4   `json:"pin"`
-	X      pgtype.Float8 `json:"x"`
-	Y      pgtype.Float8 `json:"y"`
-	Z      pgtype.Float8 `json:"z"`
-	Name   pgtype.Text   `json:"name"`
-	RotX   pgtype.Float8 `json:"rot_x"`
-	RotY   pgtype.Float8 `json:"rot_y"`
-	RotZ   pgtype.Float8 `json:"rot_z"`
-	Colour pgtype.Text   `json:"colour"`
-	Config []byte        `json:"config"`
-	ID     int32         `json:"id"`
+	Type   pgtype.Text     `json:"type"`
+	Pin    pgtype.Int4     `json:"pin"`
+	X      pgtype.Float8   `json:"x"`
+	Y      pgtype.Float8   `json:"y"`
+	Z      pgtype.Float8   `json:"z"`
+	Name   pgtype.Text     `json:"name"`
+	RotX   pgtype.Float8   `json:"rot_x"`
+	RotY   pgtype.Float8   `json:"rot_y"`
+	RotZ   pgtype.Float8   `json:"rot_z"`
+	Colour pgtype.Text     `json:"colour"`
+	Config json.RawMessage `json:"config"`
+	ID     int32           `json:"id"`
 }
 
 func (q *Queries) UpdateComponent(ctx context.Context, arg UpdateComponentParams) (Component, error) {

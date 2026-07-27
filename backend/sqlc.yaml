@@ -13,5 +13,7 @@ sql:
         overrides:
           - db_type: "jsonb"
             go_type: "encoding/json.RawMessage"
+            nullable: false
           - db_type: "jsonb"
             go_type: "encoding/json.RawMessage"
+            nullable: true
