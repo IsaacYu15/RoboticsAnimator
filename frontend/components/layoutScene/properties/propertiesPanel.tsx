@@ -17,7 +17,6 @@ import SearchBar from "../../searchBar/searchBar";
 import PartItemHeirachy from "./partItemHeirachy";
 import AssetItemHeirachy from "./assetItemHeirachy";
 import { useAnimations } from "@/hooks/useAnimations";
-import { useComponents } from "@/hooks/useComponents";
 import DragResizer from "../../dragHandlers/dragResizer";
 import {
   HORIZ_DRAGGABLE_SECTIONS,
@@ -38,6 +37,7 @@ interface PropertiesPanelProps {
   setSelectedComponentId: (id: number) => void;
   onSpawnAsset: (asset: Asset) => void;
   onDeleteAsset: (asset: Asset) => void;
+  onCreateComponent: () => void;
 
   websocketStatus: ConnectionStatus;
   websocketConnect: () => void;
@@ -64,7 +64,6 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
     props.moduleAddress,
   );
   const { updateAnimation } = useAnimations();
-  const { createComponent } = useComponents();
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -153,13 +152,7 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
                 <TabButton
                   text="+"
                   active={true}
-                  onClick={() => {
-                    createComponent({
-                      type: "servo",
-                      name: "default",
-                      pin: 0,
-                    });
-                  }}
+                  onClick={() => props.onCreateComponent()}
                 />
               </div>
             </div>

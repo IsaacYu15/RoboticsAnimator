@@ -220,6 +220,19 @@ export default function LayoutScene(props: LayoutSceneProps) {
     }
   };
 
+  const handleCreateComponent = async () => {
+    const result = await createComponent({
+      type: "servo",
+      name: "default",
+      pin: 0,
+      config: { pwmMinAngle: 0, pwmMaxAngle: 100 },
+    });
+
+    if (result) {
+      await props.refresh();
+    }
+  };
+
   const handleDeleteAsset = async (asset: Asset) => {
     try {
       await deleteAsset(asset.id);
@@ -344,6 +357,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
           selectedComponentId={selectedComponent?.id}
           onSpawnAsset={handleSpawnAsset}
           onDeleteAsset={handleDeleteAsset}
+          onCreateComponent={handleCreateComponent}
           websocketStatus={props.websocketStatus}
           websocketConnect={props.websocketConnect}
           websocketDisconnect={props.websocketDisconnect}
