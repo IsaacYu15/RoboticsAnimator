@@ -226,7 +226,7 @@ SET
     rot_y  = COALESCE($8, rot_y),
     rot_z  = COALESCE($9, rot_z),
     colour = COALESCE($10, colour),
-    config = COALESCE($11, config)
+    config = COALESCE($11::jsonb, config)
 WHERE id = $12
 RETURNING id, type, pin, x, y, z, name, rot_x, rot_y, rot_z, colour, config
 `

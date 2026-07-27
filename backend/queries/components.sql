@@ -58,7 +58,7 @@ SET
     rot_y  = COALESCE(sqlc.narg('rot_y'), rot_y),
     rot_z  = COALESCE(sqlc.narg('rot_z'), rot_z),
     colour = COALESCE(sqlc.narg('colour'), colour),
-    config = COALESCE(sqlc.narg('config'), config)
+    config = COALESCE(sqlc.narg('config')::jsonb, config)
 WHERE id = sqlc.arg('id')
 RETURNING *;
 
