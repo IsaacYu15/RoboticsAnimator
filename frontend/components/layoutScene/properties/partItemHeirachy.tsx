@@ -1,4 +1,4 @@
-import { Component } from "@/shared-types/components";
+import { Component } from "@/shared-types";
 import Item from "./partItem";
 
 interface PartItemHeirachyProps {

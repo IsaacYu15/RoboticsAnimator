@@ -1,6 +1,6 @@
 import {
   ComponentTypes,
-  ComponentWithAnimation,
+  ComponentWithAnimations,
   AnimationEvent,
   EASING_PRESETS,
 } from "@/shared-types";
@@ -64,7 +64,7 @@ export const calibrateComponent = async (
 };
 
 export const sendAnimation = async (
-  animationData: ComponentWithAnimation[],
+  animationData: ComponentWithAnimations[],
   address?: string,
 ): Promise<ControllerResponse> => {
   try {
@@ -93,7 +93,7 @@ export const sendAnimation = async (
 
 export const buildFramePayload = (
   currentTime: number,
-  animationData: ComponentWithAnimation[],
+  animationData: ComponentWithAnimations[],
 ): AnimationEvent[] => {
   console.log("Building frame payload for current time:", currentTime);
   return animationData.flatMap((component) => {
@@ -120,7 +120,7 @@ export const buildFramePayload = (
 };
 
 const buildPayload = (
-  animationData: ComponentWithAnimation[],
+  animationData: ComponentWithAnimations[],
 ): AnimationPayload => {
   let animationLength = 0;
 
