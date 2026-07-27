@@ -12,3 +12,6 @@ jobs:
           docker login --username isaacyu15 --password ${{ secrets.GH_PAT }} ghcr.io
           docker build ./backend --tag ghcr.io/isaacyu15/robotics-animator-backend-ghcr:latest
           docker push ghcr.io/isaacyu15/robotics-animator-backend-ghcr:latest
+
+      - name: Trigger Render deploy
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
