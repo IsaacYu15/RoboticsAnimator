@@ -1,7 +1,7 @@
 "use client";
 
 import { RefObject, useCallback } from "react";
-import { updateAnimationEvent } from "@/actions/animation-event";
+import { useAnimationEvents } from "@/hooks/useAnimationEvents";
 import { useSelection } from "@/context/selectionContext";
 import { AnimationEvent, Component } from "@/shared-types";
 import { useTimelineDrag } from "./useTimelineDrag";
@@ -34,6 +34,7 @@ export default function KeyFrame({
   timelineUnitSeconds,
 }: KeyFrameProps) {
   const { selectComponent } = useSelection();
+  const { updateAnimationEvent } = useAnimationEvents();
   const snapThresholdSeconds =
     timelineUnitWidth > 0 ? (4 / timelineUnitWidth) * timelineUnitSeconds : 0;
   const snapToPlayhead = useCallback(
@@ -52,20 +53,25 @@ export default function KeyFrame({
       onEventTimeChange(component.id, event.id, newTime);
 
       try {
-        const result = await updateAnimationEvent(event.id, {
+        await updateAnimationEvent(event.id, {
           trigger_time: newTime,
         });
 
-        if (!result.success) {
-          onEventTimeChange(component.id, event.id, previousTime);
-          await onRefresh();
-        }
+        onEventTimeChange(component.id, event.id, previousTime);
+        await onRefresh();
       } catch {
         onEventTimeChange(component.id, event.id, previousTime);
         await onRefresh();
       }
     },
-    [component.id, event.id, event.trigger_time, onEventTimeChange, onRefresh],
+    [
+      component.id,
+      event.id,
+      event.trigger_time,
+      onEventTimeChange,
+      onRefresh,
+      updateAnimationEvent,
+    ],
   );
 
   const handleClick = useCallback(() => {

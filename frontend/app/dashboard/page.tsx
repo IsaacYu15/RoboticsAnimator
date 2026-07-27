@@ -1,9 +1,7 @@
-import React from "react";
-
 export default function Page() {
   return (
     <div>
-      <h1>Dashboard Page</h1>
+      <h1>Welcome back!</h1>
     </div>
   );
 }

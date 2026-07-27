@@ -1,26 +1,22 @@
+"use client";
+
 import Link from "next/link";
-import { createAnimation, getAnimations } from "@/actions/animations";
+import { useAnimations } from "@/hooks/useAnimations";
 
-export default async function DashboardAnimationsPage() {
-  async function createNewAnimation() {
-    "use server";
-    await createAnimation({ name: "New Animation" });
-  }
-
-  const animations = await getAnimations();
+export default function DashboardAnimationsPage() {
+  const { animations, createAnimation } = useAnimations();
 
   return (
     <div className="h-full flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-900">Animations</h1>
-        <form action={createNewAnimation}>
-          <button
-            type="submit"
-            className="px-3 py-2 rounded-sm bg-blue text-white text-sm font-medium hover:bg-blue-dark"
-          >
-            Add Animation
-          </button>
-        </form>
+        <button
+          type="submit"
+          onClick={() => createAnimation({ name: "New Animation" })}
+          className="px-3 py-2 rounded-sm bg-blue text-white text-sm font-medium hover:bg-blue-dark"
+        >
+          Add Animation
+        </button>
       </div>
 
       <div className="flex flex-col gap-2">

@@ -1,8 +1,8 @@
 "use client";
 
 import { RefObject } from "react";
-import { addAnimationEvent } from "@/actions/animation-event";
-import { AnimationEvent, ComponentWithAnimation } from "@/shared-types";
+import { useAnimationEvents } from "@/hooks/useAnimationEvents";
+import { AnimationEvent, ComponentWithAnimations } from "@/shared-types";
 import KeyFrame from "./keyframe";
 import { roundToDecimals } from "@/utils/parse";
 import { MATCH_TOLERANCE } from "./constants";
@@ -10,7 +10,7 @@ import { MATCH_TOLERANCE } from "./constants";
 interface ComponentTimeLineProps {
   timelineRef: RefObject<HTMLDivElement | null>;
   animations: AnimationEvent[];
-  component: ComponentWithAnimation;
+  component: ComponentWithAnimations;
   animationId: number;
   currentTime: number;
   onEventTimeChange: (
@@ -36,6 +36,7 @@ export default function ComponentTimeLine({
   timelineUnitWidth,
   timelineUnitSeconds,
 }: ComponentTimeLineProps) {
+  const { createAnimationEvent } = useAnimationEvents();
   const handleDoubleClick = async (e: React.MouseEvent) => {
     if (e.target !== e.currentTarget) return;
     if (timelineUnitWidth <= 0) return;
@@ -56,12 +57,13 @@ export default function ComponentTimeLine({
     )
       return;
 
-    await addAnimationEvent({
+    const result = await createAnimationEvent({
       animation_id: animationId,
       component_id: component.id,
       trigger_time: newTriggerTime,
       action: "0",
     });
+    console.log(result);
 
     refresh();
   };

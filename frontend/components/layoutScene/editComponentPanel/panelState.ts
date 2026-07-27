@@ -1,6 +1,6 @@
-import { ComponentType } from "@/constants/components";
+import { ComponentType, ServoConfig } from "@/constants/components";
 import { roundToDecimals } from "@/utils/parse";
-import { Component, Transform, UpdateComponentInput } from "@/shared-types";
+import { Component, Transform, UpdateComponent } from "@/shared-types";
 
 export abstract class PanelState {
   type: ComponentType;
@@ -13,7 +13,7 @@ export abstract class PanelState {
   rotX: number;
   rotY: number;
   rotZ: number;
-  config?: string;
+  config?: object;
 
   constructor(component: Component) {
     this.type = component.type as ComponentType;
@@ -27,7 +27,8 @@ export abstract class PanelState {
     this.rotY = component.rot_y;
     this.rotZ = component.rot_z;
     this.config = component.config ?? undefined;
-    this.parseConfig(component.config ?? undefined);
+
+    this.parseConfig(component.config);
   }
 
   updateTransform(transform: Transform): this {
@@ -40,7 +41,7 @@ export abstract class PanelState {
     return this;
   }
 
-  toUpdateInput(): UpdateComponentInput {
+  toUpdateInput(): UpdateComponent {
     return {
       name: this.name,
       colour: this.colour,
@@ -55,8 +56,8 @@ export abstract class PanelState {
     };
   }
 
-  abstract parseConfig(config?: string): void;
-  abstract generateConfig(): string;
+  abstract parseConfig(config?: object): void;
+  abstract generateConfig(): object;
 
   clone(): this {
     return Object.assign(Object.create(Object.getPrototypeOf(this)), this);
@@ -64,25 +65,23 @@ export abstract class PanelState {
 }
 
 export class ServoPanelState extends PanelState {
-  pwmMinAngle?: number = 0;
-  pwmMaxAngle?: number = 0;
+  pwmMinAngle?: number;
+  pwmMaxAngle?: number;
 
   constructor(component: Component) {
     super(component);
-    this.parseConfig(component.config ?? "");
   }
 
-  parseConfig(config: string): void {
-    const parsed = JSON.parse(config);
-    this.pwmMinAngle = parsed?.pwmMinAngle ?? undefined;
-    this.pwmMaxAngle = parsed?.pwmMaxAngle ?? undefined;
+  parseConfig(config?: ServoConfig): void {
+    this.pwmMinAngle = config?.pwmMinAngle;
+    this.pwmMaxAngle = config?.pwmMaxAngle;
   }
 
-  generateConfig(): string {
-    return JSON.stringify({
-      pwmMinAngle: this.pwmMinAngle,
-      pwmMaxAngle: this.pwmMaxAngle,
-    });
+  generateConfig(): ServoConfig {
+    return {
+      pwmMinAngle: this.pwmMinAngle ?? 0,
+      pwmMaxAngle: this.pwmMaxAngle ?? 0,
+    };
   }
 }
 

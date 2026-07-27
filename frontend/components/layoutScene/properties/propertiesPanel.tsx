@@ -16,13 +16,14 @@ import TabButton from "../../input/tabButton";
 import SearchBar from "../../searchBar/searchBar";
 import PartItemHeirachy from "./partItemHeirachy";
 import AssetItemHeirachy from "./assetItemHeirachy";
-import { updateAnimation } from "@/actions/animations";
+import { useAnimations } from "@/hooks/useAnimations";
+import { useComponents } from "@/hooks/useComponents";
 import DragResizer from "../../dragHandlers/dragResizer";
 import {
   HORIZ_DRAGGABLE_SECTIONS,
   MAX_HORIZ_DRAGGABLE_SECTIONS,
 } from "../../dragHandlers/constants";
-import { STATE_MACHINE_ROUTE } from "@/constants/routes";
+import { DASHBOARD_ANIMATION_ROUTE } from "@/constants/routes";
 import useESPWebServer from "@/hooks/useESPWebServer";
 import StatusDisplay from "../../connection/statusDisplay";
 
@@ -62,6 +63,8 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
   const { checkServerStatus, serverStatus } = useESPWebServer(
     props.moduleAddress,
   );
+  const { updateAnimation } = useAnimations();
+  const { createComponent } = useComponents();
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -97,7 +100,7 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
               <div className="flex flex-row justify-between w-full items-center">
                 <IconButton
                   icon={SquareArrowRightExit}
-                  onClick={() => router.push(STATE_MACHINE_ROUTE)}
+                  onClick={() => router.push(DASHBOARD_ANIMATION_ROUTE)}
                 />
                 <IconButton
                   icon={PanelRight}
@@ -146,6 +149,17 @@ export default function PropertiesPanel(props: PropertiesPanelProps) {
                   text="Assets"
                   active={isAssetsActive}
                   onClick={() => setCurrentTab(ItemListTab.Assets)}
+                />
+                <TabButton
+                  text="+"
+                  active={true}
+                  onClick={() => {
+                    createComponent({
+                      type: "servo",
+                      name: "default",
+                      pin: 0,
+                    });
+                  }}
                 />
               </div>
             </div>

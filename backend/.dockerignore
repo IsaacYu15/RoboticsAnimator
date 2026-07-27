@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+.env.*
+*.md
+Makefile
+Dockerfile
+.dockerignore
+bin/
+tmp/
+coverage.out
+**/*_test.go

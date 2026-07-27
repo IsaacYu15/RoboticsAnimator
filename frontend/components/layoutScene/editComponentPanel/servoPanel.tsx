@@ -7,7 +7,7 @@ import {
   tryParseInt,
 } from "@/utils/parse";
 import { interpolateAngle } from "@/app/animate/animation/[id]/utils";
-import { AXIS_COLOURS } from "@/constants";
+import { AXIS_COLOURS, COLOUR_LIST } from "@/constants";
 import {
   EASING_PRESET_ITEMS,
   MATCH_TOLERANCE,
@@ -19,14 +19,11 @@ import SimpleInputField from "../../input/simpleInputField";
 import { PanelState, ServoPanelState } from "./panelState";
 import { Cable, FileUp, TriangleRight, Wrench } from "lucide-react";
 import IconButton from "../../input/iconButton";
-import { createAsset } from "@/actions/assets";
+import { useAssets } from "@/hooks/useAssets";
 import { useToast } from "@/context/toastContext";
 import { PwmMax, PwmMin } from "@/public/icons/animation-page";
 import { useSelection } from "@/context/selectionContext";
-import {
-  addAnimationEvent,
-  updateAnimationEvent,
-} from "@/actions/animation-event";
+import { useAnimationEvents } from "@/hooks/useAnimationEvents";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AnimationEvent,
@@ -34,7 +31,7 @@ import {
   ComponentTypes,
   EASING_PRESETS,
 } from "@/shared-types";
-import { calibrateComponent } from "@/services/servoController";
+import { calibrateComponent } from "@/services/componentDriverService";
 import { clamp } from "@/utils/math";
 
 interface ServoPanelProps {
@@ -76,6 +73,9 @@ export function ServoPanel({
 }: ServoPanelProps) {
   const toast = useToast();
   const { selectedComponent } = useSelection();
+  const { createAnimationEvent, updateAnimationEvent } = useAnimationEvents();
+  const { createAsset } = useAssets();
+
   const [angle, setAngle] = useState(0);
   const curveContainerRef = useRef<HTMLDivElement>(null);
   const [curveEditorDimensions, setCurveEditorDimensions] = useState({
@@ -171,11 +171,13 @@ export function ServoPanel({
     const asset = {
       name: state.name,
       type: "servo",
+      colour: state.colour ?? COLOUR_LIST[COLOUR_LIST.length - 1].hex,
       config: state.generateConfig(),
     };
+
     const result = await createAsset(asset);
 
-    if (result.success) {
+    if (result) {
       toast.toast("Asset Saved");
     } else {
       toast.toast("Error saving asset");
@@ -194,7 +196,7 @@ export function ServoPanel({
         action: newAngle.toString(),
       });
     } else {
-      await addAnimationEvent({
+      await createAnimationEvent({
         animation_id: animationId,
         component_id: selectedComponent.id,
         trigger_time: currentTime,

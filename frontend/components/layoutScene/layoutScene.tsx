@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  addComponent,
-  deleteComponent,
-  getComponentById,
-  updateComponent,
-} from "@/actions/components";
-import { deleteAnimationEvent } from "@/actions/animation-event";
-import { deleteAsset } from "@/actions/assets";
+import { useAnimationEvents } from "@/hooks/useAnimationEvents";
+import { useComponents } from "@/hooks/useComponents";
+import { useAssets } from "@/hooks/useAssets";
 import {
   HORIZ_DRAGGABLE_SECTIONS,
   MAX_HORIZ_DRAGGABLE_SECTIONS,
@@ -61,6 +56,11 @@ export default function LayoutScene(props: LayoutSceneProps) {
     useState<TransformMode>("translate");
   const [movementMode, setMovementMode] = useState<MovementMode>("firstPerson");
 
+  const { deleteAnimationEvent } = useAnimationEvents();
+  const { updateComponent, deleteComponent, createComponent, getComponent } =
+    useComponents();
+  const { deleteAsset } = useAssets();
+
   const objectRefs = useRef<Record<number, Object3D>>({});
   const sceneRef = useRef<HTMLDivElement>(null);
 
@@ -94,11 +94,13 @@ export default function LayoutScene(props: LayoutSceneProps) {
       );
 
       if (canvasActive) {
-        const result = await deleteComponent(selectedComponent.id);
-        if (result.success) {
+        try {
+          await deleteComponent(selectedComponent.id);
           clearSelection();
           setPanelState(undefined);
           await props.refresh();
+        } catch (error) {
+          console.log(error);
         }
       }
 
@@ -111,7 +113,7 @@ export default function LayoutScene(props: LayoutSceneProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedComponent, props, canvasActive, clearSelection]);
+  }, [selectedComponent, props, canvasActive, clearSelection, deleteComponent]);
 
   useEffect(() => {
     // eslint-disable-next-line
@@ -203,29 +205,27 @@ export default function LayoutScene(props: LayoutSceneProps) {
   };
 
   const handleSpawnAsset = async (asset: Asset) => {
-    const result = await addComponent({
-      type: asset.type,
-      name: asset.name,
-      colour: asset.colour,
+    console.log(asset);
+    const result = await createComponent({
+      type: asset.type ?? "",
+      name: asset.name ?? "",
+      colour: asset.colour ?? "",
       config: asset.config,
       pin: 0,
-      x: 0,
-      y: 0,
-      z: 0,
-      rot_x: 0,
-      rot_y: 0,
-      rot_z: 0,
     });
+    console.log(result);
 
-    if (result.success) {
+    if (result) {
       await props.refresh();
     }
   };
 
   const handleDeleteAsset = async (asset: Asset) => {
-    const result = await deleteAsset(asset.id);
-    if (result.success) {
+    try {
+      await deleteAsset(asset.id);
       await props.refresh();
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -284,11 +284,13 @@ export default function LayoutScene(props: LayoutSceneProps) {
       return;
     }
 
-    const component = await getComponentById(id);
+    const component = await getComponent(id);
     if (!component) {
       console.error("Selected object contains and invalid component id");
       return;
     }
+
+    console.log(component);
 
     setPanelState(createPanelState(component));
   };

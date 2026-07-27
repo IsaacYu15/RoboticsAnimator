@@ -1,21 +1,24 @@
 "use client";
 
-import { getComponentsWithAnimations } from "@/actions/components";
+import { useComponentsWithAnimations } from "@/hooks/useComponents";
 import {
   MAX_VERT_DRAGGABLE_SECTIONS,
   VERT_DRAGGABLE_SECTIONS,
 } from "@/components/dragHandlers/constants";
 import DragResizer from "@/components/dragHandlers/dragResizer";
 import LayoutScene from "@/components/layoutScene/layoutScene";
-import { Asset, ComponentWithAnimation, Direction } from "@/shared-types";
+import { Asset, ComponentWithAnimations, Direction } from "@/shared-types";
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import ComponentTag from "./componentTag";
 import ComponentTimeline from "./componentTimeline";
 import Playhead from "./timelinePlayhead";
-import { sendAnimation, buildFramePayload } from "@/services/servoController";
-import { getModules } from "@/actions/modules";
-import { getAnimationById } from "@/actions/animations";
-import { getAssets } from "@/actions/assets";
+import {
+  sendAnimation,
+  buildFramePayload,
+} from "@/services/componentDriverService";
+import { useModules } from "@/hooks/useModules";
+import { useAnimations } from "@/hooks/useAnimations";
+import { useAssets } from "@/hooks/useAssets";
 import TimelineToolbar from "./timelineToolbar";
 import { useToast } from "@/context/toastContext";
 import { SelectionProvider } from "@/context/selectionContext";
@@ -38,9 +41,14 @@ export default function AnimationPage({
   const { id } = use(params);
   const animationId = Number(id);
 
+  const { modules } = useModules();
+  const { getAnimation } = useAnimations();
+  const { components, handleLocalEventTimeChange, refresh } =
+    useComponentsWithAnimations();
+
+  console.log(components);
+
   const [title, setTitle] = useState<string>("");
-  const [components, setComponents] = useState<ComponentWithAnimation[]>([]);
-  const [assets, setAssets] = useState<Asset[]>([]);
   const [moduleAddress, setModuleAddress] = useState<string>();
 
   const [isLiveMode, setIsLiveMode] = useState(false);
@@ -56,7 +64,7 @@ export default function AnimationPage({
   const [timelineUnitWidth, setTimelineUnitWidth] = useState(0);
 
   const toast = useToast();
-
+  const { assets, refreshAssets } = useAssets();
   const {
     currentTime,
     isPlaying,
@@ -104,40 +112,13 @@ export default function AnimationPage({
   //fetch all async calls together to avoid multiple re-renders
   const refreshComponents = useCallback(async () => {
     try {
-      const [fetchedComponents, fetchedModules, fetchedAssets] =
-        await Promise.all([
-          getComponentsWithAnimations(undefined, animationId),
-          getModules(),
-          getAssets(),
-        ]);
-      setComponents(fetchedComponents);
-      setModuleAddress(fetchedModules[0]?.address);
-      setAssets(fetchedAssets);
+      refreshAssets();
+      refresh();
+      setModuleAddress(modules[0]?.address);
     } catch (error) {
       console.error("Error refreshing components: ", error);
     }
   }, [animationId]);
-
-  const handleLocalEventTimeChange = useCallback(
-    (componentId: number, eventId: number, newTime: number) => {
-      setComponents((previous) =>
-        previous.map((component) => {
-          if (component.id !== componentId) return component;
-
-          const updatedEvents = component.animation_events
-            .map((event) =>
-              event.id === eventId
-                ? { ...event, trigger_time: newTime }
-                : event,
-            )
-            .sort((a, b) => Number(a.trigger_time) - Number(b.trigger_time));
-
-          return { ...component, animation_events: updatedEvents };
-        }),
-      );
-    },
-    [],
-  );
 
   useEffect(() => {
     if (!timelineRef.current) return;
@@ -166,13 +147,13 @@ export default function AnimationPage({
 
   useEffect(() => {
     const setup = async () => {
-      const animation = await getAnimationById(animationId);
+      const animation = await getAnimation(animationId);
       setTitle(animation?.name ?? "Animation");
       await refreshComponents();
     };
 
     setup();
-  }, [animationId, refreshComponents]);
+  }, [animationId, refreshComponents, getAnimation]);
 
   useEffect(() => {
     if (!isLiveMode) return;
@@ -289,7 +270,7 @@ export default function AnimationPage({
 
                 <div ref={timelineRef} className="flex-1">
                   <div className="relative min-h-full">
-                    {components.map((component: ComponentWithAnimation) => (
+                    {components.map((component: ComponentWithAnimations) => (
                       <div
                         key={component.id}
                         className="shrink-0"

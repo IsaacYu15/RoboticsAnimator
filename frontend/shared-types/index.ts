@@ -1,11 +1,10 @@
-export * from "./modules";
-export * from "./transitions";
-export * from "./animations";
-export * from "./states";
-export * from "./animation-event";
-export * from "./components";
+export * from "./models/modules";
+export * from "./models/animations";
+export * from "./models/components";
+export * from "./models/animation-events";
+export * from "./models/assets";
+
 export * from "./object";
-export * from "./assets";
 export * from "./esp";
 
 export type Point = {

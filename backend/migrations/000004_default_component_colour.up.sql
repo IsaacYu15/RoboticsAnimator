@@ -1,0 +1,2 @@
+ALTER TABLE components
+ALTER COLUMN colour SET DEFAULT '#4d4d4d';
