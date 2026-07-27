@@ -163,6 +163,7 @@ func (s *Server) handleUpdateComponent(w http.ResponseWriter, r *http.Request) {
 			respondError(w, http.StatusNotFound, "component not found")
 			return
 		}
+		slog.Error("update component", "error", err, "id", id)
 		respondError(w, http.StatusInternalServerError, "failed to update component")
 		return
 	}
