@@ -10,5 +10,5 @@ jobs:
       - name: Build and push the Image
         run: |
           docker login --username isaacyu15 --password ${{ secrets.GH_PAT }} ghcr.io
-          docker build . --tag ghcr.io/isaacyu15/robotics-animator-backend-ghcr:latest
+          docker build ./backend --tag ghcr.io/isaacyu15/robotics-animator-backend-ghcr:latest
           docker push ghcr.io/isaacyu15/robotics-animator-backend-ghcr:latest
